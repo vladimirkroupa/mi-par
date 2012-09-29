@@ -2,15 +2,18 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import cz.cvut.fit.par.kgm.statespace.AbstractStateSpaceNode;
 import cz.cvut.fit.par.kgm.statespace.StateSpaceNode;
-import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.Graph;
+import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.Edge;
+import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.UndirectedGraph;
 
-public class SpanningTreeNode extends AbstractStateSpaceNode<Graph> {
+public class SpanningTreeNode extends AbstractStateSpaceNode<UndirectedGraph> {
 
-	private final Graph graph;
+	private final UndirectedGraph graph;
 	
-	public SpanningTreeNode(Graph graph) {
+	public SpanningTreeNode(UndirectedGraph graph) {
 		this.graph = graph;
 	}
 
@@ -20,12 +23,19 @@ public class SpanningTreeNode extends AbstractStateSpaceNode<Graph> {
 	}
 
 	@Override
-	public List<StateSpaceNode<Graph>> expandStates() {
-		throw new UnsupportedOperationException("TODO");
+	public List<StateSpaceNode<UndirectedGraph>> expandStates() {
+		List<Edge> possibleEdges = graph.possibleEdges();
+		List<StateSpaceNode<UndirectedGraph>> expanded = Lists.newArrayListWithExpectedSize(possibleEdges.size());
+		
+		for (Edge edge : possibleEdges) {
+			UndirectedGraph newGraph = graph.connect(edge);
+			expanded.add(new SpanningTreeNode(newGraph));
+		}
+		return expanded;
 	}
 
 	@Override
-	public Graph state() {
+	public UndirectedGraph state() {
 		return graph;
 	}
 

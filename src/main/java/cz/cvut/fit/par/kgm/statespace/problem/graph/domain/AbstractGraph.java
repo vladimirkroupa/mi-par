@@ -1,6 +1,10 @@
 package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
-public abstract class AbstractGraph implements Graph {
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
+public abstract class AbstractGraph implements UndirectedGraph {
 
 	@Override
 	public int maxDegree() {
@@ -15,8 +19,18 @@ public abstract class AbstractGraph implements Graph {
 	}
 	
 	@Override
-	public boolean isSpanningTreeOf(Graph graph) {
-		throw new UnsupportedOperationException("Not implemented yet.");
+	public List<Edge> possibleEdges() {
+		List<Edge> edges = Lists.newArrayList(); 
+		
+		for (int vertexFrom = 1; vertexFrom < vertexCount(); vertexFrom++) {
+			for (int vertexTo = vertexFrom + 1; vertexTo < vertexCount(); vertexTo++) {
+				if (! areConnected(vertexFrom, vertexTo)) {
+					edges.add(new Edge(vertexFrom, vertexTo));
+				}
+			}
+		}
+		return edges;
 	}
+
 
 }

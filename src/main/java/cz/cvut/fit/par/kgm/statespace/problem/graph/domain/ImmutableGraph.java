@@ -2,11 +2,12 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
 import java.util.Scanner;
 
+
 /**
  * Undirected graph backed by adjacency matrix.
  *
  */
-//TODO: rozdelit interface na modifikace grafu a cteni
+//TODO: rozdelit interface na modifikace grafu a cteni?
 public class ImmutableGraph extends AbstractGraph {
 
 	private final boolean[][] adjacencyMatrix;
@@ -38,12 +39,12 @@ public class ImmutableGraph extends AbstractGraph {
 	}
 
 	@Override
-	public Graph connect(int vertexIndex1, int vertexIndex2) {
-		Graph playbackGraph = new PlaybackGraph(this);
-		playbackGraph.connect(vertexIndex1, vertexIndex2);
+	public UndirectedGraph connect(Edge edge) {
+		UndirectedGraph playbackGraph = new PlaybackGraph(this);
+		playbackGraph.connect(edge);
 		return playbackGraph;
 	}
-	
+
 	// TODO: validovat, redukovat na trojuhel asi ne
 	//TODO: validovat i po zmenach grafu
 	public static class Builder {
@@ -53,6 +54,7 @@ public class ImmutableGraph extends AbstractGraph {
 		public Builder(String adjacencyMatrixString) {
 			Scanner sc = new Scanner(adjacencyMatrixString);
 			if (! sc.hasNextLine()) {
+				sc.close();
 				throw new IllegalArgumentException("Vertex count missing on first line.");
 			}
 			String firstLine = sc.nextLine();
@@ -60,10 +62,12 @@ public class ImmutableGraph extends AbstractGraph {
 			adjacencyMatrix = new boolean[vertexCount][];
 			for (int rowI = 0; rowI < vertexCount; rowI++) {
 				if (! sc.hasNextLine()) {
+					sc.close();
 					throw new IllegalArgumentException("Adjacency matrix doesn't have number of rows expected.");
 				}
 				String line = sc.nextLine();
 				if (line.length() < vertexCount) {
+					sc.close();
 					throw new IllegalArgumentException("Adjacency matrix doesn't have number of columns expected.");
 				}
 				boolean[] adjMatrixRow = parseLine(line);
@@ -89,5 +93,6 @@ public class ImmutableGraph extends AbstractGraph {
 		}
 		
 	}
+
 
 }
