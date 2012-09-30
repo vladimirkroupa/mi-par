@@ -22,7 +22,7 @@ public abstract class AbstractGraph implements UndirectedGraph {
 	public List<Edge> possibleEdges() {
 		List<Edge> edges = Lists.newArrayList(); 
 		
-		for (int vertexFrom = 1; vertexFrom < vertexCount(); vertexFrom++) {
+		for (int vertexFrom = 0; vertexFrom < vertexCount(); vertexFrom++) {
 			for (int vertexTo = vertexFrom + 1; vertexTo < vertexCount(); vertexTo++) {
 				if (! areConnected(vertexFrom, vertexTo)) {
 					edges.add(new Edge(vertexFrom, vertexTo));

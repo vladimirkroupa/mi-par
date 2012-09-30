@@ -66,7 +66,7 @@ public class ImmutableGraph extends AbstractGraph {
 					throw new IllegalArgumentException("Adjacency matrix doesn't have number of rows expected.");
 				}
 				String line = sc.nextLine();
-				if (line.length() < vertexCount) {
+				if (line.trim().length() < vertexCount) {
 					sc.close();
 					throw new IllegalArgumentException("Adjacency matrix doesn't have number of columns expected.");
 				}
@@ -76,7 +76,7 @@ public class ImmutableGraph extends AbstractGraph {
 			sc.close();
 		}
 		
-		boolean[] parseLine(String line) {
+		private boolean[] parseLine(String line) {
 			boolean[] vector = new boolean[line.length()];
 			for (int index = 0; index < line.length(); index++) {
 				int number = Integer.parseInt(String.valueOf(line.charAt(index)));
