@@ -88,4 +88,15 @@ public class ImmutableGraphTest {
 		assertEquals(expected, actual);
 	}
 	
+	@Test
+	public void asString() {
+		String expected = 
+				"0101\n" +
+				"1011\n" +
+				"0100\n" +
+				"1100"; 
+		String actual = testObject.toString();
+		assertEquals(expected, actual);
+	}
+	
 }

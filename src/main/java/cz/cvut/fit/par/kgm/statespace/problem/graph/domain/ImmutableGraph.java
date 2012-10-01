@@ -3,6 +3,8 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 
 /**
  * Undirected graph backed by adjacency matrix.
@@ -113,7 +115,16 @@ public class ImmutableGraph extends AbstractGraph {
 
 	@Override
 	public String toString() {
-		return adjacencyMatrix.toString();
+		StringBuilder sb = new StringBuilder();
+		for (boolean[] cols : adjacencyMatrix) {
+			if (sb.length() != 0) {
+				sb.append(System.lineSeparator());
+			}
+			for (boolean element : cols) {
+				sb.append(BooleanUtils.toInteger(element));
+			}
+		}
+		return sb.toString();
 	}
 	
 }

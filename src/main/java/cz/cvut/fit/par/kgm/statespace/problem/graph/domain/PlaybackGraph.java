@@ -2,6 +2,8 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
 import java.util.List;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
@@ -64,6 +66,19 @@ public class PlaybackGraph extends AbstractGraph {
 				Objects.equal(this.toApply, other.toApply);
 	}
 
-	
+	@Override
+	public String toString() {
+		//TODO: optimalizovat
+		StringBuilder sb = new StringBuilder();
+		for (int rowI = 0; rowI < vertexCount(); rowI++) {
+			for (int colI = 0; colI < vertexCount(); colI++) {
+				sb.append(BooleanUtils.toInteger(areConnected(rowI, colI)));
+			}
+			if (rowI != vertexCount() - 1) {
+				sb.append(System.lineSeparator());
+			}
+		}
+		return sb.toString();
+	}
 	
 }

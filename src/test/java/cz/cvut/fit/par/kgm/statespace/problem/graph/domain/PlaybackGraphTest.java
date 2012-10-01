@@ -82,6 +82,17 @@ public class PlaybackGraphTest {
 		assertEquals(expected, actual);
 	}
 	
+	@Test
+	public void asString() {
+		String expected = 
+				"0111\n" +
+				"1001\n" +
+				"1000\n" +
+				"1100"; 
+		String actual = testObject.toString();
+		assertEquals(expected, actual);
+	}
+	
 }
 
 
