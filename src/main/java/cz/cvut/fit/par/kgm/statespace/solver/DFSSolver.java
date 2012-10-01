@@ -29,6 +29,9 @@ public class DFSSolver<T> {
 
 		while (! open.isEmpty()) {
 			StateSpaceNode<T> current = open.pop();
+			System.out.println("current graph: ");
+			System.out.println(current.state());
+			System.out.println("---------------");
 			if (referee.isSolution(current)) {
 				if (referee.isBestPossible(current)) {
 					return Optional.of(current);

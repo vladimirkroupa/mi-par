@@ -11,6 +11,9 @@ import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.UndirectedGraph;
 public abstract class TreeDFSVisitor {
 
 	public void goDFS(UndirectedGraph tree, int startingVertex) {
+		if ( true ) {
+			throw new UnsupportedOperationException("TODO: use node coloring!");
+		}
 		SimpleStack<Integer> open = new DequeueStackAdapter<Integer>();
 		open.push(startingVertex);
 		

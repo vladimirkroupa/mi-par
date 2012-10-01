@@ -80,8 +80,6 @@ public abstract class AbstractGraph implements UndirectedGraph {
 				boolean thisConnected = this.areConnected(rowI, colI);
 				boolean otherConnected = other.areConnected(rowI, colI);
 				if (thisConnected != otherConnected) {
-					System.out.println(String.format("%s is different from %s", this, obj));
-					System.out.println(String.format("Offending vertex at %s %s", rowI, colI));
 					return false;
 				}
 			}
