@@ -2,6 +2,7 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
 import java.util.List;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 public class PlaybackGraph extends AbstractGraph {
@@ -47,5 +48,22 @@ public class PlaybackGraph extends AbstractGraph {
 		toApply.add(edge);
 		return this;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(toApply, startingGraph);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		PlaybackGraph other = (PlaybackGraph) obj;
+		return Objects.equal(this.startingGraph, other.startingGraph) &&
+				Objects.equal(this.toApply, other.toApply);
+	}
+
+	
 	
 }

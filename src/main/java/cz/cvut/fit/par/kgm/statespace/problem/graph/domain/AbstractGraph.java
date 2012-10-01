@@ -32,5 +32,4 @@ public abstract class AbstractGraph implements UndirectedGraph {
 		return edges;
 	}
 
-
 }

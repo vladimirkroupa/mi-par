@@ -82,11 +82,6 @@ public class PlaybackGraphTest {
 		assertEquals(expected, actual);
 	}
 	
-	@Test
-	public void connect() {
-		throw new UnsupportedOperationException("TODO");
-	}
-	
 }
 
 

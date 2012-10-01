@@ -39,4 +39,9 @@ public class SpanningTreeNode extends AbstractStateSpaceNode<UndirectedGraph> {
 		return graph;
 	}
 
+	@Override
+	public String toString() {
+		return "Node with graph: " + graph.toString();
+	}
+
 }

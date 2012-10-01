@@ -2,8 +2,9 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph;
 
 import cz.cvut.fit.par.kgm.statespace.StateSpaceNode;
 import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.UndirectedGraph;
+import cz.cvut.fit.par.kgm.statespace.referee.SolutionReferee;
 
-public class SpanningTreeProblemReferee implements cz.cvut.fit.par.kgm.statespace.referee.SolutionReferee<UndirectedGraph> {
+public class SpanningTreeProblemReferee implements SolutionReferee<UndirectedGraph> {
 
 	private final SpanningTreeChecker spanningTreeChecker;
 	private UndirectedGraph originalGraph;
