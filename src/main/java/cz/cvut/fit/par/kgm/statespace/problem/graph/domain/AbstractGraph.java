@@ -2,6 +2,8 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
 import java.util.List;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import com.google.common.collect.Lists;
 
 public abstract class AbstractGraph implements UndirectedGraph {
@@ -32,4 +34,48 @@ public abstract class AbstractGraph implements UndirectedGraph {
 		return edges;
 	}
 
+	@Override
+	public int hashCode() {
+		List<Boolean> unique = Lists.newArrayList();
+		for (int rowI = 0; rowI < vertexCount(); rowI++) {
+			for (int colI = rowI; colI < vertexCount(); colI++) {
+				unique.add(areConnected(rowI, colI));
+			}
+		}
+		return unique.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (! (obj instanceof UndirectedGraph) ) return false;
+		UndirectedGraph other = (UndirectedGraph) obj;
+		for (int rowI = 0; rowI < vertexCount(); rowI++) {
+			for (int colI = rowI; colI < vertexCount(); colI++) {
+				boolean thisConnected = this.areConnected(rowI, colI);
+				boolean otherConnected = other.areConnected(rowI, colI);
+				if (thisConnected != otherConnected) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		//TODO: optimalizovat
+		StringBuilder sb = new StringBuilder();
+		for (int rowI = 0; rowI < vertexCount(); rowI++) {
+			for (int colI = 0; colI < vertexCount(); colI++) {
+				sb.append(BooleanUtils.toInteger(areConnected(rowI, colI)));
+			}
+			if (rowI != vertexCount() - 1) {
+				sb.append(System.lineSeparator());
+			}
+		}
+		return sb.toString();
+	}
+	
+	
 }

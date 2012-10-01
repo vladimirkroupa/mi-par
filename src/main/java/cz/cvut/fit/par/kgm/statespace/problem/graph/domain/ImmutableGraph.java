@@ -1,9 +1,6 @@
 package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
-import java.util.Arrays;
 import java.util.Scanner;
-
-import org.apache.commons.lang3.BooleanUtils;
 
 
 /**
@@ -97,34 +94,4 @@ public class ImmutableGraph extends AbstractGraph {
 		
 	}
 
-	@Override
-	public int hashCode() {
-		return Arrays.deepHashCode(adjacencyMatrix);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		ImmutableGraph other = (ImmutableGraph) obj;
-		if (! Arrays.deepEquals(adjacencyMatrix, other.adjacencyMatrix))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (boolean[] cols : adjacencyMatrix) {
-			if (sb.length() != 0) {
-				sb.append(System.lineSeparator());
-			}
-			for (boolean element : cols) {
-				sb.append(BooleanUtils.toInteger(element));
-			}
-		}
-		return sb.toString();
-	}
-	
 }
