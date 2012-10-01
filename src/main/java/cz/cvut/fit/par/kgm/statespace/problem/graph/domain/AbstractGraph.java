@@ -6,7 +6,21 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import com.google.common.collect.Lists;
 
+import cz.cvut.fit.par.kgm.statespace.problem.graph.CrudeSpanningTreeChecker;
+import cz.cvut.fit.par.kgm.statespace.problem.graph.SpanningTreeChecker;
+
 public abstract class AbstractGraph implements UndirectedGraph {
+
+	@Override
+	public List<Integer> adjacent(int toVertex) {
+		List<Integer> adjacent = Lists.newArrayList();
+		for (int candidate = 0; candidate < vertexCount(); candidate++) {
+			if (areConnected(candidate, toVertex)) {
+				adjacent.add(candidate);
+			}
+		}
+		return adjacent;
+	}
 
 	@Override
 	public int maxDegree() {
@@ -21,6 +35,11 @@ public abstract class AbstractGraph implements UndirectedGraph {
 	}
 	
 	@Override
+	public boolean contains(Edge edge) {
+		return areConnected(edge.vertex1, edge.vertex2);
+	}
+
+	@Override
 	public List<Edge> possibleEdges() {
 		List<Edge> edges = Lists.newArrayList(); 
 		
@@ -32,6 +51,12 @@ public abstract class AbstractGraph implements UndirectedGraph {
 			}
 		}
 		return edges;
+	}
+
+	@Override
+	public boolean isSpanningTreeOf(UndirectedGraph graph) {
+		SpanningTreeChecker checker = new CrudeSpanningTreeChecker();
+		return checker.isSpanningTreeOf(this, graph);
 	}
 
 	@Override
@@ -55,6 +80,8 @@ public abstract class AbstractGraph implements UndirectedGraph {
 				boolean thisConnected = this.areConnected(rowI, colI);
 				boolean otherConnected = other.areConnected(rowI, colI);
 				if (thisConnected != otherConnected) {
+					System.out.println(String.format("%s is different from %s", this, obj));
+					System.out.println(String.format("Offending vertex at %s %s", rowI, colI));
 					return false;
 				}
 			}

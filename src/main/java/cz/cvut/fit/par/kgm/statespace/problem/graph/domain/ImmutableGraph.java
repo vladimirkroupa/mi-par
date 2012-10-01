@@ -16,6 +16,16 @@ public class ImmutableGraph extends AbstractGraph {
 		this.adjacencyMatrix = graphBuilder.adjacencyMatrix;
 	}
 	
+	public ImmutableGraph(int size) {
+		adjacencyMatrix = new boolean[size][];
+		for (int rowI = 0; rowI < size; rowI++) {
+			adjacencyMatrix[rowI] = new boolean[size];
+			for (int colI = 0; colI < size; colI++) {
+				adjacencyMatrix[rowI][colI] = false;
+			}
+		}
+	}
+	
 	@Override
 	public int vertexCount() {
 		return adjacencyMatrix.length;
@@ -40,9 +50,7 @@ public class ImmutableGraph extends AbstractGraph {
 
 	@Override
 	public UndirectedGraph connect(Edge edge) {
-		UndirectedGraph playbackGraph = new PlaybackGraph(this);
-		playbackGraph.connect(edge);
-		return playbackGraph;
+		return new PlaybackGraph(this, edge);
 	}
 
 	// TODO: validovat, redukovat na trojuhel asi ne

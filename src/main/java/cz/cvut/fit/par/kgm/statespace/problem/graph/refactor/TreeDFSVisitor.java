@@ -4,13 +4,12 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import cz.cvut.fit.par.kgm.common.DequeueStackAdapter;
 import cz.cvut.fit.par.kgm.common.SimpleStack;
 import cz.cvut.fit.par.kgm.statespace.problem.graph.domain.UndirectedGraph;
-import cz.cvut.fit.par.kgm.statespace.stack.DequeueStackAdapter;
 
 public abstract class TreeDFSVisitor {
 
-	// TODO: detekce zacykleni
 	public void goDFS(UndirectedGraph tree, int startingVertex) {
 		SimpleStack<Integer> open = new DequeueStackAdapter<Integer>();
 		open.push(startingVertex);

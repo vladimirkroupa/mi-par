@@ -1,5 +1,6 @@
 package cz.cvut.fit.par.kgm.statespace.stack;
 
+import cz.cvut.fit.par.kgm.common.DequeueStackAdapter;
 import cz.cvut.fit.par.kgm.common.SimpleStack;
 import cz.cvut.fit.par.kgm.statespace.StateSpaceNode;
 

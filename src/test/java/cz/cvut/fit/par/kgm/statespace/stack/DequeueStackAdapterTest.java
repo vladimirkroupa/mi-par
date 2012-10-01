@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 
+import cz.cvut.fit.par.kgm.common.DequeueStackAdapter;
+
 public class DequeueStackAdapterTest {
 
 	private DequeueStackAdapter<String> testObject;

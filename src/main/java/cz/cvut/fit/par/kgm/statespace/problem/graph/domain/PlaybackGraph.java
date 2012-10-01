@@ -1,17 +1,14 @@
 package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
 
 public class PlaybackGraph extends AbstractGraph {
 
 	private final UndirectedGraph startingGraph;
-	private List<Edge> toApply;
+	private final Edge toApply;
 
-	public PlaybackGraph(UndirectedGraph baseGraph) {
+	public PlaybackGraph(UndirectedGraph baseGraph, Edge toApply) {
 		this.startingGraph = baseGraph;
-		toApply = Lists.newArrayList();
+		this.toApply = toApply;
 	}
 
 	@Override
@@ -22,31 +19,25 @@ public class PlaybackGraph extends AbstractGraph {
 	@Override
 	public int degreeOf(int vertexIndex) {
 		int degreeFromOrig = startingGraph.degreeOf(vertexIndex);
-		int degreeFromNew = 0;
-		for (Edge edge : toApply) {
-			if (edge.connects(vertexIndex)) {
-				degreeFromNew++;
-			}
+		int degreeFromExtraEdge = 0;
+		if (toApply != null) {
+			degreeFromExtraEdge = toApply.connects(vertexIndex) ? 1 : 0;
 		}
-		return degreeFromOrig + degreeFromNew;
+		return degreeFromOrig + degreeFromExtraEdge;
 	}
 	
 	@Override
 	public boolean areConnected(int vertexIndex1, int vertexIndex2) {
 		Edge hypotheticalEdge = new Edge(vertexIndex1, vertexIndex2);
-		for (Edge edge : toApply) {
-			if (edge.equals(hypotheticalEdge)) {
-				return true;
-			}
+		if (hypotheticalEdge.equals(toApply)) {
+			return true;
 		}
 		return startingGraph.areConnected(vertexIndex1, vertexIndex2);
 	}
 
 	@Override
 	public UndirectedGraph connect(Edge edge) {
-		toApply.add(edge);
-		return this;
+		return new PlaybackGraph(this, edge);
 	}
-
 	
 }

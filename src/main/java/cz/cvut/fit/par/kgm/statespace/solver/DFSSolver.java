@@ -25,7 +25,7 @@ public class DFSSolver<T> {
 	}
 	
 	public Optional<StateSpaceNode<T>> findBestSolution() {
-		Preconditions.checkNotNull(! open.isEmpty());
+		Preconditions.checkArgument(! open.isEmpty());
 
 		while (! open.isEmpty()) {
 			StateSpaceNode<T> current = open.pop();
@@ -33,12 +33,12 @@ public class DFSSolver<T> {
 				if (referee.isBestPossible(current)) {
 					return Optional.of(current);
 				}
-				if (referee.betterThan(current, solutionHolder.bestSoFar())) {
+				if (! solutionHolder.exists() || referee.betterThan(current, solutionHolder.bestSoFar())) {
 					solutionHolder.replaceBest(current);
 				}
 			} else {
 				for (StateSpaceNode<T> expanded : current.expandStates()) {
-					if (referee.betterThan(solutionHolder.bestSoFar(), expanded)) {
+					if (! solutionHolder.exists() || referee.betterThan(expanded, solutionHolder.bestSoFar())) {
 						open.push(expanded);
 					}
 				}
