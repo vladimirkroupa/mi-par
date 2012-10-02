@@ -17,7 +17,7 @@ public class SpanningTreeProblemNode extends AbstractStateSpaceNode<UndirectedGr
 	
 	// TODO: necitelne konstuktory
 	public SpanningTreeProblemNode(UndirectedGraph originalGraph) {
-		this.tree = new ImmutableGraph(originalGraph.vertexCount());
+		this.tree = new ImmutableGraph(new ImmutableGraph.Builder(originalGraph.vertexCount()));
 		this.originalGraph = originalGraph;
 	}
 	
@@ -37,6 +37,7 @@ public class SpanningTreeProblemNode extends AbstractStateSpaceNode<UndirectedGr
 		List<Edge> possibleEdges = tree.possibleEdges();
 		List<StateSpaceNode<UndirectedGraph>> expanded = Lists.newArrayListWithExpectedSize(possibleEdges.size());
 		
+		// TODO: nevyrabi pouze stromy
 		for (Edge edge : possibleEdges) {
 			if (originalGraph.contains(edge)) {
 				UndirectedGraph newGraph = tree.connect(edge);

@@ -9,9 +9,6 @@ public class CrudeSpanningTreeChecker implements SpanningTreeChecker {
 	public boolean isSpanningTreeOf(UndirectedGraph tree, UndirectedGraph graph) {
 		VertexCountingVisitor visitor = new VertexCountingVisitor();
 		visitor.goDFS(tree, 0); // start from 0
-		if (visitor.cycleFound()) {
-			return false;
-		}
 		int treeVertices = visitor.result();
 		return (graph.vertexCount() == treeVertices);
 	}

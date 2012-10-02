@@ -2,6 +2,8 @@ package cz.cvut.fit.par.kgm.statespace.problem.graph.domain;
 
 import java.util.Scanner;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * Undirected graph backed by adjacency matrix.
@@ -14,16 +16,6 @@ public class ImmutableGraph extends AbstractGraph {
 	
 	public ImmutableGraph(Builder graphBuilder) {
 		this.adjacencyMatrix = graphBuilder.adjacencyMatrix;
-	}
-	
-	public ImmutableGraph(int size) {
-		adjacencyMatrix = new boolean[size][];
-		for (int rowI = 0; rowI < size; rowI++) {
-			adjacencyMatrix[rowI] = new boolean[size];
-			for (int colI = 0; colI < size; colI++) {
-				adjacencyMatrix[rowI][colI] = false;
-			}
-		}
 	}
 	
 	@Override
@@ -82,6 +74,25 @@ public class ImmutableGraph extends AbstractGraph {
 				adjacencyMatrix[rowI] = adjMatrixRow;
 			}
 			sc.close();
+		}
+		
+		public Builder(int size) {
+			adjacencyMatrix = new boolean[size][];
+			for (int rowI = 0; rowI < size; rowI++) {
+				adjacencyMatrix[rowI] = new boolean[size];
+				for (int colI = 0; colI < size; colI++) {
+					adjacencyMatrix[rowI][colI] = false;
+				}
+			}
+		}
+		
+		public Builder withEdge(int vertex1, int vertex2) {
+			Preconditions.checkArgument(vertex1 < adjacencyMatrix.length);
+			Preconditions.checkArgument(vertex2 < adjacencyMatrix.length);
+			
+			adjacencyMatrix[vertex1][vertex2] = true;
+			adjacencyMatrix[vertex2][vertex1] = true;
+			return this;
 		}
 		
 		private boolean[] parseLine(String line) {

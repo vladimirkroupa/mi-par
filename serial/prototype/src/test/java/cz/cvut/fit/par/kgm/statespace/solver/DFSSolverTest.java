@@ -25,13 +25,10 @@ private DFSSolver<UndirectedGraph> testObject;
 	private static final UndirectedGraph INPUT_GRAPH;
 	
 	static {
-		String problem = 	
-				"4\n" +
-				"0101\n" +
-				"1011\n" +
-				"0100\n" +
-				"1100"; 	
-		INPUT_GRAPH = new ImmutableGraph(new ImmutableGraph.Builder(problem));
+		INPUT_GRAPH = new ImmutableGraph(
+				new ImmutableGraph.Builder(4)
+				.withEdge(0, 1).withEdge(0, 3).withEdge(1, 2).withEdge(1, 3)
+				);
 	}		
 	
 
@@ -47,21 +44,19 @@ private DFSSolver<UndirectedGraph> testObject;
 	
 	@Test
 	public void findBestSolution() {
-		String exp1 = 	
-				"4\n" +
-				"0111\n" +
-				"1011\n" +
-				"1100\n" +
-				"1100";
-		String exp2 = 	
-				"4\n" +
-				"0101\n" +
-				"1011\n" +
-				"0101\n" +
-				"1110";		
-		UndirectedGraph exp1Graph = new ImmutableGraph(new ImmutableGraph.Builder(exp1));
-		UndirectedGraph exp2Graph = new ImmutableGraph(new ImmutableGraph.Builder(exp2));
-		List<UndirectedGraph> possible = Lists.newArrayList(exp1Graph, exp2Graph);
+		UndirectedGraph exp1Graph = new ImmutableGraph(
+				new ImmutableGraph.Builder(4)
+				.withEdge(0, 1).withEdge(0, 3).withEdge(1, 2)
+				);
+		UndirectedGraph exp2Graph = new ImmutableGraph(
+				new ImmutableGraph.Builder(4)
+				.withEdge(0, 3).withEdge(1, 2).withEdge(1, 3)
+				);
+		UndirectedGraph exp3Graph = new ImmutableGraph(
+				new ImmutableGraph.Builder(4)
+				.withEdge(1, 0).withEdge(1, 3).withEdge(1, 2)
+				);
+		List<UndirectedGraph> possible = Lists.newArrayList(exp1Graph, exp2Graph, exp3Graph);
 		
 		UndirectedGraph actual = testObject.findBestSolution().get().state();
 		assertThat(possible).contains(actual);
