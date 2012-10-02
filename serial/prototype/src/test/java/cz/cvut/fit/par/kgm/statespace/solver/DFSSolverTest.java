@@ -31,7 +31,6 @@ private DFSSolver<UndirectedGraph> testObject;
 				);
 	}		
 	
-
 	@Before
 	public void init() {
 		final SolutionReferee<UndirectedGraph> referee = new SpanningTreeProblemReferee(INPUT_GRAPH);
