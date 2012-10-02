@@ -42,7 +42,7 @@ public class ImmutableGraph extends AbstractGraph {
 
 	@Override
 	public UndirectedGraph connect(Edge edge) {
-		return new PlaybackGraph(this, edge);
+		return new EdgeDecoratedGraph(this, edge);
 	}
 
 	// TODO: validovat, redukovat na trojuhel asi ne
