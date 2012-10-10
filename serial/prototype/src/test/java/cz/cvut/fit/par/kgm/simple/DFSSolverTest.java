@@ -1,11 +1,6 @@
 package cz.cvut.fit.par.kgm.simple;
 
-import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,26 +26,18 @@ public class DFSSolverTest {
 	
 	@Test
 	public void findBestSolution() {
-		SpanningTree exp1 = new SpanningTree();
-		exp1.addEdge(new Edge(0, 1));
-		exp1.addEdge(new Edge(0, 3));
-		exp1.addEdge(new Edge(1, 2));
+		SpanningTree expected = new SpanningTree();
+		expected.addEdge(new Edge(1, 2));
+		expected.addEdge(new Edge(1, 3));
+		expected.addEdge(new Edge(4, 5));
+		expected.addEdge(new Edge(4, 6));
 		
-		SpanningTree exp2 = new SpanningTree();
-		exp2.addEdge(new Edge(0, 1));
-		exp2.addEdge(new Edge(1, 3));
-		exp2.addEdge(new Edge(1, 2));
+		expected.addEdge(new Edge(0, 1));
+		expected.addEdge(new Edge(0, 4));
 		
-		SpanningTree exp3 = new SpanningTree();
-		exp3.addEdge(new Edge(0, 3));
-		exp3.addEdge(new Edge(1, 2));
-		exp3.addEdge(new Edge(1, 3));
-		
-		List<SpanningTree> possible = new ArrayList<>();
-		possible.addAll(Arrays.asList(exp1, exp2, exp3));
 		
 		SpanningTree actual = testObject.findBestSolution();
-		assertThat(possible).contains(actual);
+		assertThat(actual).isEqualTo(expected);
 	}
 	
 }

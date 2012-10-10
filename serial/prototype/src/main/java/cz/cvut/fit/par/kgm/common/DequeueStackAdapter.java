@@ -16,10 +16,6 @@ public class DequeueStackAdapter<T> implements SimpleStack<T> {
 		this.dequeue = new ArrayDeque<>();
 	}
 
-	public DequeueStackAdapter(Deque<T> dequeue) {
-		this.dequeue = dequeue;
-	}
-
 	@Override
 	public void push(T item) {
 		dequeue.addFirst(item);
@@ -38,6 +34,16 @@ public class DequeueStackAdapter<T> implements SimpleStack<T> {
 	@Override
 	public boolean isEmpty() {
 		return dequeue.isEmpty();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder accum = new StringBuilder();
+		for (T elem : dequeue) {
+			accum.append(String.format("| %d |", elem));
+			accum.append(System.lineSeparator());
+		}
+		return accum.toString();
 	}
 
 }

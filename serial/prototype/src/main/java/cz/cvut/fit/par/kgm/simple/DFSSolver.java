@@ -19,7 +19,7 @@ public class DFSSolver {
 	
 	public DFSSolver(UndirectedGraph graph) {
 		this.graph = graph;
-		open = new DequeueStackAdapter<>();
+		open = new DequeueStackAdapter<SpanningTree>();
 	}
 
 	public SpanningTree findBestSolution() {
@@ -35,7 +35,7 @@ public class DFSSolver {
 //			System.out.println("---------------");
 			
 			if (isSolution(current)) {
-				System.out.println("spanning tree:");
+				System.out.println("found spanning tree:");
 				System.out.println(current);
 				System.out.println("degree: " + evaluate(current));
 				System.out.println("---------------");
