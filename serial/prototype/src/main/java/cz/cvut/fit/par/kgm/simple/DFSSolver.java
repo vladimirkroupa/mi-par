@@ -30,11 +30,15 @@ public class DFSSolver {
 		while (! open.isEmpty()) {
 			SpanningTree current = open.pop();
 
-			System.out.println("current tree:");
-			System.out.println(current);
-			System.out.println("---------------");
+//			System.out.println("current tree:");
+//			System.out.println(current);
+//			System.out.println("---------------");
 			
 			if (isSolution(current)) {
+				System.out.println("spanning tree:");
+				System.out.println(current);
+				System.out.println("degree: " + evaluate(current));
+				System.out.println("---------------");
 				if (isBestPossible(current)) {
 					return current;
 				}
@@ -77,9 +81,10 @@ public class DFSSolver {
 	}
 	
 	List<Edge> edgeCandidates(SpanningTree tree, UndirectedGraph graph) {
+		// zoptimalizovat - prochazet kostru a zkouset v grafu neni hrana k pripojeni
 		List<Edge> candidates = new ArrayList<>();
 		for (Edge edge : graph.edges()) {
-			if (tree.containsOnlyOneVertexOf(edge) && ! candidates.contains(edge)) {
+			if (tree.containsOnlyOneVertexOf(edge)) {
 				candidates.add(edge);
 			}
 		}

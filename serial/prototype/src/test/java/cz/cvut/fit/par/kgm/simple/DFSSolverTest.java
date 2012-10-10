@@ -18,8 +18,9 @@ public class DFSSolverTest {
 	
 	static {
 		INPUT_GRAPH = new UndirectedGraph(
-				new GraphBuilder(4)
-				.withEdge(0, 1).withEdge(0, 3).withEdge(1, 2).withEdge(1, 3)
+				new GraphBuilder(7)
+				.withEdge(0, 1).withEdge(1, 2).withEdge(1, 3).withEdge(0, 4).withEdge(1, 4)
+				.withEdge(4, 5).withEdge(4, 6)
 				);
 	}		
 	
@@ -34,19 +35,16 @@ public class DFSSolverTest {
 		exp1.addEdge(new Edge(0, 1));
 		exp1.addEdge(new Edge(0, 3));
 		exp1.addEdge(new Edge(1, 2));
-		assertTrue(testObject.isSolution(exp1));
 		
 		SpanningTree exp2 = new SpanningTree();
 		exp2.addEdge(new Edge(0, 1));
 		exp2.addEdge(new Edge(1, 3));
 		exp2.addEdge(new Edge(1, 2));
-		assertTrue(testObject.isSolution(exp2));
 		
 		SpanningTree exp3 = new SpanningTree();
 		exp3.addEdge(new Edge(0, 3));
 		exp3.addEdge(new Edge(1, 2));
 		exp3.addEdge(new Edge(1, 3));
-		assertTrue(testObject.isSolution(exp3));
 		
 		List<SpanningTree> possible = new ArrayList<>();
 		possible.addAll(Arrays.asList(exp1, exp2, exp3));
