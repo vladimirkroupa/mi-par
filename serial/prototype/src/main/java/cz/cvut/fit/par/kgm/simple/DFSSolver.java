@@ -23,21 +23,20 @@ public class DFSSolver {
 	}
 
 	public SpanningTree findBestSolution() {
-		for (SpanningTree state : initialStates()) {
-			open.push(state);			
-		}
+		open.push(new SpanningTree());			
 
 		while (! open.isEmpty()) {
 			SpanningTree current = open.pop();
 
-//			System.out.println("current tree:");
-//			System.out.println(current);
-//			System.out.println("---------------");
+			System.out.println("current tree:");
+			System.out.println(current);
+			System.out.println("---------------");
 			
 			if (isSolution(current)) {
-				System.out.println("found spanning tree:");
-				System.out.println(current);
-				System.out.println("degree: " + evaluate(current));
+				System.out.println(String.format("found spanning tree with degree %d", evaluate(current)));
+//				System.out.println(current);
+//				System.out.println("degree: " + evaluate(current));
+				System.out.println("---------------");
 				System.out.println("---------------");
 				if (isBestPossible(current)) {
 					return current;
@@ -60,15 +59,6 @@ public class DFSSolver {
 		return null;
 	}
 	
-	List<SpanningTree> initialStates() {
-		// TODO
-		List<SpanningTree> result = new ArrayList<>();
-		SpanningTree tree = new SpanningTree();
-		tree.addEdge(graph.edges().get(0));
-		result.add(tree);
-		return result;
-	}
-	
 	List<SpanningTree> expand(SpanningTree state) {
 		List<SpanningTree> result = new ArrayList<>();
 		List<Edge> possibleEdges = edgeCandidates(state, graph);
@@ -81,6 +71,19 @@ public class DFSSolver {
 	}
 	
 	List<Edge> edgeCandidates(SpanningTree tree, UndirectedGraph graph) {
+		if (tree.edgeCount() == 0) {
+			return firstEdgeCandidates(graph);
+		} else {
+			return edgeCandidatesForTree(tree, graph);
+		}
+	}
+	
+	List<Edge> firstEdgeCandidates(UndirectedGraph graph) {
+		int vertex = 0;
+		return graph.edgesAdjacentTo(vertex);
+	}
+	
+	List<Edge> edgeCandidatesForTree(SpanningTree tree, UndirectedGraph graph) {
 		// zoptimalizovat - prochazet kostru a zkouset v grafu neni hrana k pripojeni
 		List<Edge> candidates = new ArrayList<>();
 		for (Edge edge : graph.edges()) {
