@@ -27,17 +27,9 @@ public class DFSSolver {
 
 		while (! open.isEmpty()) {
 			SpanningTree current = open.pop();
-
-			System.out.println("current tree:");
-			System.out.println(current);
-			System.out.println("---------------");
-			
+			printCurrent(current);
 			if (isSolution(current)) {
-				System.out.println(String.format("found spanning tree with degree %d", evaluate(current)));
-//				System.out.println(current);
-//				System.out.println("degree: " + evaluate(current));
-				System.out.println("---------------");
-				System.out.println("---------------");
+				printSpanningTree(current);
 				if (isBestPossible(current)) {
 					return current;
 				}
@@ -57,6 +49,19 @@ public class DFSSolver {
 			return best;
 		}
 		return null;
+	}
+	
+	void printSpanningTree(SpanningTree tree) {
+		System.out.println(String.format("found spanning tree with degree %d", evaluate(tree)));
+		System.out.println("-----------------");
+		System.out.println("-----------------");
+		
+	}
+	
+	void printCurrent(SpanningTree tree) {
+		System.out.println("current tree:");
+		System.out.println(tree);
+		System.out.println("---------------");
 	}
 	
 	List<SpanningTree> expand(SpanningTree state) {
