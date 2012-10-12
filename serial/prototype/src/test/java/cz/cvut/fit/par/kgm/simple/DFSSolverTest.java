@@ -2,6 +2,9 @@ package cz.cvut.fit.par.kgm.simple;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,17 +29,17 @@ public class DFSSolverTest {
 	
 	@Test
 	public void findBestSolution() {
-		SpanningTree expected = new SpanningTree();
-		expected.addEdge(new Edge(1, 2));
-		expected.addEdge(new Edge(1, 3));
-		expected.addEdge(new Edge(4, 5));
-		expected.addEdge(new Edge(4, 6));
+		List<Edge> expected = new ArrayList<Edge>();
+		expected.add(new Edge(1, 2));
+		expected.add(new Edge(1, 3));
+		expected.add(new Edge(4, 5));
+		expected.add(new Edge(4, 6));
 		
-		expected.addEdge(new Edge(0, 1));
-		expected.addEdge(new Edge(0, 4));
+		expected.add(new Edge(0, 1));
+		expected.add(new Edge(0, 4));
 		
 		
-		SpanningTree actual = testObject.findBestSolution();
+		List<Edge> actual = testObject.findBestSolution().asList();
 		assertThat(actual).isEqualTo(expected);
 	}
 	

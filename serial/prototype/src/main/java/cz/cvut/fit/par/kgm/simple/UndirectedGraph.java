@@ -3,6 +3,8 @@ package cz.cvut.fit.par.kgm.simple;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.cvut.fit.par.kgm.common.SimpleList;
+
 
 public class UndirectedGraph {
 
@@ -16,19 +18,39 @@ public class UndirectedGraph {
 		return adjacencyMatrix.length;
 	}
 	
-	public int degreeOf(int vertexIndex) {
-		int rowI = vertexIndex;
-		int degree = 0;
-		for (int colI = 0; colI < vertexCount(); colI++) {
-			if (adjacencyMatrix[rowI][colI]) {
-				degree++;
+	public List<Edge> edgeCandidates(SimpleList<Edge> tree, int[] vertexDegrees) {
+		boolean[][] adjacencyCopy = copyArray(adjacencyMatrix);
+		for (int i = 0; i < tree.size(); i++) {
+			Edge edge = tree.get(i);
+			adjacencyCopy[edge.vertex1][edge.vertex2] = false;
+			adjacencyCopy[edge.vertex2][edge.vertex1] = false;
+		}
+		
+		List<Edge> newEdges = new ArrayList<Edge>();
+		for (int vertexFrom = 0; vertexFrom < vertexCount(); vertexFrom++) {
+			if (vertexDegrees[vertexFrom] == 0) {
+				continue;
+			}
+			for (int vertexTo = 0; vertexTo < vertexCount(); vertexTo++) {
+				if (vertexDegrees[vertexTo] != 0) {
+					continue;
+				}
+				if (adjacencyCopy[vertexFrom][vertexTo] == true) {
+					newEdges.add(new Edge(vertexFrom, vertexTo));
+				}
 			}
 		}
-		return degree;
+		
+		return newEdges;
 	}
-
-	public boolean contains(Edge edge) {
-		return areConnected(edge.vertex1, edge.vertex2);
+	
+	boolean[][] copyArray(boolean[][] original) {
+		boolean[][] copy = new boolean[original.length][]; 
+		for (int i = 0; i < original.length; i++) {
+			copy[i] = new boolean[original.length];
+			System.arraycopy(original, 0, copy, 0, original.length);
+		}
+		return copy;
 	}
 	
 	public boolean areConnected(int vertexIndex1, int vertexIndex2) {
@@ -44,27 +66,5 @@ public class UndirectedGraph {
 		}
 		return edges;
 	}
-	
-	public List<Edge> edgeCandidates(SpanningTree tree) {
-		boolean[] vertices = new boolean[vertexCount()];
-		for (Edge edge : tree.edges()) {
-			vertices[edge.vertex1] = true;
-			vertices[edge.vertex2] = true;
-		}
-		throw new UnsupportedOperationException("TODO");
-	}
-
-	public List<Edge> edges() {
-		List<Edge> edges = new ArrayList<>();
-		for (int vert1 = 0; vert1 < vertexCount(); vert1++) {
-			for (int vert2 = vert1 + 1; vert2 < vertexCount(); vert2++) {
-				if (areConnected(vert1, vert2)) {
-					edges.add(new Edge(vert1, vert2));
-				}
-			}
-		}
-		return edges;
-	}
-	
 	
 }
