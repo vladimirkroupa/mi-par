@@ -13,13 +13,16 @@ class UndirectedGraph {
 public:
 	UndirectedGraph(int size);
 	~UndirectedGraph();
+	void addEdge(int vertex1, int vertex2);
 	const int vertexCount();
-	bool areConnected(int vertexIndex1, int vertexIndex2);	
+	bool areConnected(int vertex1, int vertex2);	
 	std::vector<Edge> * edgesAdjacentTo(int vertex);
 	std::vector<Edge> * edgeCandidates(const std::vector<Edge> & tree, int vertexDegrees[]);
 private:
 	int matrixSize;
-	bool** adjacencyMatrix;
+	bool ** adjacencyMatrix;
+	bool ** initMatrix(int size);
+	bool ** copyMatrix(bool ** original, int size);
 };
 
 #endif	/* UNDIRECTEDGRAPH_H */

@@ -4,12 +4,12 @@
 
 #include "DFSSolver.h"
 
-DFSSolver::DFSSolver(/*UndirectedGraph * graph*/) {
-	this->graph = graph;
+DFSSolver::DFSSolver(UndirectedGraph * graph) {
+	graph = graph;
 	
 	edgeStack = new std::stack<Edge>();
 	bestPrice = 0;
-	best;
+	best = 0;
 		
 	spanningTree = std::vector<Edge>();
 	int vertices = graph->vertexCount();
@@ -18,8 +18,9 @@ DFSSolver::DFSSolver(/*UndirectedGraph * graph*/) {
 
 DFSSolver::~DFSSolver() {
 	delete graph;
-	delete edgeStack;
+	delete edgeStack;	
 	delete [] vertexDegrees;
+	delete best;
 }
 
 void DFSSolver::addEdge(Edge edge) {

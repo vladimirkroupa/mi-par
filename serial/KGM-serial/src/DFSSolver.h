@@ -10,7 +10,7 @@
 
 class DFSSolver {
 public:
-	DFSSolver(/*UndirectedGraph * graph*/);
+	DFSSolver(UndirectedGraph * graph);
 	virtual ~DFSSolver();
 	std::vector<Edge> * findBestSolution();
 private:

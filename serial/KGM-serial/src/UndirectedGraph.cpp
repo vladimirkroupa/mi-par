@@ -5,27 +5,6 @@
 
 #include "UndirectedGraph.h"
 
-bool** initMatrix(int size) {
-	bool** matrix = new bool* [size];
-	for (int i = 0; i < size; i++) {
-		matrix[i] = new bool[size];
-		for (int j = 0; j < size; j++) {
-			matrix[i][j] = false;
-		}
-	}
-	return matrix;
-}
-
-bool** copyMatrix(bool ** original, int size) {
-	bool** copy = initMatrix(size);
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			copy[i][j] = original[i][j];
-		}
-	}
-	return copy;
-}
-
 UndirectedGraph::UndirectedGraph(int size) {
 	this->matrixSize = size;
 	this->adjacencyMatrix = initMatrix(size);
@@ -38,12 +17,17 @@ UndirectedGraph::~UndirectedGraph() {
 	delete [] adjacencyMatrix;
 }
 
+void UndirectedGraph::addEdge(int vertex1, int vertex2) {
+	adjacencyMatrix[vertex1][vertex2] = true;
+	adjacencyMatrix[vertex2][vertex1] = true;
+}
+
 const int UndirectedGraph::vertexCount() {
 	return this->matrixSize;
 }
 
-bool UndirectedGraph::areConnected(int vertexIndex1, int vertexIndex2) {
-	return this->adjacencyMatrix[vertexIndex1][vertexIndex2];
+bool UndirectedGraph::areConnected(int vertex1, int vertex2) {
+	return this->adjacencyMatrix[vertex1][vertex2];
 }
 
 std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
@@ -82,3 +66,23 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(const std::vector<Edge> & tr
 	return newEdges;
 }
 
+bool** UndirectedGraph::initMatrix(int size) {
+	bool** matrix = new bool* [size];
+	for (int i = 0; i < size; i++) {
+		matrix[i] = new bool[size];
+		for (int j = 0; j < size; j++) {
+			matrix[i][j] = false;
+		}
+	}
+	return matrix;
+}
+
+bool** UndirectedGraph::copyMatrix(bool ** original, int size) {
+	bool** copy = initMatrix(size);
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			copy[i][j] = original[i][j];
+		}
+	}
+	return copy;
+}
