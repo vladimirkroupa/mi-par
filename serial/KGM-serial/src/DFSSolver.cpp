@@ -75,10 +75,10 @@ std::vector<Edge> * DFSSolver::findBestSolution() {
 	return 0;
 }
 
-void DFSSolver::addEdge(Edge edge) {
-	spanningTree->push_back(edge);
+void DFSSolver::addEdge(Edge edge) {	
 	vertexDegrees[edge.vertex1]++;
 	vertexDegrees[edge.vertex2]++;
+	spanningTree->push_back(edge);
 }
 
 void DFSSolver::removeLastEdge() {
@@ -159,16 +159,17 @@ bool DFSSolver::solutionExists() {
 
 void DFSSolver::printSpanningTree(int price) {
 	if (isSolution()) {
-			std::cout << "spanning tree:" << std::endl;
+		std::cout << "spanning tree:" << std::endl;
+	}
+	for (int i = 0; i < spanningTree->size(); i++) {
+		if (i != 0) {
+			std::cout << ", ";
 		}
-		for (int i = 0; i < spanningTree->size(); i++) {
-			if (i != 0) {
-				std::cout << ", ";
-			}
-			Edge & edge = spanningTree->at(i);
-			std::cout << edge << std::endl;
-		}
-		std::cout << std::endl << price << std::endl << std::endl;
+		Edge & edge = spanningTree->at(i);
+		std::cout << edge;
+	}
+	std::cout << std::endl;
+	std::cout << std::endl << "price: " << price << std::endl << std::endl;
 }
 
 void DFSSolver::printStack() {
@@ -179,7 +180,10 @@ void DFSSolver::printCandidates(std::vector<Edge> * candidates) {
 	std::cout << candidates->size() << " possibilities: ";
 	for (int i = 0; i < candidates->size(); i++) {
 		Edge & edge = candidates->at(i);
-		std::cout << edge << " ";
+		if (i != 0) {
+			std::cout << ", ";
+		}
+		std::cout << edge;
 	}
 	std::cout << std::endl;
 }
