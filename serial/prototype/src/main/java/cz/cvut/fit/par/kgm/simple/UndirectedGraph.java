@@ -48,7 +48,9 @@ public class UndirectedGraph {
 		boolean[][] copy = new boolean[original.length][]; 
 		for (int i = 0; i < original.length; i++) {
 			copy[i] = new boolean[original.length];
-			System.arraycopy(original, 0, copy, 0, original.length);
+			for (int j = 0; j < original.length; j++) {
+				copy[i][j] = original[i][j];
+			}
 		}
 		return copy;
 	}

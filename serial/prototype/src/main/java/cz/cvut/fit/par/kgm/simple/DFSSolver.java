@@ -38,13 +38,18 @@ public class DFSSolver {
 		}
 		
 		while (! stack.isEmpty()) {
+			printStack(stack);
 			Edge current = stack.pop();
 
 			if (isBacktrackMarker(current)) {
+				System.out.println("backtracking...");
+				System.out.println();
 				removeLastEdge(spanningTree);
 			} else {
 				addEdge(spanningTree, current);
-				int price = evaluate(vertexDegrees, current);
+				printVertexDegrees(vertexDegrees);
+				int price = evaluate(vertexDegrees);
+				printSpanningTree(spanningTree, price);
 				if (isSolution(vertexDegrees)) {
 					if (isBestPossible(price)) {
 						return spanningTree;
@@ -55,14 +60,17 @@ public class DFSSolver {
 				} else {
 					pushBacktrackMarker(stack);
 					List<Edge> candidates = graph.edgeCandidates(spanningTree, vertexDegrees);
+					printCandidates(candidates);
 					for (Edge edge : candidates) {
 						if (possibleWinner(vertexDegrees, edge)) {
 							stack.push(edge);
+						} else {
+							System.out.println("leaving out edge " + edge);
 						}
 					}
 				}
 			}
-
+			System.out.println("---------------------");
 		}
 		if (solutionExists()) {
 			return best;
@@ -90,19 +98,22 @@ public class DFSSolver {
 		stack.push(new BacktrackMarker());
 	}
 	
-	void printVertexDegrees() {
-		for (int i = 0; i < vertexDegrees.length; i++) {
-			System.out.print(vertexDegrees[i] + " ");
-		}
-		System.out.println();
-	}
-	
 	List<Edge> firstEdgeCandidates(UndirectedGraph graph) {
 		int vertex = 0;
 		return graph.edgesAdjacentTo(vertex);
 	}
 	
 	// Spanning tree
+	
+	int evaluate(int[] vertexDegrees) {
+		int max = vertexDegrees[0];
+		for (int i = 0; i < vertexDegrees.length; i++) {
+			if (vertexDegrees[i] > max) {
+				max = vertexDegrees[i];
+			}
+		}
+		return max;
+	}
 	
 	int evaluate(int[] vertexDegrees, Edge current) {
 		int max = vertexDegrees[0];
@@ -156,6 +167,45 @@ public class DFSSolver {
 	
 	boolean solutionExists() {
 		return best != null;
+	}
+	
+	void printSpanningTree(SimpleList<Edge> spanningTree, int price) {
+		if (isSolution(vertexDegrees)) {
+			System.out.println("spanning tree:");
+		}
+		for (int i = 0; i < spanningTree.size(); i++) {
+			if (i != 0) {
+				System.out.print(", ");
+			}
+			Edge edge = spanningTree.get(i);
+			System.out.print(edge);
+		}
+		System.out.println();
+		System.out.printf("price: %d", price);
+		System.out.println();
+		System.out.println();
+	}
+	
+	void printStack(SimpleStack<Edge> stack) {
+		System.out.println(stack);
+		System.out.println();
+	}
+	
+	void printCandidates(List<Edge> candidates) {
+		System.out.print(candidates.size() + " possibilities: ");
+		for (Edge edge : candidates) {
+			System.out.print(edge);
+			System.out.print(" ");
+		}
+		System.out.println();
+	}
+	
+	void printVertexDegrees(int[] degrees) {
+		for (int degree : degrees) {
+			System.out.print(degree);
+			System.out.print(" | ");
+		}
+		System.out.println();
 	}
 	
 }

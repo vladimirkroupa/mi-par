@@ -40,7 +40,7 @@ public class DequeueStackAdapter<T> implements SimpleStack<T> {
 	public String toString() {
 		StringBuilder accum = new StringBuilder();
 		for (T elem : dequeue) {
-			accum.append(String.format("| %d |", elem));
+			accum.append(String.format("| %s |", elem));
 			accum.append(System.lineSeparator());
 		}
 		return accum.toString();
