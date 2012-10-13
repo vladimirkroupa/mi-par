@@ -11,10 +11,7 @@ UndirectedGraph::UndirectedGraph(int size) {
 }
 
 UndirectedGraph::~UndirectedGraph() {
-	for (int i = 0; i < matrixSize; i++) {
-		delete [] adjacencyMatrix[i];
-	}
-	delete [] adjacencyMatrix;
+	deleteMatrix(adjacencyMatrix, matrixSize);
 }
 
 void UndirectedGraph::addEdge(int vertex1, int vertex2) {
@@ -23,11 +20,11 @@ void UndirectedGraph::addEdge(int vertex1, int vertex2) {
 }
 
 const int UndirectedGraph::vertexCount() {
-	return this->matrixSize;
+	return matrixSize;
 }
 
 bool UndirectedGraph::areConnected(int vertex1, int vertex2) {
-	return this->adjacencyMatrix[vertex1][vertex2];
+	return adjacencyMatrix[vertex1][vertex2];
 }
 
 std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
@@ -63,6 +60,8 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, in
 		}
 	}
 
+	deleteMatrix(adjacencyCopy, matrixSize);
+	
 	return newEdges;
 }
 
@@ -85,6 +84,13 @@ bool** UndirectedGraph::copyMatrix(bool ** original, int size) {
 		}
 	}
 	return copy;
+}
+
+void UndirectedGraph::deleteMatrix(bool ** original, int size) {
+	for (int i = 0; i < size; i++) {
+		delete [] original[i];
+	}
+	delete original;
 }
 
 std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {

@@ -24,6 +24,7 @@ private:
 	bool ** adjacencyMatrix;
 	bool ** initMatrix(int size);
 	bool ** copyMatrix(bool ** original, int size);
+	void deleteMatrix(bool ** matrix, int size);
 };
 
 #endif	/* UNDIRECTEDGRAPH_H */

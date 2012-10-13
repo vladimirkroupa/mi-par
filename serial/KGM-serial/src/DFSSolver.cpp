@@ -4,16 +4,19 @@
 
 #include "DFSSolver.h"
 
-DFSSolver::DFSSolver(UndirectedGraph * graph) {
-	graph = graph;
+DFSSolver::DFSSolver(UndirectedGraph * _graph) {
+	graph = _graph;
 	
 	edgeStack = new std::stack<Edge>();
 	bestPrice = 0;
 	best = 0;
 	
 	int vertices = graph->vertexCount();	
-	spanningTree = new std::vector<Edge>();	
+	spanningTree = new std::vector<Edge>();
 	vertexDegrees = new int[vertices];
+	for (int i = 0; i < vertices; i++) {
+		vertexDegrees[i] = 0;
+	}
 }
 
 DFSSolver::~DFSSolver() {
