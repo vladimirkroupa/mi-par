@@ -14,7 +14,7 @@ Edge::~Edge() {
 }
 
 bool Edge::isBacktrackMarker() {
-	return false;
+	return (vertex1 == -1 && vertex2 == -1);
 }
 
 

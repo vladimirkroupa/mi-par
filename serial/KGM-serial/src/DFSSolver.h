@@ -6,6 +6,7 @@
 #define	DFSSOLVER_H
 
 #include "UndirectedGraph.h"
+#include <stack>
 
 class DFSSolver {
 public:
@@ -14,10 +15,10 @@ public:
 	std::vector<Edge> * findBestSolution();
 private:
 	const int MIN_PRICE_POSSIBLE = 2;
-	stack<Edge> stack;
-	UndirectedGraph graph;
+	std::stack<Edge> * stack;
+	UndirectedGraph * graph;
 	
-	int* vertexDegrees;
+	int * vertexDegrees;
 	std::vector<Edge> spanningTree;
 	
 	std::vector<Edge> best;
