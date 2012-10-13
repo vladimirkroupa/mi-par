@@ -4,21 +4,21 @@
 
 #include "DFSSolver.h"
 
-DFSSolver::DFSSolver(UndirectedGraph * graph) {
-	this.graph = graph;
+DFSSolver::DFSSolver(/*UndirectedGraph * graph*/) {
+	this->graph = graph;
 	
-	stack = new stack<Edge>();
+	edgeStack = new std::stack<Edge>();
 	bestPrice = 0;
-	best = 0;
-	
-	int vertices = graph.vertexCount();
-	spanningTree = std::vector<Edge>(vertices);
+	best;
+		
+	spanningTree = std::vector<Edge>();
+	int vertices = graph->vertexCount();
 	vertexDegrees = new int[vertices];
 }
 
 DFSSolver::~DFSSolver() {
 	delete graph;
-	delete stack;
+	delete edgeStack;
 	delete [] vertexDegrees;
 }
 
@@ -29,16 +29,17 @@ void DFSSolver::addEdge(Edge edge) {
 }
 
 void DFSSolver::removeLastEdge() {
-	Edge removed = spanningTree.pop_back();
+	Edge removed = spanningTree.back();
 	vertexDegrees[removed.vertex1]--;
-	vertexDegrees[removed.vertex2]--;	
+	vertexDegrees[removed.vertex2]--;
+	spanningTree.pop_back();
 }
 
 void DFSSolver::pushBacktrackMarker() {
-	stack->push(Edge(-1, -1));
+	edgeStack->push(Edge(-1, -1));
 }
 
-std::vector<Edge> DFSSolver::firstEdgeCandidates() {
+std::vector<Edge> * DFSSolver::firstEdgeCandidates() {
 	int vertex = 0;
 	return graph->edgesAdjacentTo(vertex);
 }
@@ -65,4 +66,75 @@ int DFSSolver::evaluate(Edge current) {
 		}
 	}
 	return max;	
+}
+
+bool DFSSolver::possibleWinner(Edge current) {
+	int price = evaluate(current);
+	return isBestSoFar(price);
+}
+
+bool DFSSolver::isSolution() {
+	int vertices = graph->vertexCount();
+	int degreeSum = 0;
+	for (int i = 0; i < vertices; i++) {
+		degreeSum += vertexDegrees[i];
+	}	
+	int edges = degreeSum / 2;
+	
+	return (edges ==  vertices - 1);
+}
+
+bool DFSSolver::isBestPossible(int price) {
+	return price == MIN_PRICE_POSSIBLE;
+}
+
+bool DFSSolver::isBestSoFar(int price) {
+	if (best == 0) { // == null
+		return true;
+	}
+	return price < bestPrice;
+}
+
+void DFSSolver::updateBest(int price) {
+	bestPrice = price;	
+	best = new std::vector<Edge>(spanningTree); // make a copy
+}
+
+bool DFSSolver::solutionExists() {
+	return best != 0; // != null
+}
+
+void DFSSolver::printSpanningTree(int price) {
+	if (isSolution()) {
+			std::cout << "spanning tree:" << std::endl;
+		}
+		for (int i = 0; i < spanningTree.size(); i++) {
+			if (i != 0) {
+				std::cout << ", ";
+			}
+			Edge edge = spanningTree[i];
+			std::cout << edge << std::endl;
+		}
+		std::cout << std::endl << price << std::endl << std::endl;
+}
+
+void DFSSolver::printStack() {
+	std::cout << "TODO: print stack" << std::endl;
+}
+
+void DFSSolver::printCandidates(std::vector<Edge> * candidates) {
+	std::cout << candidates->size() << " possibilities: ";
+	for (int i = 0; i < candidates->size(); i++) {
+		Edge & edge = candidates->at(i);
+		std::cout << edge << " ";
+	}
+	std::cout << std::endl;
+}
+
+void DFSSolver::printVertexDegrees(int * degrees) {
+	std::cout << "| "; 
+	for (int i = 0; i < graph->vertexCount(); i++) {
+		std::cout << degrees[i] << " | ";
+	}
+	std::cout << std::endl;
 }

@@ -10,18 +10,18 @@
 
 class DFSSolver {
 public:
-	DFSSolver();
+	DFSSolver(/*UndirectedGraph * graph*/);
 	virtual ~DFSSolver();
 	std::vector<Edge> * findBestSolution();
 private:
-	const int MIN_PRICE_POSSIBLE = 2;
-	std::stack<Edge> * stack;
+	static const int MIN_PRICE_POSSIBLE = 2;
+	std::stack<Edge> * edgeStack;
 	UndirectedGraph * graph;
 	
 	int * vertexDegrees;
 	std::vector<Edge> spanningTree;
 	
-	std::vector<Edge> best;
+	std::vector<Edge> * best;
 	int bestPrice;
 	
 	void addEdge(Edge edge);
@@ -43,7 +43,7 @@ private:
 	void printSpanningTree(int price);
 	void printStack();
 	void printCandidates(std::vector<Edge> * candidates);
-	void printVertexDegrees(int* degrees);
+	void printVertexDegrees(int * degrees);
 };
 
 #endif	/* DFSSOLVER_H */
