@@ -19,7 +19,7 @@ private:
 	UndirectedGraph * graph;
 	
 	int * vertexDegrees;
-	std::vector<Edge> spanningTree;
+	std::vector<Edge> * spanningTree;
 	
 	std::vector<Edge> * best;
 	int bestPrice;
@@ -43,7 +43,7 @@ private:
 	void printSpanningTree(int price);
 	void printStack();
 	void printCandidates(std::vector<Edge> * candidates);
-	void printVertexDegrees(int * degrees);
+	void printVertexDegrees();
 };
 
 #endif	/* DFSSOLVER_H */

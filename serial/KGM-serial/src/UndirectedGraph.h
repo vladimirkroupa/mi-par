@@ -17,7 +17,8 @@ public:
 	const int vertexCount();
 	bool areConnected(int vertex1, int vertex2);	
 	std::vector<Edge> * edgesAdjacentTo(int vertex);
-	std::vector<Edge> * edgeCandidates(const std::vector<Edge> & tree, int vertexDegrees[]);
+	std::vector<Edge> * edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]);
+	friend std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph);
 private:
 	int matrixSize;
 	bool ** adjacencyMatrix;

@@ -40,7 +40,7 @@ std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
 	return edges;
 }
 
-std::vector<Edge> * UndirectedGraph::edgeCandidates(const std::vector<Edge> & tree, int vertexDegrees[]) {
+std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]) {
 	bool ** adjacencyCopy = copyMatrix(adjacencyMatrix, this->matrixSize);
 	for (int i = 0; i < tree.size(); i++) {
 		Edge edge = tree[i];
@@ -85,4 +85,28 @@ bool** UndirectedGraph::copyMatrix(bool ** original, int size) {
 		}
 	}
 	return copy;
+}
+
+std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {
+	os << " | ";
+	for (int i = 0; i < graph.matrixSize; i++) {
+		os << i << " ";
+	}
+	os << std::endl;
+	
+	os << "---";
+	for (int i = 0; i < graph.matrixSize; i++) {
+		 os << "--";
+	}
+	os << std::endl;
+	
+	for (int i = 0; i < graph.matrixSize; i++) {
+		os << i << "| ";
+		for (int j = 0; j < graph.matrixSize; j++) {
+			os << graph.adjacencyMatrix[i][j] << " ";
+		}
+		os << std::endl;
+	}
+	os << std::endl;
+	return os;
 }
