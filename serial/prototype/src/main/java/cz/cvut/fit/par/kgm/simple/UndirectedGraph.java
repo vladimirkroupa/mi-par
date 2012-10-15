@@ -8,22 +8,22 @@ import cz.cvut.fit.par.kgm.common.SimpleList;
 
 public class UndirectedGraph {
 
-	private final boolean[][] adjacencyMatrix;
+	private final Matrix adjacencyMatrix;
 	
 	public UndirectedGraph(GraphBuilder graphBuilder) {
-		this.adjacencyMatrix = graphBuilder.adjacencyMatrix;
+		this.adjacencyMatrix = graphBuilder.build();
 	}
 		
 	public int vertexCount() {
-		return adjacencyMatrix.length;
+		return adjacencyMatrix.size();
 	}
 	
 	public List<Edge> edgeCandidates(SimpleList<Edge> tree, int[] vertexDegrees) {
-		boolean[][] adjacencyCopy = copyArray(adjacencyMatrix);
+		Matrix adjacencyCopy = adjacencyMatrix.clone();
 		for (int i = 0; i < tree.size(); i++) {
 			Edge edge = tree.get(i);
-			adjacencyCopy[edge.vertex1][edge.vertex2] = false;
-			adjacencyCopy[edge.vertex2][edge.vertex1] = false;
+			adjacencyCopy.set(edge.vertex1, edge.vertex2, false);
+			adjacencyCopy.set(edge.vertex2, edge.vertex1, false);
 		}
 		
 		List<Edge> newEdges = new ArrayList<Edge>();
@@ -35,7 +35,7 @@ public class UndirectedGraph {
 				if (vertexDegrees[vertexTo] != 0) {
 					continue;
 				}
-				if (adjacencyCopy[vertexFrom][vertexTo] == true) {
+				if (adjacencyCopy.get(vertexFrom, vertexTo) == true) {
 					newEdges.add(new Edge(vertexFrom, vertexTo));
 				}
 			}
@@ -44,19 +44,8 @@ public class UndirectedGraph {
 		return newEdges;
 	}
 	
-	boolean[][] copyArray(boolean[][] original) {
-		boolean[][] copy = new boolean[original.length][]; 
-		for (int i = 0; i < original.length; i++) {
-			copy[i] = new boolean[original.length];
-			for (int j = 0; j < original.length; j++) {
-				copy[i][j] = original[i][j];
-			}
-		}
-		return copy;
-	}
-	
 	public boolean areConnected(int vertexIndex1, int vertexIndex2) {
-		return adjacencyMatrix[vertexIndex1][vertexIndex2]; 
+		return adjacencyMatrix.get(vertexIndex1, vertexIndex2); 
 	}
 	
 	public List<Edge> edgesAdjacentTo(int vertex) {

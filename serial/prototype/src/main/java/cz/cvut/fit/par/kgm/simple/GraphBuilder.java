@@ -10,6 +10,10 @@ public class GraphBuilder {
 	
 	public final boolean[][] adjacencyMatrix;
 	
+	public Matrix build() {
+		return new StandardMatrix(adjacencyMatrix);
+	}
+	
 	public GraphBuilder(String adjacencyMatrixString) {
 		Scanner sc = new Scanner(adjacencyMatrixString);
 		if (! sc.hasNextLine()) {
