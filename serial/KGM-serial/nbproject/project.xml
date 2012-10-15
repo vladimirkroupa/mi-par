@@ -3,10 +3,9 @@
     <type>org.netbeans.modules.cnd.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>KGM-serial</name>
-            <make-project-type>0</make-project-type>
+            <name>KGM-JS</name>
             <c-extensions/>
-            <cpp-extensions>cc,cpp</cpp-extensions>
+            <cpp-extensions>cpp</cpp-extensions>
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>

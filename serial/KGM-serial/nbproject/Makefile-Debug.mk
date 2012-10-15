@@ -35,9 +35,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/welcome.o \
-	${OBJECTDIR}/src/UndirectedGraph.o \
-	${OBJECTDIR}/src/Edge.o
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/_ext/1995533996/DFSSolver.o \
+	${OBJECTDIR}/_ext/1995533996/Edge.o \
+	${OBJECTDIR}/_ext/1995533996/UndirectedGraph.o
 
 
 # C Compiler Flags
@@ -58,26 +59,31 @@ LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-serial
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-js
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-serial: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-js: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-serial ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-js ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/welcome.o: welcome.cc 
+${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/welcome.o welcome.cc
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
 
-${OBJECTDIR}/src/UndirectedGraph.o: src/UndirectedGraph.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
+${OBJECTDIR}/_ext/1995533996/DFSSolver.o: ../KGM-JS/DFSSolver.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1995533996
 	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/UndirectedGraph.o src/UndirectedGraph.cpp
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1995533996/DFSSolver.o ../KGM-JS/DFSSolver.cpp
 
-${OBJECTDIR}/src/Edge.o: src/Edge.cpp 
-	${MKDIR} -p ${OBJECTDIR}/src
+${OBJECTDIR}/_ext/1995533996/Edge.o: ../KGM-JS/Edge.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1995533996
 	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/Edge.o src/Edge.cpp
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1995533996/Edge.o ../KGM-JS/Edge.cpp
+
+${OBJECTDIR}/_ext/1995533996/UndirectedGraph.o: ../KGM-JS/UndirectedGraph.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1995533996
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1995533996/UndirectedGraph.o ../KGM-JS/UndirectedGraph.cpp
 
 # Subprojects
 .build-subprojects:
@@ -85,7 +91,7 @@ ${OBJECTDIR}/src/Edge.o: src/Edge.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-serial
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/kgm-js
 
 # Subprojects
 .clean-subprojects:

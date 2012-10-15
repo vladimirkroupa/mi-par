@@ -1,3 +1,3 @@
 PROJECT(kgm)
 
-ADD_EXECUTABLE(kgm src/UndirectedGraph.cpp src/Edge.cpp)
+ADD_EXECUTABLE(kgm UndirectedGraph.cpp Edge.cpp DFSSolver.cpp main.cpp)

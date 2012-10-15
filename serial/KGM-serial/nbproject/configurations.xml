@@ -4,9 +4,9 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>src/Edge.h</itemPath>
-      <itemPath>src/UndirectedGraph.h</itemPath>
-      <itemPath>welcome.h</itemPath>
+      <itemPath>../KGM-JS/DFSSolver.h</itemPath>
+      <itemPath>../KGM-JS/Edge.h</itemPath>
+      <itemPath>../KGM-JS/UndirectedGraph.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -15,13 +15,20 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>src/Edge.cpp</itemPath>
-      <itemPath>src/UndirectedGraph.cpp</itemPath>
-      <itemPath>welcome.cc</itemPath>
+      <itemPath>../KGM-JS/DFSSolver.cpp</itemPath>
+      <itemPath>../KGM-JS/Edge.cpp</itemPath>
+      <itemPath>../KGM-JS/UndirectedGraph.cpp</itemPath>
+      <itemPath>main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
-                   projectFiles="false">
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
@@ -30,7 +37,7 @@
     <conf name="Debug" type="1">
       <toolsSet>
         <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
-        <compilerSet>default</compilerSet>
+        <compilerSet>GNU|GNU</compilerSet>
       </toolsSet>
       <compileType>
       </compileType>
