@@ -177,7 +177,7 @@ void DFSSolver::printSpanningTree(int price) {
 }
 
 void DFSSolver::printStack() {
-	cout << "TODO: print stack" << endl;
+	//cout << "TODO: print stack" << endl;
 }
 
 void DFSSolver::printCandidates(vector<Edge> * candidates) {

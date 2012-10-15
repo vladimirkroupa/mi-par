@@ -5,3 +5,4 @@ bin/
 .gradle/
 .project
 .classpath
+/serial/KGM-JS/dist/
