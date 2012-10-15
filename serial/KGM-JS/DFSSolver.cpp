@@ -31,7 +31,7 @@ DFSSolver::~DFSSolver() {
 pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	vector<Edge> * initial = firstEdgeCandidates();
 	for (int i = 0; i < initial->size(); i++) {
-		edgeStack->push(initial->at(i));
+		edgeStack->push((*initial)[i]);
 	}
 	delete initial;
 	
@@ -41,13 +41,13 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 		edgeStack->pop();
 
 		if (current.isBacktrackMarker()) {
-			cout << "backtracking" << endl;
+			if (DEBUG) cout << "backtracking" << endl;
 			removeLastEdge();
 		} else {
 			addEdge(current);
-			printVertexDegrees();
+			if (DEBUG) printVertexDegrees();
 			int price = evaluate();
-			printSpanningTree(price);
+			if (DEBUG) printSpanningTree(price);
 			if (isSolution()) {
 				if (isBestPossible(price)) {
 					return prepareSolution(best, bestPrice);
@@ -58,19 +58,19 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			} else {
 				pushBacktrackMarker();
 				vector<Edge> * candidates = graph->edgeCandidates(*spanningTree, vertexDegrees);
-				printCandidates(candidates);
+				if (DEBUG) printCandidates(candidates);
 				for (int i = 0; i < candidates->size(); i++) {
-					Edge & edge = candidates->at(i);
+					Edge & edge = (*candidates)[i];
 					if (possibleWinner(edge)) {
 						edgeStack->push(edge);
 					} else {
-						cout <<  "leaving out edge " << edge << endl;
+						if (DEBUG) cout <<  "leaving out edge " << edge << endl;
 					}
 				}
 				delete candidates;
 			}
 		}
-		cout <<  "---------------------------" << endl;
+		if (DEBUG) cout <<  "---------------------------" << endl;
 	}
 	if (solutionExists()) {
 		return prepareSolution(best, bestPrice);
@@ -169,7 +169,7 @@ void DFSSolver::printSpanningTree(int price) {
 		if (i != 0) {
 			cout << ", ";
 		}
-		Edge & edge = spanningTree->at(i);
+		Edge & edge = (*spanningTree)[i];
 		cout << edge;
 	}
 	cout << endl;
@@ -183,7 +183,7 @@ void DFSSolver::printStack() {
 void DFSSolver::printCandidates(vector<Edge> * candidates) {
 	cout << candidates->size() << " possibilities: ";
 	for (int i = 0; i < candidates->size(); i++) {
-		Edge & edge = candidates->at(i);
+		Edge & edge = (*candidates)[i];
 		if (i != 0) {
 			cout << ", ";
 		}

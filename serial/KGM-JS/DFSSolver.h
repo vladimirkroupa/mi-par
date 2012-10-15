@@ -16,6 +16,7 @@ public:
 	std::pair<std::vector<Edge> *, int> * findBestSolution();
 private:
 	static const int MIN_PRICE_POSSIBLE = 2;
+	static const bool DEBUG = false;
 	std::stack<Edge> * edgeStack;
 	UndirectedGraph * graph;
 	

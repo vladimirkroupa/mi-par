@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     if (solution != NULL) {
         cout << "Best solution:" << endl;
         for (i = 0; i < solution->size(); i++) {
-            cout << solution->at(i) << endl;
+            cout << (*solution)[i] << endl;
         }
 		cout << "Spanning tree degree: " << solutionPrice << endl;
     }
