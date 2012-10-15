@@ -49,7 +49,9 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			int price = evaluate();
 			if (DEBUG) printSpanningTree(price);
 			if (isSolution()) {
+				if (! DEBUG) printSpanningTree(price);
 				if (isBestPossible(price)) {
+					updateBest(price);
 					return prepareSolution(best, bestPrice);
 				} else if (isBestSoFar(price)) {
 					updateBest(price);
@@ -163,7 +165,7 @@ bool DFSSolver::solutionExists() {
 
 void DFSSolver::printSpanningTree(int price) {
 	if (isSolution()) {
-		cout << "spanning tree:" << endl;
+		cout << "spanning tree, degree: " << price << endl;
 	}
 	for (int i = 0; i < spanningTree->size(); i++) {
 		if (i != 0) {
@@ -172,8 +174,7 @@ void DFSSolver::printSpanningTree(int price) {
 		Edge & edge = (*spanningTree)[i];
 		cout << edge;
 	}
-	cout << endl;
-	cout << endl << "price: " << price << endl << endl;
+	cout << endl << endl;
 }
 
 void DFSSolver::printStack() {

@@ -20,7 +20,15 @@ bool Edge::isBacktrackMarker() {
 }
 
 std::ostream & operator <<(std::ostream & os, const Edge & e) {
-	os << "(" << e.vertex1 << ", " << e.vertex2 << ")";
+	int edgeFrom, edgeTo;
+	if (e.vertex1 <= e.vertex2) {
+		edgeFrom = e.vertex1;
+		edgeTo = e.vertex2;
+	} else {
+		edgeFrom = e.vertex2;
+		edgeTo = e.vertex1;
+	}
+	os << "(" << edgeFrom << ", " << edgeTo << ")";
 	return os;
 }
 
