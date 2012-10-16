@@ -7,17 +7,13 @@
 #define	UNDIRECTEDGRAPH_H
 
 #include "Edge.h"
+#include "TriangularMatrix.h"
 #include <vector>
 
 class UndirectedGraph {
 private:
     int matrixSize;
-    bool ** adjacencyMatrix;
-    bool ** initMatrix(int size);
-    bool ** copyMatrix(bool ** original, int size);
-    void deleteMatrix(bool ** matrix, int size);
-
-
+    TriangularMatrix * adjacencyMatrix;
 public:
     UndirectedGraph(int size);
     ~UndirectedGraph();
@@ -27,7 +23,6 @@ public:
     std::vector<Edge> * edgesAdjacentTo(int vertex);
     std::vector<Edge> * edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]);
     friend std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph);
-
 };
 
 #endif	/* UNDIRECTEDGRAPH_H */

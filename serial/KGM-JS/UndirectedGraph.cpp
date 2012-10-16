@@ -7,16 +7,15 @@
 
 UndirectedGraph::UndirectedGraph(int size) {
 	this->matrixSize = size;
-	this->adjacencyMatrix = initMatrix(size);
+	this->adjacencyMatrix = new TriangularMatrix(size);
 }
 
 UndirectedGraph::~UndirectedGraph() {
-	deleteMatrix(adjacencyMatrix, matrixSize);
+	delete adjacencyMatrix;
 }
 
 void UndirectedGraph::addEdge(int vertex1, int vertex2) {
-	adjacencyMatrix[vertex1][vertex2] = true;
-	adjacencyMatrix[vertex2][vertex1] = true;
+	(*adjacencyMatrix)(vertex1, vertex2) = true;
 }
 
 const int UndirectedGraph::vertexCount() {
@@ -24,7 +23,7 @@ const int UndirectedGraph::vertexCount() {
 }
 
 bool UndirectedGraph::areConnected(int vertex1, int vertex2) {
-	return adjacencyMatrix[vertex1][vertex2];
+	return (*adjacencyMatrix)(vertex1, vertex2);
 }
 
 std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
@@ -37,12 +36,19 @@ std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
 	return edges;
 }
 
+/**
+ * Finds edges of this graph such that one vertex of the edge is contained in 
+ * given tree and the other vertex is not.
+ * 
+ * @param tree
+ * @param vertexDegrees degrees of all vertices of the tree
+ * @return vector of edges satisfying the conditions
+ */
 std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]) {
-	bool ** adjacencyCopy = copyMatrix(adjacencyMatrix, this->matrixSize);
+	TriangularMatrix * adjacencyCopy = new TriangularMatrix(*adjacencyMatrix);
 	for (int i = 0; i < tree.size(); i++) {
 		Edge edge = tree[i];
-		adjacencyCopy[edge.vertex1][edge.vertex2] = false;
-		adjacencyCopy[edge.vertex2][edge.vertex1] = false;
+		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
 	}
 
 	std::vector<Edge> * newEdges = new std::vector<Edge>();
@@ -54,43 +60,15 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, in
 			if (vertexDegrees[vertexTo] != 0) {
 				continue;
 			}
-			if (adjacencyCopy[vertexFrom][vertexTo] == true) {
+			if ((*adjacencyCopy)(vertexFrom, vertexTo) == true) {
 				newEdges->push_back(Edge(vertexFrom, vertexTo));
 			}
 		}
 	}
 
-	deleteMatrix(adjacencyCopy, matrixSize);
+	delete adjacencyCopy;
 	
 	return newEdges;
-}
-
-bool** UndirectedGraph::initMatrix(int size) {
-	bool** matrix = new bool* [size];
-	for (int i = 0; i < size; i++) {
-		matrix[i] = new bool[size];
-		for (int j = 0; j < size; j++) {
-			matrix[i][j] = false;
-		}
-	}
-	return matrix;
-}
-
-bool** UndirectedGraph::copyMatrix(bool ** original, int size) {
-	bool** copy = initMatrix(size);
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			copy[i][j] = original[i][j];
-		}
-	}
-	return copy;
-}
-
-void UndirectedGraph::deleteMatrix(bool ** original, int size) {
-	for (int i = 0; i < size; i++) {
-		delete [] original[i];
-	}
-	delete [] original;
 }
 
 std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {
@@ -109,7 +87,7 @@ std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {
 	for (int i = 0; i < graph.matrixSize; i++) {
 		os << i << "| ";
 		for (int j = 0; j < graph.matrixSize; j++) {
-			os << graph.adjacencyMatrix[i][j] << " ";
+			os << (*graph.adjacencyMatrix)(i, j) << " ";
 		}
 		os << std::endl;
 	}
