@@ -29,6 +29,7 @@ DFSSolver::~DFSSolver() {
 }
 
 pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
+	// initial state - push all edges adjacent to vertex 0 to stack
 	vector<Edge> * initial = firstEdgeCandidates();
 	for (int i = 0; i < initial->size(); i++) {
 		edgeStack->push((*initial)[i]);
@@ -36,14 +37,17 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	delete initial;
 	
 	while (! edgeStack->empty()) {
-		printStack();
+		if (DEBUG) printStack();
+		// remove top edge from stack
 		Edge current = edgeStack->top();
 		edgeStack->pop();
 
 		if (current.isBacktrackMarker()) {
 			if (DEBUG) cout << "backtracking" << endl;
+			// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
 			removeLastEdge();
 		} else {
+			// add current edge to spanning tree, increment vertex degrees
 			addEdge(current);
 			if (DEBUG) printVertexDegrees();
 			int price = evaluate();
@@ -51,19 +55,26 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			if (isSolution()) {
 				if (! DEBUG) printSpanningTree(price);
 				if (isBestPossible(price)) {
+					// if the current solution is the best possible, return
 					updateBest(price);
 					return prepareSolution(best, bestPrice);
 				} else if (isBestSoFar(price)) {
+					// if not best possible, but better that any solution so far, update best
 					updateBest(price);
 				}
+				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
 				removeLastEdge();
 			} else {
+				// add backtrack marker to stack so we will know when we are moving up the DFS tree
 				pushBacktrackMarker();
+				// find new edges to add to spanning tree
 				vector<Edge> * candidates = graph->edgeCandidates(*spanningTree, vertexDegrees);
 				if (DEBUG) printCandidates(candidates);
 				for (int i = 0; i < candidates->size(); i++) {
 					Edge & edge = (*candidates)[i];
 					if (possibleWinner(edge)) {
+						// if the current candidate edge can lead to better solution than the best solution so far,
+						// add it to the stack
 						edgeStack->push(edge);
 					} else {
 						if (DEBUG) cout <<  "leaving out edge " << edge << endl;
@@ -75,6 +86,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 		if (DEBUG) cout <<  "---------------------------" << endl;
 	}
 	if (solutionExists()) {
+		// at this point, we've completed the DFS tree traversal
 		return prepareSolution(best, bestPrice);
 	}
 	return NULL;
