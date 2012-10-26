@@ -56,7 +56,7 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, in
 		if (vertexDegrees[vertexFrom] == 0) {
 			continue;
 		}
-		for (int vertexTo = 0; vertexTo < vertexCount(); vertexTo++) {
+		for (int vertexTo = vertexFrom; vertexTo < vertexCount(); vertexTo++) {
 			if (vertexDegrees[vertexTo] != 0) {
 				continue;
 			}
