@@ -32,7 +32,7 @@ class DFSSolver:
                     if self.isBestPossible(price):
                         # current solution is the best possible, return
                         self.updateBest(price)
-                        return self.best, self.bestPrice
+                        return self.best, self.best_price
                     elif self.isBestSoFar(price):
                         # better that any solution so far, update best
                         self.updateBest(price)
@@ -51,7 +51,8 @@ class DFSSolver:
         if self.foundSolution():
             return self.best, self.best_price
         else:
-            return None
+            print("No solution found.")
+            return None, None
 
     def firstEdgeCandidates(self):
         vertex = 0
