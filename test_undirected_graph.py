@@ -1,5 +1,6 @@
 import unittest
 from edge import Edge
+from spanning_tree import SpanningTree
 from undirected_graph import UndirectedGraph
 
 class TestUndirectedGraph(unittest.TestCase):
@@ -9,6 +10,7 @@ class TestUndirectedGraph(unittest.TestCase):
 
     def test_vertexCount(self):
         vertices = self.graph.vertexCount()
+
         self.assertTrue(vertices == 5)
 
     def test_addEdge(self):
@@ -39,10 +41,10 @@ class TestUndirectedGraph(unittest.TestCase):
         self.graph.addEdge(2, 3)
         self.graph.addEdge(0, 4)
 
-        tree = [Edge(0, 1)]
-        vertexDegrees = [1, 1, 0, 0, 0]
+        tree = SpanningTree(5)
+        tree.addEdge(Edge(0, 1))
 
-        actual = self.graph.edgeCandidates(tree, vertexDegrees)
+        actual = self.graph.edgeCandidates(tree)
         expected = [Edge(1, 2), Edge(1, 3), Edge(1, 4), Edge(0, 4)]
         self.assertEqual(set(expected), set(actual))
 

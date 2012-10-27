@@ -23,24 +23,24 @@ class UndirectedGraph:
                 adj_edges.append(Edge(vertex, vertex2))
         return adj_edges
 
-    def edgeCandidates(self, tree, vertexDegrees):
+    def edgeCandidates(self, tree):
         """Returns a list of edges of this graph where one vertex of the edge
         is contained in the given tree and the other vertex is not."""
         matrix_copy = self.adj_matrix.clone()
 
         # remove edges already in tree from adjacency matrix
-        for edge in tree:
+        for edge in tree.edges:
             matrix_copy.set(edge.vertex1, edge.vertex2, False)
 
         candidates = []
 
         for vertex_1 in range(0, self.adj_matrix.size()):
             # skip edges where the first vertex would have degree 0 in the tree
-            if vertexDegrees[vertex_1] == 0:
+            if tree.vertexDegrees()[vertex_1] == 0:
                 continue
             for vertex_2 in range(vertex_1, self.adj_matrix.size()):
                 # skip edges that would create cycle in the tree
-                if vertexDegrees[vertex_2] != 0:
+                if tree.vertexDegrees()[vertex_2] != 0:
                     continue
                 if matrix_copy.get(vertex_1, vertex_2):
                     candidates.append(Edge(vertex_1, vertex_2))
