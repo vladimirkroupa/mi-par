@@ -1,3 +1,4 @@
+from operator import xor
 from edge import Edge
 
 class SpanningTree:
@@ -42,6 +43,11 @@ class SpanningTree:
                 max = degree
 
         return max
+
+    def containsOneVertexOf(self, edge):
+        vertex_1_in = self.vertex_degrees[edge.vertex1] > 0
+        vertex_2_in = self.vertex_degrees[edge.vertex2] > 0
+        return xor(vertex_1_in, vertex_2_in)
 
     def __str__(self):
         result = ", ".join(str(edge) for edge in self.edges)

@@ -16,4 +16,4 @@ class Edge:
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash((self.vertex1, self.vertex2))
+        return hash(self.vertex1) * hash(self.vertex2)

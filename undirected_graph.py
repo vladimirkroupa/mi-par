@@ -31,21 +31,18 @@ class UndirectedGraph:
         # remove edges already in tree from adjacency matrix
         for edge in tree.edges:
             matrix_copy.set(edge.vertex1, edge.vertex2, False)
-
-        candidates = []
+            matrix_copy.set(edge.vertex2, edge.vertex1, False)
 
         for vertex_1 in range(0, self.adj_matrix.size()):
             # skip edges where the first vertex would have degree 0 in the tree
             if tree.vertexDegrees()[vertex_1] == 0:
                 continue
-            for vertex_2 in range(vertex_1, self.adj_matrix.size()):
+            for vertex_2 in range(0, self.adj_matrix.size()):
                 # skip edges that would create cycle in the tree
                 if tree.vertexDegrees()[vertex_2] != 0:
                     continue
                 if matrix_copy.get(vertex_1, vertex_2):
-                    candidates.append(Edge(vertex_1, vertex_2))
-
-        return candidates
+                    yield Edge(vertex_1, vertex_2)
 
     def __str__(self):
         result = " |"

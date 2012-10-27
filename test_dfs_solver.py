@@ -68,6 +68,7 @@ class TestDFSSolver(unittest.TestCase):
 
         solver = DFSSolver(graph)
 
+        # self.solver.DEBUG = True
         solution, price = solver.findBestSolution()
         self.assertEqual(2, price)
         expected = [Edge(0, 9), Edge(1, 2), Edge(1, 3), Edge(3, 5), Edge(4, 5), Edge(4, 8), Edge(6, 7), Edge(6, 9), Edge(7, 8)]

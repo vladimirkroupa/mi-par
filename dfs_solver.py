@@ -5,6 +5,7 @@ from spanning_tree import SpanningTree
 class DFSSolver:
 
     BEST_PRICE_POSSIBLE = 2
+    DEBUG = False
 
     def __init__(self, graph):
         self.graph = graph
@@ -20,6 +21,10 @@ class DFSSolver:
 
         # main loop
         while len(self.edge_stack) > 0:
+
+            if self.DEBUG:
+                self.printStack()
+
             current_edge = self.edge_stack.pop()
             if self.isBacktrackMarker(current_edge):
                 # found backtrack marker, remove last edge from spanning tree
@@ -27,8 +32,16 @@ class DFSSolver:
             else:
                 # add current edge to spanning tree
                 self.spanning_tree.addEdge(current_edge)
-                price = self.spanning_tree.maxDegree()
+
+                if self.DEBUG:
+                    print(self.spanning_tree)
+
                 if self.isSolution():
+
+                    if self.DEBUG:
+                        print("Found solution!")
+
+                    price = self.spanning_tree.maxDegree()
                     if self.isBestPossible(price):
                         # current solution is the best possible, return
                         self.updateBest(price)
@@ -46,12 +59,16 @@ class DFSSolver:
                         if self.possibleWinner(edge):
                             # candidate edge can lead to better solution than best solution so far
                             self.edge_stack.append(edge)
+                        else:
+                            if self.DEBUG:
+                                print("Leaving out edge {}".format(edge))
 
         # DFS traversal completed
         if self.foundSolution():
             return self.best, self.best_price
         else:
-            print("No solution found.")
+            if self.DEBUG:
+                print("No solution found.")
             return None, None
 
     def firstEdgeCandidates(self):
@@ -87,3 +104,12 @@ class DFSSolver:
 
     def foundSolution(self):
         return self.best != None
+
+    def printStack(self):
+        print ("|--------|")
+        for edge in self.edge_stack:
+            if self.isBacktrackMarker(edge):
+                print("|   **   |")
+            else:
+                print("| {0:6} |".format(edge))
+        print ("^        ^\n")
