@@ -31,6 +31,21 @@ class TestUndirectedGraph(unittest.TestCase):
         self.assertEqual([Edge(0, 1), Edge(0, 3)], adj_0)
         self.assertEqual([Edge(0, 1), Edge(1, 4)], adj_1)
 
+    def test_edgeCandidates(self):
+        self.graph.addEdge(0, 1)
+        self.graph.addEdge(1, 2)
+        self.graph.addEdge(1, 3)
+        self.graph.addEdge(1, 4)
+        self.graph.addEdge(2, 3)
+        self.graph.addEdge(0, 4)
+
+        tree = [Edge(0, 1)]
+        vertexDegrees = [1, 1, 0, 0, 0]
+
+        actual = self.graph.edgeCandidates(tree, vertexDegrees)
+        expected = [Edge(1, 2), Edge(1, 3), Edge(1, 4), Edge(0, 4)]
+        self.assertEqual(set(expected), set(actual))
+
     def test_str(self):
         self.graph.addEdge(0, 1)
         self.graph.addEdge(0, 3)
