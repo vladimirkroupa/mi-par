@@ -7,13 +7,12 @@
 #define	UNDIRECTEDGRAPH_H
 
 #include "Edge.h"
-#include "TriangularMatrix.h"
+#include "SquareMatrix.h"
 #include <vector>
 
 class UndirectedGraph {
 private:
-    int matrixSize;
-    TriangularMatrix * adjacencyMatrix;
+    SquareMatrix * adjacencyMatrix;
 public:
     UndirectedGraph(int size);
     ~UndirectedGraph();

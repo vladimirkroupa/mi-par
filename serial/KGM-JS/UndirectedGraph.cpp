@@ -6,8 +6,7 @@
 #include "UndirectedGraph.h"
 
 UndirectedGraph::UndirectedGraph(int size) {
-	this->matrixSize = size;
-	this->adjacencyMatrix = new TriangularMatrix(size);
+	this->adjacencyMatrix = new SquareMatrix(size);
 }
 
 UndirectedGraph::~UndirectedGraph() {
@@ -19,7 +18,7 @@ void UndirectedGraph::addEdge(int vertex1, int vertex2) {
 }
 
 const int UndirectedGraph::vertexCount() {
-	return matrixSize;
+	return adjacencyMatrix->size();
 }
 
 bool UndirectedGraph::areConnected(int vertex1, int vertex2) {
@@ -45,7 +44,7 @@ std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
  * @return vector of edges satisfying the conditions
  */
 std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]) {
-	TriangularMatrix * adjacencyCopy = new TriangularMatrix(*adjacencyMatrix);
+	SquareMatrix * adjacencyCopy = new SquareMatrix(*adjacencyMatrix);
 	for (int i = 0; i < tree.size(); i++) {
 		Edge edge = tree[i];
 		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
@@ -56,7 +55,7 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, in
 		if (vertexDegrees[vertexFrom] == 0) {
 			continue;
 		}
-		for (int vertexTo = vertexFrom; vertexTo < vertexCount(); vertexTo++) {
+		for (int vertexTo = 0; vertexTo < vertexCount(); vertexTo++) {
 			if (vertexDegrees[vertexTo] != 0) {
 				continue;
 			}
@@ -73,20 +72,20 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, in
 
 std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {
 	os << " | ";
-	for (int i = 0; i < graph.matrixSize; i++) {
+	for (int i = 0; i < graph.adjacencyMatrix->size(); i++) {
 		os << i << " ";
 	}
 	os << std::endl;
 	
 	os << "---";
-	for (int i = 0; i < graph.matrixSize; i++) {
+	for (int i = 0; i < graph.adjacencyMatrix->size(); i++) {
 		 os << "--";
 	}
 	os << std::endl;
 	
-	for (int i = 0; i < graph.matrixSize; i++) {
+	for (int i = 0; i < graph.adjacencyMatrix->size(); i++) {
 		os << i << "| ";
-		for (int j = 0; j < graph.matrixSize; j++) {
+		for (int j = 0; j < graph.adjacencyMatrix->size(); j++) {
 			os << (*graph.adjacencyMatrix)(i, j) << " ";
 		}
 		os << std::endl;

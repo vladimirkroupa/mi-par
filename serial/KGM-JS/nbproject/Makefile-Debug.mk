@@ -36,7 +36,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/TriangularMatrix.o \
 	${OBJECTDIR}/_ext/1995533996/DFSSolver.o \
+	${OBJECTDIR}/SquareMatrix.o \
 	${OBJECTDIR}/_ext/1995533996/Edge.o \
 	${OBJECTDIR}/_ext/1995533996/UndirectedGraph.o
 
@@ -70,10 +72,20 @@ ${OBJECTDIR}/main.o: main.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
 
+${OBJECTDIR}/TriangularMatrix.o: TriangularMatrix.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/TriangularMatrix.o TriangularMatrix.cpp
+
 ${OBJECTDIR}/_ext/1995533996/DFSSolver.o: ../KGM-JS/DFSSolver.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1995533996
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1995533996/DFSSolver.o ../KGM-JS/DFSSolver.cpp
+
+${OBJECTDIR}/SquareMatrix.o: SquareMatrix.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/SquareMatrix.o SquareMatrix.cpp
 
 ${OBJECTDIR}/_ext/1995533996/Edge.o: ../KGM-JS/Edge.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1995533996

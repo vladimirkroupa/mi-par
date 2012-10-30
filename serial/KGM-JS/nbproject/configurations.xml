@@ -6,6 +6,8 @@
                    projectFiles="true">
       <itemPath>../KGM-JS/DFSSolver.h</itemPath>
       <itemPath>../KGM-JS/Edge.h</itemPath>
+      <itemPath>SquareMatrix.h</itemPath>
+      <itemPath>TriangularMatrix.h</itemPath>
       <itemPath>../KGM-JS/UndirectedGraph.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -17,6 +19,8 @@
                    projectFiles="true">
       <itemPath>../KGM-JS/DFSSolver.cpp</itemPath>
       <itemPath>../KGM-JS/Edge.cpp</itemPath>
+      <itemPath>SquareMatrix.cpp</itemPath>
+      <itemPath>TriangularMatrix.cpp</itemPath>
       <itemPath>../KGM-JS/UndirectedGraph.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
@@ -32,6 +36,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="1">
