@@ -5,6 +5,8 @@
 
 #include "UndirectedGraph.h"
 
+using namespace std;
+
 UndirectedGraph::UndirectedGraph(int size) {
 	this->adjacencyMatrix = new SquareMatrix(size);
 }
@@ -43,10 +45,12 @@ std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
  * @param vertexDegrees degrees of all vertices of the tree
  * @return vector of edges satisfying the conditions
  */
-std::vector<Edge> * UndirectedGraph::edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]) {
+std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
+	vector<Edge> * edges = tree->getEdges();
+	int * vertexDegrees = tree->getVertexDegrees();
 	SquareMatrix * adjacencyCopy = new SquareMatrix(*adjacencyMatrix);
-	for (int i = 0; i < tree.size(); i++) {
-		Edge edge = tree[i];
+	for (int i = 0; i < edges->size(); i++) {
+		Edge edge = (*edges)[i];
 		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
 	}
 

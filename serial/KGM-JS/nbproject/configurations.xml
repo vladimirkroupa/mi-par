@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>../KGM-JS/DFSSolver.h</itemPath>
       <itemPath>../KGM-JS/Edge.h</itemPath>
+      <itemPath>SpanningTree.h</itemPath>
       <itemPath>SquareMatrix.h</itemPath>
       <itemPath>TriangularMatrix.h</itemPath>
       <itemPath>../KGM-JS/UndirectedGraph.h</itemPath>
@@ -19,6 +20,7 @@
                    projectFiles="true">
       <itemPath>../KGM-JS/DFSSolver.cpp</itemPath>
       <itemPath>../KGM-JS/Edge.cpp</itemPath>
+      <itemPath>SpanningTree.cpp</itemPath>
       <itemPath>SquareMatrix.cpp</itemPath>
       <itemPath>TriangularMatrix.cpp</itemPath>
       <itemPath>../KGM-JS/UndirectedGraph.cpp</itemPath>

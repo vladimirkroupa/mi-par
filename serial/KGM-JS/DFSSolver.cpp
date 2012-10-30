@@ -6,25 +6,19 @@
 
 using namespace std;
 
-DFSSolver::DFSSolver(UndirectedGraph * _graph) {
-	graph = _graph;
+DFSSolver::DFSSolver(UndirectedGraph * graph) {
+	this->graph = graph;
 	
 	edgeStack = new stack<Edge>();
 	bestPrice = 0;
 	best = NULL;
 	
-	int vertices = graph->vertexCount();	
-	spanningTree = new vector<Edge>();
-	vertexDegrees = new int[vertices];
-	for (int i = 0; i < vertices; i++) {
-		vertexDegrees[i] = 0;
-	}
+	spanningTree = new SpanningTree(graph->vertexCount());
 }
 
 DFSSolver::~DFSSolver() {
 	delete edgeStack;	
 	delete spanningTree;
-	delete [] vertexDegrees;
 	delete best;
 }
 
@@ -45,12 +39,12 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 		if (current.isBacktrackMarker()) {
 			if (DEBUG) cout << "backtracking" << endl;
 			// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
-			removeLastEdge();
+			spanningTree->removeLastEdge();
 		} else {
 			// add current edge to spanning tree, increment vertex degrees
-			addEdge(current);
+			spanningTree->addEdge(current);
 			if (DEBUG) printVertexDegrees();
-			int price = evaluate();
+			int price = spanningTree->evaluate();
 			if (DEBUG) printSpanningTree(price);
 			if (isSolution()) {
 				if (! DEBUG) printSpanningTree(price);
@@ -63,12 +57,12 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 					updateBest(price);
 				}
 				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
-				removeLastEdge();
+				spanningTree->removeLastEdge();
 			} else {
 				// add backtrack marker to stack so we will know when we are moving up the DFS tree
 				pushBacktrackMarker();
 				// find new edges to add to spanning tree
-				vector<Edge> * candidates = graph->edgeCandidates(*spanningTree, vertexDegrees);
+				vector<Edge> * candidates = graph->edgeCandidates(spanningTree);
 				if (DEBUG) printCandidates(candidates);
 				for (int i = 0; i < candidates->size(); i++) {
 					Edge & edge = (*candidates)[i];
@@ -92,19 +86,6 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	return NULL;
 }
 
-void DFSSolver::addEdge(Edge edge) {	
-	vertexDegrees[edge.vertex1]++;
-	vertexDegrees[edge.vertex2]++;
-	spanningTree->push_back(edge);
-}
-
-void DFSSolver::removeLastEdge() {
-	Edge removed = spanningTree->back();
-	vertexDegrees[removed.vertex1]--;
-	vertexDegrees[removed.vertex2]--;
-	spanningTree->pop_back();
-}
-
 void DFSSolver::pushBacktrackMarker() {
 	edgeStack->push(Edge(-1, -1));
 }
@@ -114,43 +95,14 @@ vector<Edge> * DFSSolver::firstEdgeCandidates() {
 	return graph->edgesAdjacentTo(vertex);
 }
 
-int DFSSolver::evaluate() {
-	int max = vertexDegrees[0];
-	for (int i = 0; i < graph->vertexCount(); i++) {
-		if (vertexDegrees[i] > max) {
-			max = vertexDegrees[i];
-		}
-	}
-	return max;
-}
-
-int DFSSolver::evaluate(Edge current) {
-	int max = vertexDegrees[0];
-	for (int i = 0; i < graph->vertexCount(); i++) {
-		int vertexDeg = vertexDegrees[i]; 
-		if (current.vertex1 == i || current.vertex2 == i) {
-			vertexDeg++;
-		}
-		if (vertexDeg > max) {
-			max = vertexDeg;
-		}
-	}
-	return max;	
-}
-
 bool DFSSolver::possibleWinner(Edge current) {
-	int price = evaluate(current);
+	int price = spanningTree->evaluate(current);
 	return isBestSoFar(price);
 }
 
 bool DFSSolver::isSolution() {
 	int vertices = graph->vertexCount();
-	int degreeSum = 0;
-	for (int i = 0; i < vertices; i++) {
-		degreeSum += vertexDegrees[i];
-	}	
-	int edges = degreeSum / 2;
-	
+	int edges = spanningTree->edgeCount();
 	return (edges ==  vertices - 1);
 }
 
@@ -168,7 +120,7 @@ bool DFSSolver::isBestSoFar(int price) {
 void DFSSolver::updateBest(int price) {
 	bestPrice = price;
 	delete best;
-	best = new vector<Edge>(*spanningTree); // make a copy
+	best = new SpanningTree(*spanningTree); // make a copy
 }
 
 bool DFSSolver::solutionExists() {
@@ -176,17 +128,7 @@ bool DFSSolver::solutionExists() {
 }
 
 void DFSSolver::printSpanningTree(int price) {
-	if (isSolution()) {
-		cout << "spanning tree, degree: " << price << endl;
-	}
-	for (int i = 0; i < spanningTree->size(); i++) {
-		if (i != 0) {
-			cout << ", ";
-		}
-		Edge & edge = (*spanningTree)[i];
-		cout << edge;
-	}
-	cout << endl << endl;
+	cout << *spanningTree << endl;
 }
 
 void DFSSolver::printStack() {
@@ -206,15 +148,11 @@ void DFSSolver::printCandidates(vector<Edge> * candidates) {
 }
 
 void DFSSolver::printVertexDegrees() {
-	cout << "| "; 
-	for (int i = 0; i < graph->vertexCount(); i++) {
-		cout << vertexDegrees[i] << " | ";
-	}
-	cout << endl;
+	spanningTree->printVertexDegrees();
 }
 
-pair<vector<Edge> *, int> * DFSSolver::prepareSolution(vector<Edge>* solution, int solutionPrice) {
-	vector<Edge> * copy = new vector<Edge>(*solution);
+pair<vector<Edge> *, int> * DFSSolver::prepareSolution(SpanningTree* solution, int solutionPrice) {
+	vector<Edge> * copy = new vector<Edge>(*(solution->getEdges()));
 	pair<vector<Edge> *, int> * result = new pair<vector<Edge> *, int>(copy, solutionPrice);
 	return result;
 }

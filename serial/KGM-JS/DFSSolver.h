@@ -6,6 +6,7 @@
 #define	DFSSOLVER_H
 
 #include "UndirectedGraph.h"
+#include "SpanningTree.h"
 #include <stack>
 #include <utility>
 
@@ -20,21 +21,14 @@ private:
 	std::stack<Edge> * edgeStack;
 	UndirectedGraph * graph;
 	
-	int * vertexDegrees;
-	std::vector<Edge> * spanningTree;
+	SpanningTree * spanningTree;
 	
-	std::vector<Edge> * best;
+	SpanningTree * best;
 	int bestPrice;
-	
-	void addEdge(Edge edge);
-	void removeLastEdge();
 	
 	void pushBacktrackMarker();
 	std::vector<Edge> * firstEdgeCandidates();
-	
-	int evaluate();
-	int evaluate(Edge current);
-	
+
 	bool possibleWinner(Edge current);
 	bool isSolution();
 	bool isBestPossible(int price);
@@ -47,7 +41,7 @@ private:
 	void printCandidates(std::vector<Edge> * candidates);
 	void printVertexDegrees();
 	
-	std::pair<std::vector<Edge> *, int> * prepareSolution(std::vector<Edge> * solution, int solutionPrice);
+	std::pair<std::vector<Edge> *, int> * prepareSolution(SpanningTree * solution, int solutionPrice);
 };
 
 #endif	/* DFSSOLVER_H */

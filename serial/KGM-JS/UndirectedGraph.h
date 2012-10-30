@@ -8,6 +8,7 @@
 
 #include "Edge.h"
 #include "SquareMatrix.h"
+#include "SpanningTree.h"
 #include <vector>
 
 class UndirectedGraph {
@@ -20,7 +21,7 @@ public:
     const int vertexCount();
     bool areConnected(int vertex1, int vertex2);
     std::vector<Edge> * edgesAdjacentTo(int vertex);
-    std::vector<Edge> * edgeCandidates(std::vector<Edge> & tree, int vertexDegrees[]);
+    std::vector<Edge> * edgeCandidates(SpanningTree * tree);
     friend std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph);
 };
 
