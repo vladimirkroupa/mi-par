@@ -17,6 +17,8 @@ UndirectedGraph::~UndirectedGraph() {
 
 void UndirectedGraph::addEdge(int vertex1, int vertex2) {
 	(*adjacencyMatrix)(vertex1, vertex2) = true;
+	// to be sure, but should not be needed
+	(*adjacencyMatrix)(vertex2, vertex1) = true;
 }
 
 const int UndirectedGraph::vertexCount() {
@@ -49,6 +51,7 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 	vector<Edge> * edges = tree->getEdges();
 	int * vertexDegrees = tree->getVertexDegrees();
 	SquareMatrix * adjacencyCopy = new SquareMatrix(*adjacencyMatrix);
+	// remove edges already present in tree from adjacency matrix
 	for (int i = 0; i < edges->size(); i++) {
 		Edge edge = (*edges)[i];
 		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
@@ -56,10 +59,12 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 
 	std::vector<Edge> * newEdges = new std::vector<Edge>();
 	for (int vertexFrom = 0; vertexFrom < vertexCount(); vertexFrom++) {
+		// skip edges where the first vertex would have degree 0 in the tree
 		if (vertexDegrees[vertexFrom] == 0) {
 			continue;
 		}
 		for (int vertexTo = 0; vertexTo < vertexCount(); vertexTo++) {
+			// skip edges that would create cycle in the tree
 			if (vertexDegrees[vertexTo] != 0) {
 				continue;
 			}
