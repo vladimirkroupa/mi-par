@@ -113,3 +113,4 @@ class DFSSolver:
             else:
                 print("| {0:6} |".format(edge))
         print ("^        ^\n")
+
