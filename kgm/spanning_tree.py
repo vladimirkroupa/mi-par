@@ -46,5 +46,4 @@ class SpanningTree:
 
     def __str__(self):
         result = ", ".join(str(edge) for edge in self.edges)
-        result += "\ndegree: {0}".format(self.maxDegree())
         return result
