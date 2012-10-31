@@ -5,14 +5,14 @@ from spanning_tree import SpanningTree
 class DFSSolver:
 
     BEST_PRICE_POSSIBLE = 2
-    DEBUG = False
 
-    def __init__(self, graph):
+    def __init__(self, graph, debug=False):
         self.graph = graph
         self.spanning_tree = SpanningTree(graph.vertexCount())
         self.edge_stack = []
         self.best_price = 0
         self.best = None
+        self.debug = debug
 
     def findBestSolution(self):
         # push all edges adjacent to vertex 0 to stack
@@ -22,7 +22,7 @@ class DFSSolver:
         # main loop
         while len(self.edge_stack) > 0:
 
-            if self.DEBUG:
+            if self.debug:
                 self.printStack()
 
             current_edge = self.edge_stack.pop()
@@ -33,12 +33,12 @@ class DFSSolver:
                 # add current edge to spanning tree
                 self.spanning_tree.addEdge(current_edge)
 
-                if self.DEBUG:
+                if self.debug:
                     print(self.spanning_tree)
 
                 if self.isSolution():
 
-                    if self.DEBUG:
+                    if self.debug:
                         print("Found solution!")
 
                     price = self.spanning_tree.maxDegree()
@@ -60,14 +60,14 @@ class DFSSolver:
                             # candidate edge can lead to better solution than best solution so far
                             self.edge_stack.append(edge)
                         else:
-                            if self.DEBUG:
+                            if self.debug:
                                 print("Leaving out edge {}".format(edge))
 
         # DFS traversal completed
         if self.foundSolution():
             return self.best, self.best_price
         else:
-            if self.DEBUG:
+            if self.debug:
                 print("No solution found.")
             return None, None
 
