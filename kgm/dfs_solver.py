@@ -135,7 +135,7 @@ class DFSSolver:
 
         backtracks_to_do = countBacktracks(self, elem_to_move)
         new_spanning_tree = copy.deepcopy(self.spanning_tree)
-        for i in range(0, backtracks_to_do):
+        for i in range(backtracks_to_do):
             new_spanning_tree.removeLastEdge()
 
         return new_stack, new_spanning_tree

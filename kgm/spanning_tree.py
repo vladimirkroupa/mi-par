@@ -7,7 +7,7 @@ class SpanningTree:
 
         self.edges = []
         self.vertex_degrees = []
-        for i in range(0, graphSize):
+        for i in range(graphSize):
             self.vertex_degrees.append(0)
 
     def edgeList(self):
@@ -35,7 +35,7 @@ class SpanningTree:
     def maxDegreeWith(self, edge):
         max = self.vertex_degrees[0]
 
-        for i in range(0, len(self.vertex_degrees)):
+        for i in range(len(self.vertex_degrees)):
             degree = self.vertex_degrees[i]
             if (edge.vertex1 == i) or (edge.vertex2 == i):
                 degree += 1

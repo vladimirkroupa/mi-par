@@ -43,7 +43,7 @@ class TestSpanningTree(unittest.TestCase):
         self.spanning_tree.addEdge(Edge(1, 2))
         self.spanning_tree.addEdge(Edge(1, 3))
 
-        expected = "(0, 1), (1, 2), (1, 3)\ndegree: 3"
+        expected = "(0, 1), (1, 2), (1, 3)"
         actual = self.spanning_tree.__str__()
         self.assertEqual(expected, actual)
 
