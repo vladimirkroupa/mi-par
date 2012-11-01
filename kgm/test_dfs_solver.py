@@ -74,5 +74,36 @@ class TestDFSSolver(unittest.TestCase):
         expected = [Edge(0, 9), Edge(1, 2), Edge(1, 3), Edge(3, 5), Edge(4, 5), Edge(4, 8), Edge(6, 7), Edge(6, 9), Edge(7, 8)]
         self.assertEqual(set(expected), set(solution.edgeList()))
 
+    def test_splitStack(self):
+        self.solver.edge_stack.append(Edge(0, 1))
+        self.solver.pushBacktrackMarker()
+        self.solver.edge_stack.append(Edge(0, 1))
+        self.solver.edge_stack.append(Edge(4, 1))
+        self.solver.edge_stack.append(Edge(4, 5))
+        self.solver.pushBacktrackMarker()
+        self.solver.edge_stack.append(Edge(0, 1))
+        self.solver.edge_stack.append(Edge(4, 1))
+        self.solver.edge_stack.append(Edge(4, 5))
+
+        self.solver.spanning_tree.addEdge(Edge(0, 4))
+        self.solver.spanning_tree.addEdge(Edge(4, 6))
+
+        print("before split:")
+        self.solver.printStack()
+        print(self.solver.spanning_tree)
+
+        new_stack, new_sp_tree = self.solver.splitWork()
+
+        print("new stack and tree:")
+        for edge in new_stack:
+            print(edge)
+        print("---")
+        print(new_sp_tree)
+
+        print("after split:")
+        self.solver.printStack()
+        print(self.solver.spanning_tree)
+
+
 if __name__ == '__main__':
         unittest.main()

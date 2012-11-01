@@ -114,3 +114,28 @@ class DFSSolver:
                 print("| {0:6} |".format(edge))
         print ("^        ^\n")
 
+    def splitWork(self):
+
+        def fromBottomElement(self):
+            for index, edge in enumerate(self.edge_stack):
+                if not self.isBacktrackMarker(edge):
+                    return index
+            return None
+
+        def countBacktracks(self, to_index):
+            count = 0
+            for edge in self.edge_stack[to_index + 1:]:
+                if self.isBacktrackMarker(edge):
+                    count += 1
+            return count
+
+        elem_to_move = fromBottomElement(self)
+        new_stack = self.edge_stack[:elem_to_move + 1]
+        del self.edge_stack[elem_to_move]
+
+        backtracks_to_do = countBacktracks(self, elem_to_move)
+        new_spanning_tree = copy.deepcopy(self.spanning_tree)
+        for i in range(0, backtracks_to_do):
+            new_spanning_tree.removeLastEdge()
+
+        return new_stack, new_spanning_tree
