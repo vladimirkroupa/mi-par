@@ -20,7 +20,7 @@ class DFSSolver:
             self.edge_stack.append(edge)
 
         # main loop
-        while len(self.edge_stack) > 0:
+        while not self.shouldTerminate():
 
             if self.debug:
                 self.printStack()
@@ -139,3 +139,14 @@ class DFSSolver:
             new_spanning_tree.removeLastEdge()
 
         return new_stack, new_spanning_tree
+
+    def shouldTerminate(self):
+        if self.workToSplit():
+            self.shareWork()
+
+
+    def workToSplit(self):
+        return len(self.edge_stack) > 3
+
+    def shareWork(self):
+        
