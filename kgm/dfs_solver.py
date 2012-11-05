@@ -1,29 +1,41 @@
 import copy
+import sys
 from edge import Edge
 from spanning_tree import SpanningTree
+from mpi4py import MPI
 
 class DFSSolver:
 
     BEST_PRICE_POSSIBLE = 2
 
-    def __init__(self, graph, debug=False):
+    WORK_REQ = 1
+    WORK_SHARE = 2
+    WORK_REJECT = 3
+
+    def __init__(self, graph, comm, debug=False):
         self.graph = graph
         self.spanning_tree = SpanningTree(graph.vertexCount())
         self.edge_stack = []
-        self.best_price = 0
+        self.best_price = sys.maxint
         self.best = None
-        self.debug = debug
+        self.debug = False # = debug
+        self.mpi_debug = debug
+
+        self.comm = comm
+        self.rank = self.comm.Get_rank()
+        self.comm_size = self.comm.Get_size()
 
     def findBestSolution(self):
         # push all edges adjacent to vertex 0 to stack
-        for edge in self.firstEdgeCandidates():
-            self.edge_stack.append(edge)
+        if self.rank == 0:
+            for edge in self.firstEdgeCandidates():
+                self.edge_stack.append(edge)
 
         # main loop
         while not self.shouldTerminate():
 
             if self.debug:
-                self.printStack()
+                print(self.printStack(self.edge_stack))
 
             current_edge = self.edge_stack.pop()
             if self.isBacktrackMarker(current_edge):
@@ -105,14 +117,15 @@ class DFSSolver:
     def foundSolution(self):
         return self.best != None
 
-    def printStack(self):
-        print ("|--------|")
-        for edge in self.edge_stack:
+    def printStack(self, stack):
+        result = "\n|--------|\n"
+        for edge in stack:
             if self.isBacktrackMarker(edge):
-                print("|   **   |")
+                result += "|   **   |\n"
             else:
-                print("| {0:6} |".format(edge))
-        print ("^        ^\n")
+                result += "| {0:6} |\n".format(edge)
+        result += "^        ^"
+        return result
 
     def splitWork(self):
 
@@ -142,11 +155,112 @@ class DFSSolver:
 
     def shouldTerminate(self):
         if self.workToSplit():
-            self.shareWork()
+            self.handleWorkRequests()
+            return False
+        else:
+            print("{0} has no work to share.").format(self.rank)
+            # not enough work to share
+            self.rejectAll()
+        if len(self.edge_stack) > 0:
+            # but enough work to continue
+            return False
+        else:
+            # own stack is empty
+            if self.comm_size == 1:
+                return True
+            work_request_sent = False
+
+            cnt = 0
+
+            while True:
+                self.rejectAll()
+                # todo: sdileni nejelepsiho?
+                # todo: ukoncovani
+                cnt += 1
+                if cnt > 500:
+                    return True
+
+                if not work_request_sent:
+                    self.sendWorkRequest()
+                    work_request_sent = True
+                else:
+                    work_available, avl_from, work_req_sent_flag = self.checkWorkResponse()
+                    if work_req_sent_flag:
+                        work_request_sent = work_req_sent_flag
+                    if work_available:
+                        self.receiveWork(avl_from)
+                        return False
 
 
     def workToSplit(self):
         return len(self.edge_stack) > 3
 
-    def shareWork(self):
-        
+    def handleWorkRequests(self):
+        status = MPI.Status()
+        # check for work request from anyone
+        has_message = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=self.WORK_REQ, status=status)
+        if not has_message:
+            print("{0} has no work requests.").format(self.rank)
+            return
+        else:
+            source = status.Get_source()
+            print("{0} has WORK_REQ from {1}").format(self.rank, source)
+            self.comm.recv(source=source, tag=self.WORK_REQ, status=status)
+            self.sendWork(source)
+
+    def sendWork(self, to):
+        new_stack, new_spanning_tree = self.splitWork()
+        self.comm.send((new_stack, new_spanning_tree), dest=to, tag=self.WORK_SHARE)
+        print("{0} sent work offer to {1}").format(self.rank, to)
+
+    def rejectAll(self):
+        status = MPI.Status()
+        has_message = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=self.WORK_REQ, status=status)
+        while has_message:
+            source = status.Get_source()
+            self.comm.recv(source=source, tag=self.WORK_REQ)
+            self.comm.send(dest=source, tag=self.WORK_REJECT)
+            print("{0} received and REJECTED work request from {1}").format(self.rank, source)
+
+            has_message = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=self.WORK_REQ, status=status)
+
+    def sendWorkRequest(self):
+        destination = (self.rank + 1) % self.comm_size
+        self.comm.send(dest=destination, tag=self.WORK_REQ)
+        print("{0} sent work request to {1}").format(self.rank, destination)
+
+    def checkWorkResponse(self):
+        status = MPI.Status()
+        # muzu tady mit ANY_SOURCE?
+        # check for shared work
+        work_resp = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=self.WORK_SHARE, status=status)
+        if work_resp:
+            source = status.Get_source()
+            print("there is shared work for {0} from {1}").format(self.rank, source)
+            return True, source, None
+        else:
+            # check for rejections
+            rejection = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=self.WORK_REJECT, status=status)
+            if rejection:
+                # got rejection for work request
+                source = status.Get_source()
+                print("{0} received work request rejection from {1}").format(self.rank, source)
+                self.comm.recv(source=source, tag=self.WORK_REJECT)
+                return False, None, False
+            else:
+                # no reponse
+                return False, None, True
+
+    def receiveWork(self, source):
+        work_tuple = self.comm.recv(source=source, tag=self.WORK_SHARE)
+        print("{0} RECEIVED work from {1}").format(self.rank, source)
+        new_stack = work_tuple[0]
+        new_spanning_tree = work_tuple[1]
+
+        print("{0} received stack: {1}").format(self.rank, self.printStack(new_stack))
+        print("{0} received tree: {1}").format(self.rank, new_spanning_tree)
+
+        self.spanning_tree = new_spanning_tree
+        for edge in new_stack:
+            self.edge_stack.append(edge)
+

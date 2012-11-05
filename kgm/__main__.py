@@ -1,20 +1,30 @@
 import argparse
 from dfs_solver import DFSSolver
 from undirected_graph import UndirectedGraph
+from mpi4py import MPI
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file", help="input file with graph adjacency matrix")
-    parser.add_argument("-d", "--debug", help="print additional messages", action="store_true")
-    args = parser.parse_args()
-    file = args.file
-    graph = readGraph(file)
-    solver = DFSSolver(graph, args.debug)
+    comm = MPI.COMM_WORLD
+    my_rank = comm.Get_rank()
+    if (my_rank == 0):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("file", help="input file with graph adjacency matrix")
+        parser.add_argument("-d", "--debug", help="print additional messages", action="store_true")
+        args = parser.parse_args()
+        file = args.file
+        graph = readGraph(file)
+    else:
+        graph = None
+    received = comm.bcast(graph)
+    solver = DFSSolver(received, comm, True)
+
+    comm.Barrier()
+
     solution, price = solver.findBestSolution()
     if solution == None:
-        print("No spanning tree found.")
+        print("{0}: No spanning tree found.").format(my_rank)
     else:
-        print("Minimum spanning tree, degree = {0}:").format(price)
+        print("{0}: Minimum spanning tree, degree = {0}:").format(my_rank, price)
         print(solution)
 
 def readGraph(file):
