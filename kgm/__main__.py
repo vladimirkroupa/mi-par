@@ -21,6 +21,7 @@ def main():
     comm.Barrier()
 
     solution, price = solver.findBestSolution()
+    print("-------------------------------------")
     if solution == None:
         print("{0}: No spanning tree found.").format(my_rank)
     else:
