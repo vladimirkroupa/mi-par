@@ -170,15 +170,16 @@ class DFSSolver:
         return new_stack, new_spanning_tree
 
     def shouldTerminate(self):
-        if self.finished:
-            print("* {0} exiting...").format(self.rank)
-            return True
-
         if self.counter > 100:
             self.counter %= 100
             return False
         else:
             self.counter += 1
+
+        self.checkTerminationMsg()
+        if self.finished:
+            print("* {0} exiting...").format(self.rank)
+            return True
 
         if self.hasWorkToShare():
             self.handleWorkRequests()
@@ -217,6 +218,7 @@ class DFSSolver:
                         self.receiveWork(avl_from)
                         return False
 
+    # predelat
     def hasWorkToShare(self):
         return len(self.edge_stack) > 3
 
@@ -341,12 +343,7 @@ class DFSSolver:
                 token.color = self.color
                 sendToken(self, token)
 
-        should_terminate = self.comm.Iprobe(source=0, tag=DFSSolver.TERMINATE)
-        if should_terminate:
-            self.comm.recv(source=0, tag=DFSSolver.TERMINATE)
-            print("* {0} has received termination token.").format(self.rank)
-            self.finished = True
-            return
+        self.checkTerminationMsg()
 
         has_token = self.comm.Iprobe(source=self.prevNode(), tag=DFSSolver.TOKEN)
         if has_token:
@@ -355,6 +352,14 @@ class DFSSolver:
             #print("* No token for {0}").format(self.rank)
             if self.rank == 0 and not self.token_sent:
                initialTokenSend(self)
+
+    def checkTerminationMsg(self):
+        should_terminate = self.comm.Iprobe(source=0, tag=DFSSolver.TERMINATE)
+        if should_terminate:
+            self.comm.recv(source=0, tag=DFSSolver.TERMINATE)
+            print("* {0} has received termination token.").format(self.rank)
+            self.finished = True
+            return
 
 class Token:
 
