@@ -2,6 +2,7 @@ import argparse
 from dfs_solver import DFSSolver
 from undirected_graph import UndirectedGraph
 from mpi4py import MPI
+import sys
 
 def main():
     comm = MPI.COMM_WORLD
@@ -21,19 +22,20 @@ def main():
     comm.Barrier()
 
     solution, price = solver.findBestSolution()
+    sys.stdout.flush()
 
-    if solution == None:
-        print("{0}: No spanning tree found.").format(my_rank)
-    else:
-        min_price = comm.reduce(sendobj=price, op=MPI.MIN, root=0)
-        if my_rank == 0:
-            print("Miniumum price is {0}.").format(min_price)
+    comm.Barrier()
 
-        if price == min_price:
-           print("-------------------------------------")
-           print("{0}: Minimum spanning tree, degree = {1}:").format(my_rank, price)
-           print(solution)
-           print("*************************************")
+    # print("? {1}'s price is {0}").format(price, my_rank)
+
+    min_price = comm.reduce(sendobj=price, op=MPI.MIN, root=0)
+    if my_rank == 0:
+        print("*** Minimum price is {0}.").format(min_price)
+    if price == min_price:
+        print("-------------------------------------")
+        print("{0}: Minimum spanning tree, degree = {1}:").format(my_rank, price)
+        print(solution)
+        print("*************************************")
 
     MPI.Finalize()
 

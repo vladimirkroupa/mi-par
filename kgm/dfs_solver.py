@@ -18,7 +18,7 @@ class DFSSolver:
         self.graph = graph
         self.spanning_tree = SpanningTree(graph.vertexCount())
         self.edge_stack = []
-        self.best_price = -1
+        self.best_price = sys.maxint
         self.best = None
 
         self.color = Token.BLACK
@@ -94,8 +94,8 @@ class DFSSolver:
             return self.best, self.best_price
         else:
             if self.debug:
-                print("No solution found.")
-            return None, None
+                print("{0}: no solution found.").format(self.rank)
+            return None, sys.maxint
 
     def firstEdgeCandidates(self):
         vertex = 0
