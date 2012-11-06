@@ -41,6 +41,10 @@ class DFSSolver:
         # main loop
         while not self.shouldTerminate():
 
+            # trochu prasarna
+            if len(self.edge_stack) == 0:
+                continue
+
             if self.debug:
                 print(self.printStack(self.edge_stack))
 
@@ -188,29 +192,28 @@ class DFSSolver:
             # own stack is empty
             if self.comm_size == 1:
                 return True
+
             self.handleTokens()
 
             work_request_sent = False
-
             while True:
                 self.rejectAll()
-                # todo: sdileni nejelepsiho?
+                # todo: sdileni nejlepsiho?
 
                 self.handleTokens()
+                if self.finished:
+                    break
 
                 if not work_request_sent:
                     self.sendWorkRequest()
                     work_request_sent = True
                 else:
                     work_available, avl_from, work_req_sent_flag = self.checkWorkResponse()
-                    if work_req_sent_flag:
+                    if work_req_sent_flag is not None:
                         work_request_sent = work_req_sent_flag
                     if work_available:
                         self.receiveWork(avl_from)
                         return False
-
-                if self.finished:
-                    return True
 
     def hasWorkToShare(self):
         return len(self.edge_stack) > 3
@@ -269,7 +272,7 @@ class DFSSolver:
         if work_resp:
             source = status.Get_source()
             print("there is shared work for {0} from {1}").format(self.rank, source)
-            return True, source, None
+            return True, source, True
         else:
             # check for rejections
             rejection = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=DFSSolver.WORK_REJECT, status=status)
@@ -307,11 +310,11 @@ class DFSSolver:
         if change_color:
             self.color = Token.BLACK
 
-
     def handleTokens(self):
 
         def askToTerminate(self):
             for node in range(0, self.comm_size):
+                print("{0} sent TERMINATION tag to {1}").format(self.rank, node)
                 self.comm.send(dest=node, tag=DFSSolver.TERMINATE)
 
         def initialTokenSend(self):
@@ -347,7 +350,7 @@ class DFSSolver:
         if has_token:
             token = receiveToken(self)
         else:
-            # print("No token for {0}").format(self.rank)
+            #print("No token for {0}").format(self.rank)
             if self.rank == 0 and not self.token_sent:
                initialTokenSend(self)
 

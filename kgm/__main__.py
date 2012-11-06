@@ -25,7 +25,7 @@ def main():
     if solution == None:
         print("{0}: No spanning tree found.").format(my_rank)
     else:
-        print("{0}: Minimum spanning tree, degree = {0}:").format(my_rank, price)
+        print("{0}: Minimum spanning tree, degree = {1}:").format(my_rank, price)
         print(solution)
 
 def readGraph(file):
