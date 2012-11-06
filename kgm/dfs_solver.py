@@ -68,7 +68,8 @@ class DFSSolver:
                     if self.isBestPossible(price):
                         # current solution is the best possible, return
                         self.updateBest(price)
-                        return self.best, self.best_price
+                        print("* {0} found the best solution possible").format(self.rank)
+                        self.askToTerminate()
                     elif self.isBestSoFar(price):
                         # better that any solution so far, update best
                         self.updateBest(price)
@@ -170,6 +171,7 @@ class DFSSolver:
 
     def shouldTerminate(self):
         if self.finished:
+            print("* {0} exiting...").format(self.rank)
             return True
 
         if self.counter > 100:
@@ -190,6 +192,7 @@ class DFSSolver:
             return False
         else:
             # own stack is empty
+
             if self.comm_size == 1:
                 return True
 
@@ -198,7 +201,6 @@ class DFSSolver:
             work_request_sent = False
             while True:
                 self.rejectAll()
-                # todo: sdileni nejlepsiho?
 
                 self.handleTokens()
                 if self.finished:
@@ -310,12 +312,12 @@ class DFSSolver:
         if change_color:
             self.color = Token.BLACK
 
-    def handleTokens(self):
+    def askToTerminate(self):
+        for node in range(0, self.comm_size):
+            print("* {0} sent TERMINATION tag to {1}").format(self.rank, node)
+            self.comm.send(dest=node, tag=DFSSolver.TERMINATE)
 
-        def askToTerminate(self):
-            for node in range(0, self.comm_size):
-                print("{0} sent TERMINATION tag to {1}").format(self.rank, node)
-                self.comm.send(dest=node, tag=DFSSolver.TERMINATE)
+    def handleTokens(self):
 
         def initialTokenSend(self):
             token = Token()
@@ -324,14 +326,14 @@ class DFSSolver:
         def sendToken(self, token):
             self.comm.send(token, dest=self.nextNode(), tag=DFSSolver.TOKEN)
             self.color = Token.WHITE
-            #print("{0} sent {1} to {2}").format(self.rank, token, self.nextNode())
+            print("* {0} sent {1} to {2}").format(self.rank, token, self.nextNode())
 
         def receiveToken(self):
             token = self.comm.recv(source=self.prevNode(), tag=DFSSolver.TOKEN)
-            #print("{0} received {1} from {2}").format(self.rank, token, self.prevNode())
+            print("* {0} received {1} from {2}").format(self.rank, token, self.prevNode())
             if self.rank == 0:
                 if token.color == Token.WHITE:
-                    askToTerminate(self)
+                    self.askToTerminate()
                 else:
                     # black token arrived, try again
                     initialTokenSend(self)
@@ -342,7 +344,7 @@ class DFSSolver:
         should_terminate = self.comm.Iprobe(source=0, tag=DFSSolver.TERMINATE)
         if should_terminate:
             self.comm.recv(source=0, tag=DFSSolver.TERMINATE)
-            print("{0} has finished.").format(self.rank)
+            print("* {0} has received termination token.").format(self.rank)
             self.finished = True
             return
 
@@ -350,7 +352,7 @@ class DFSSolver:
         if has_token:
             token = receiveToken(self)
         else:
-            #print("No token for {0}").format(self.rank)
+            #print("* No token for {0}").format(self.rank)
             if self.rank == 0 and not self.token_sent:
                initialTokenSend(self)
 

@@ -21,12 +21,21 @@ def main():
     comm.Barrier()
 
     solution, price = solver.findBestSolution()
-    print("-------------------------------------")
+
     if solution == None:
         print("{0}: No spanning tree found.").format(my_rank)
     else:
-        print("{0}: Minimum spanning tree, degree = {1}:").format(my_rank, price)
-        print(solution)
+        min_price = comm.reduce(sendobj=price, op=MPI.MIN, root=0)
+        if my_rank == 0:
+            print("Miniumum price is {0}.").format(min_price)
+
+        if price == min_price:
+           print("-------------------------------------")
+           print("{0}: Minimum spanning tree, degree = {1}:").format(my_rank, price)
+           print(solution)
+           print("*************************************")
+
+    MPI.Finalize()
 
 def readGraph(file):
     graph_file =  open(file, 'r')
