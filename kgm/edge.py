@@ -4,8 +4,8 @@ class Edge:
         self.vertex1 = vertex1
         self.vertex2 = vertex2
 
-    def isBacktrackMarker(self, edge):
-        return edge.vertex1 == -1 and edge.vertex2 == -1
+    def isBacktrackMarker(self,):
+        return self.vertex1 == -1 and self.vertex2 == -1
 
     def __str__(self):
         return "({0}, {1})".format(self.vertex1, self.vertex2)

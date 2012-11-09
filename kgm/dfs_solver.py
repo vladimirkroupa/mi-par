@@ -131,7 +131,7 @@ class DFSSolver:
     def printStack(self, stack):
         result = "\n|--------|\n"
         for edge in stack:
-            if isBacktrackMarker(edge):
+            if edge.isBacktrackMarker():
                 result += "|   **   |\n"
             else:
                 result += "| {0:6} |\n".format(edge)
@@ -215,13 +215,12 @@ class DFSSolver:
                         self.receiveWork(avl_from)
                         return False
 
-    # predelat
     def hasWorkToShare(self):
-        edgeCount = 0;
+        edge_count = 0
         for edge in self.edge_stack:
             if not edge.isBacktrackMarker():
-                edgeCount += 1
-        return edgeCount
+                edge_count += 1
+        return edge_count >= 2
 
     def handleWorkRequests(self):
         status = MPI.Status()
