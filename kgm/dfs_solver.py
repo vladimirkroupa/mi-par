@@ -49,7 +49,7 @@ class DFSSolver:
                 print(self.printStack(self.edge_stack))
 
             current_edge = self.edge_stack.pop()
-            if self.isBacktrackMarker(current_edge):
+            if current_edge.isBacktrackMarker():
                 # found backtrack marker, remove last edge from spanning tree
                 self.spanning_tree.removeLastEdge()
             else:
@@ -101,9 +101,6 @@ class DFSSolver:
         vertex = 0
         return self.graph.adjacentEdges(vertex)
 
-    def isBacktrackMarker(self, edge):
-        return edge == Edge(-1, -1)
-
     def pushBacktrackMarker(self):
         self.edge_stack.append(Edge(-1, -1))
 
@@ -134,7 +131,7 @@ class DFSSolver:
     def printStack(self, stack):
         result = "\n|--------|\n"
         for edge in stack:
-            if self.isBacktrackMarker(edge):
+            if isBacktrackMarker(edge):
                 result += "|   **   |\n"
             else:
                 result += "| {0:6} |\n".format(edge)
@@ -145,14 +142,14 @@ class DFSSolver:
 
         def fromBottomElement(self):
             for index, edge in enumerate(self.edge_stack):
-                if not self.isBacktrackMarker(edge):
+                if not edge.isBacktrackMarker():
                     return index
             return None
 
         def countBacktracks(self, to_index):
             count = 0
             for edge in self.edge_stack[to_index + 1:]:
-                if self.isBacktrackMarker(edge):
+                if edge.isBacktrackMarker():
                     count += 1
             return count
 
@@ -220,7 +217,11 @@ class DFSSolver:
 
     # predelat
     def hasWorkToShare(self):
-        return len(self.edge_stack) > 3
+        edgeCount = 0;
+        for edge in self.edge_stack:
+            if not edge.isBacktrackMarker():
+                edgeCount += 1
+        return edgeCount
 
     def handleWorkRequests(self):
         status = MPI.Status()

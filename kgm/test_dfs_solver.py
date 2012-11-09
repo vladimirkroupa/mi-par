@@ -23,7 +23,7 @@ class TestDFSSolver(unittest.TestCase):
         self.assertEqual(set([Edge(0, 1), Edge(0, 4)]), set(edges))
 
     def test_backtrackMarker(self):
-        self.assertTrue(self.solver.isBacktrackMarker(Edge(-1, -1)))
+        self.assertTrue(Edge(-1, -1).isBacktrackMarker())
 
     def test_findBestSolutionFor7(self):
         solution, price = self.solver.findBestSolution()
