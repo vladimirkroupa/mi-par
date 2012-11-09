@@ -9,7 +9,7 @@ using namespace std;
 DFSSolver::DFSSolver(UndirectedGraph * graph) {
 	this->graph = graph;
 	
-	edgeStack = new stack<Edge>();
+	edgeStack = new vector<Edge>();
 	bestPrice = 0;
 	best = NULL;
 	
@@ -26,15 +26,15 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	// initial state - push all edges adjacent to vertex 0 to stack
 	vector<Edge> * initial = firstEdgeCandidates();
 	for (int i = 0; i < initial->size(); i++) {
-		edgeStack->push((*initial)[i]);
+		edgeStack->push_back((*initial)[i]);
 	}
 	delete initial;
 	
 	while (! edgeStack->empty()) {
 		if (DEBUG) printStack();
 		// remove top edge from stack
-		Edge current = edgeStack->top();
-		edgeStack->pop();
+		Edge current = edgeStack->back();
+		edgeStack->pop_back();
 
 		if (current.isBacktrackMarker()) {
 			if (DEBUG) cout << "backtracking" << endl;
@@ -69,7 +69,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 					if (possibleWinner(edge)) {
 						// if the current candidate edge can lead to better solution than the best solution so far,
 						// add it to the stack
-						edgeStack->push(edge);
+						edgeStack->push_back(edge);
 					} else {
 						if (DEBUG) cout <<  "leaving out edge " << edge << endl;
 					}
@@ -87,7 +87,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 }
 
 void DFSSolver::pushBacktrackMarker() {
-	edgeStack->push(Edge(-1, -1));
+	edgeStack->push_back(Edge(-1, -1));
 }
 
 vector<Edge> * DFSSolver::firstEdgeCandidates() {

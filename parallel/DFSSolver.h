@@ -18,7 +18,7 @@ public:
 private:
 	static const int MIN_PRICE_POSSIBLE = 2;
 	static const bool DEBUG = false;
-	std::stack<Edge> * edgeStack;
+	std::vector<Edge> * edgeStack;
 	UndirectedGraph * graph;
 	
 	SpanningTree * spanningTree;
