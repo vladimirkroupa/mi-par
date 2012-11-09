@@ -6,3 +6,4 @@ bin/
 .project
 .classpath
 /serial/KGM-JS/dist/
+nbproject
