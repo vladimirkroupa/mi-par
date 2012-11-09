@@ -41,6 +41,8 @@ private:
 	void printCandidates(std::vector<Edge> * candidates);
 	void printVertexDegrees();
 	
+	std::pair<std::vector<Edge> *, SpanningTree *> * splitWork();
+	
 	std::pair<std::vector<Edge> *, int> * prepareSolution(SpanningTree * solution, int solutionPrice);
 };
 

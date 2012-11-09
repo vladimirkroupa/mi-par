@@ -156,3 +156,47 @@ pair<vector<Edge> *, int> * DFSSolver::prepareSolution(SpanningTree* solution, i
 	pair<vector<Edge> *, int> * result = new pair<vector<Edge> *, int>(copy, solutionPrice);
 	return result;
 }
+
+void DFSSolver::splitWork() {
+	// find edge to move
+	int elemToMove = -1;
+	for(int i = 0; i < edgeStack->size(); i++) {
+		Edge edge = edgeStack[i];
+		if (! edge.isBacktrackMarker()) {
+			index = i;
+		}
+	}
+	if (elemToMove == -1) {
+		return NULL;
+	}
+	
+	
+	
+}
+//    /* std::cout << *it; ... */
+//}
+//        def fromBottomElement(self):
+//            for index, edge in enumerate(self.edge_stack):
+//                if not edge.isBacktrackMarker():
+//                    return index
+//            return None
+//
+//        def countBacktracks(self, to_index):
+//            count = 0
+//            for edge in self.edge_stack[to_index + 1:]:
+//                if edge.isBacktrackMarker():
+//                    count += 1
+//            return count
+//
+//        elem_to_move = fromBottomElement(self)
+//        if elem_to_move is None:
+//            return None, None
+//        new_stack = self.edge_stack[:elem_to_move + 1]
+//        del self.edge_stack[elem_to_move]
+//
+//        backtracks_to_do = countBacktracks(self, elem_to_move)
+//        new_spanning_tree = copy.deepcopy(self.spanning_tree)
+//        for i in range(backtracks_to_do):
+//            new_spanning_tree.removeLastEdge()
+//
+//        return new_stack, new_spanning_tree
