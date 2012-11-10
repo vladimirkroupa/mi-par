@@ -11,6 +11,7 @@
 class SpanningTree {
 public:
 	SpanningTree(int size);
+	SpanningTree(int vertexCount, int edgeCount, int * degrees, int * edges);
 	SpanningTree(const SpanningTree& orig);
 	virtual ~SpanningTree();
 	void addEdge(Edge edge);
@@ -19,11 +20,12 @@ public:
 	int evaluate() const;
 	int evaluate(Edge current) const;
 	int * getVertexDegrees() const;
+	int vertexCount() const;
 	std::vector<Edge> * getEdges() const;
 	friend std::ostream & operator <<(std::ostream & os, const SpanningTree & tree);
 	void printVertexDegrees();
 private:
-	int vertexCount;
+	int vertexCnt;
 	int * vertexDegrees;
 	std::vector<Edge> * edges;
 };

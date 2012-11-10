@@ -7,17 +7,28 @@
 using namespace std;
 
 SpanningTree::SpanningTree(int vertexCount) {
-	this->vertexCount = vertexCount;
-	edges = new vector<Edge>();
-	vertexDegrees = new int[vertexCount];
+	this->vertexCnt = vertexCount;
+	this->edges = new vector<Edge>();
+	this->vertexDegrees = new int[vertexCount];
 	std::fill_n(vertexDegrees, vertexCount, 0);
 }
 
+SpanningTree::SpanningTree(int vertexCount, int edgeCount, int * degrees, int * edges) {
+	this->vertexCnt = vertexCount;
+	this->vertexDegrees = degrees;
+	this->edges = new vector<Edge>();
+	int j = 0;
+	for (int i = 0; i < edgeCount; i++) {
+		Edge e = Edge(edges[i], edges[++i]);
+		(*(this->edges))[j++] = e;
+	}
+}
+
 SpanningTree::SpanningTree(const SpanningTree& orig) {
-	this->vertexCount = orig.vertexCount;
-	edges = new vector<Edge>(*orig.edges);
-	vertexDegrees = new int[vertexCount];
-	std::copy(orig.vertexDegrees, orig.vertexDegrees + vertexCount, vertexDegrees);	
+	this->vertexCnt = orig.vertexCnt;
+	this->edges = new vector<Edge>(*orig.edges);
+	this->vertexDegrees = new int[vertexCnt];
+	std::copy(orig.vertexDegrees, orig.vertexDegrees + vertexCnt, vertexDegrees);	
 }
 
 SpanningTree::~SpanningTree() {
@@ -44,7 +55,7 @@ int SpanningTree::edgeCount() const {
 
 int SpanningTree::evaluate() const {
 	int max = vertexDegrees[0];
-	for (int i = 0; i < vertexCount; i++) {
+	for (int i = 0; i < vertexCnt; i++) {
 		if (vertexDegrees[i] > max) {
 			max = vertexDegrees[i];
 		}
@@ -54,7 +65,7 @@ int SpanningTree::evaluate() const {
 
 int SpanningTree::evaluate(Edge current) const {
 	int max = vertexDegrees[0];
-	for (int i = 0; i < vertexCount; i++) {
+	for (int i = 0; i < vertexCnt; i++) {
 		int vertexDeg = vertexDegrees[i]; 
 		if (current.vertex1 == i || current.vertex2 == i) {
 			vertexDeg++;
@@ -68,6 +79,10 @@ int SpanningTree::evaluate(Edge current) const {
 
 int * SpanningTree::getVertexDegrees() const {
 	return vertexDegrees;
+}
+
+int SpanningTree::vertexCount() const {
+	return vertexCnt;
 }
 
 vector<Edge> * SpanningTree::getEdges() const {
@@ -88,7 +103,7 @@ std::ostream & operator <<(std::ostream & os, const SpanningTree & tree) {
 
 void SpanningTree::printVertexDegrees() {
 	cout << "| "; 
-	for (int i = 0; i < vertexCount; i++) {
+	for (int i = 0; i < vertexCnt; i++) {
 		cout << vertexDegrees[i] << " | ";
 	}
 	cout << endl;
