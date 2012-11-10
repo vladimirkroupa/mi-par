@@ -22,7 +22,7 @@ class DFSSolver:
         self.best = None
 
         self.color = Token.BLACK
-        self.token_sent = False
+        self.initial_token_sent = False
         self.counter = 0
         self.rank = comm.Get_rank()
         self.comm_size = comm.Get_size()
@@ -324,6 +324,7 @@ class DFSSolver:
         def initialTokenSend(self):
             token = Token()
             sendToken(self, token)
+            self.token_sent = True;
 
         def sendToken(self, token):
             self.comm.send(token, dest=self.nextNode(), tag=DFSSolver.TOKEN)
@@ -347,10 +348,10 @@ class DFSSolver:
 
         has_token = self.comm.Iprobe(source=self.prevNode(), tag=DFSSolver.TOKEN)
         if has_token:
-            token = receiveToken(self)
+            receiveToken(self)
         else:
             #print("* No token for {0}").format(self.rank)
-            if self.rank == 0 and not self.token_sent:
+            if not self.initial_token_sent and self.rank == 0:
                initialTokenSend(self)
 
     def checkTerminationMsg(self):
