@@ -12,7 +12,7 @@
 #include "SpanningTree.h"
 #include "Token.h"
 
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 500
 
 class Packer {
 public:

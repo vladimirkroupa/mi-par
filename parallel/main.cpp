@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
+#include "Packer.h"
 
 using namespace std;
 
@@ -52,6 +53,32 @@ UndirectedGraph * readGraphFromFile(char * filename) {
 	fclose(file);
     return graph;
 }
+
+//int main(int argc, char** argv) {
+//	MPI_Init(&argc, &argv);
+//
+//	DFSSolver * solver = new DFSSolver(new UndirectedGraph(1));
+//
+//	vector<Edge> * stack = new vector<Edge>();
+//	stack->push_back(Edge(1, 2));
+//	stack->push_back(Edge(3, 4));
+//	solver->printStack(stack);
+//
+//	SpanningTree * tree = new SpanningTree(5);
+//	tree->addEdge(Edge(1, 2));
+//	tree->addEdge(Edge(1, 2));
+//	solver->printSpanningTree(tree);
+//
+//	pair<vector<Edge>*, SpanningTree *> * input = new pair<vector<Edge>*, SpanningTree *>(stack, tree);
+//
+//	char * humr = Packer::packWorkShare(input);
+//
+//	input = Packer::unpackWorkShare(humr);
+//	solver->printSpanningTree(input->second);
+//	solver->printStack(input->first);
+//
+//	MPI_Finalize();
+//}
 
 int main(int argc, char** argv) {
     if (argc != 2) {

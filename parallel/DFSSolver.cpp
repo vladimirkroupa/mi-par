@@ -152,8 +152,8 @@ void DFSSolver::printSpanningTree(SpanningTree * tree) {
 
 void DFSSolver::printStack(vector<Edge> * stack) {
 	cout << endl << "|--------|" << endl;
-	for(unsigned i = 0; i < edgeStack->size(); i++) {
-		Edge & edge = (*edgeStack)[i];
+	for(unsigned i = 0; i < stack->size(); i++) {
+		Edge & edge = (*stack)[i];
 		if (edge.isBacktrackMarker()) {
 			cout << "|   **   |" << endl;
 		} else {
@@ -211,19 +211,37 @@ pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
 			backtracks++;
 		}
 	}
+
+	cout << "existing stack:" << endl;
+	printStack(edgeStack);
 	
+	cout << "elemToMove = " << elemToMove << endl;
+
 	// copy elems from 0 to elemToMove included
 	vector<Edge> * newStack = new vector<Edge>();
 	for(int i = 0; i < elemToMove + 1; i++) {
-		(*newStack)[i] = (*edgeStack)[i];
+		Edge & e = (*edgeStack)[i];
+		newStack->insert(newStack->end(), e);
 		edgeStack->erase(edgeStack->begin() + i);
 	}
-	
+	cout << "stack to send:" << endl;
+	printStack(newStack);
+
+	cout << "splitted stack:" << endl;
+	printStack(edgeStack);
+
+	cout << "existing spanning tree:" << endl;
+	printSpanningTree(spanningTree);
+
 	SpanningTree * newTree = new SpanningTree(*spanningTree);
+	cout << "backtracks to do: " << backtracks << endl;
 	for(int i = 0; i < backtracks; i++) {
 		newTree->removeLastEdge();
 	}
 	
+	cout << "splitted spanning tree:" << endl;
+	printSpanningTree(newTree);
+
 	return new pair<vector<Edge> *, SpanningTree *>(newStack, newTree);
 }	
 	
@@ -318,14 +336,15 @@ void DFSSolver::sendWork(int to) {
 		return;
 	}
 	char * message = Packer::packWorkShare(work);
-	int position = 0;
-	MPI_Send(&message, position, MPI_PACKED, to, WORK_SHARE, comm);
+	int position = 0 // TADY SE MUSI DAT VELIKOST ZAPACKOVANE ZPRAVY
+	MPI_Send(message, position, MPI_PACKED, to, WORK_SHARE, comm);
     cout << rank << " sent work request to " << to << endl;
 	checkColorChange(to);
 
 	delete work->first;
 	delete work->second;
 	delete work;
+	delete[] message;
 }
 
 void DFSSolver::rejectAll() {

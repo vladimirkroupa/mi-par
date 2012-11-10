@@ -25,6 +25,10 @@ public:
 	DFSSolver(UndirectedGraph * graph);
 	virtual ~DFSSolver();
 	std::pair<std::vector<Edge> *, int> * findBestSolution();
+	void printSpanningTree(SpanningTree * tree);
+	void printStack(std::vector<Edge> * stack);
+	void printCandidates(std::vector<Edge> * candidates);
+	void printVertexDegrees();
 private:
 	static const int MIN_PRICE_POSSIBLE = 2;
 	static const bool DEBUG = false;
@@ -56,11 +60,6 @@ private:
 	bool isBestSoFar(int price);
 	void updateBest(int price);
 	bool solutionExists();
-	
-	void printSpanningTree(SpanningTree * tree);
-	void printStack(std::vector<Edge> * stack);
-	void printCandidates(std::vector<Edge> * candidates);
-	void printVertexDegrees();
 	
 	std::pair<std::vector<Edge> *, int> * prepareSolution(SpanningTree * solution, int solutionPrice);
 	

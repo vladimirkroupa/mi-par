@@ -17,11 +17,9 @@ SpanningTree::SpanningTree(int vertexCount, int edgeCount, int * degrees, int * 
 	this->vertexCnt = vertexCount;
 	this->vertexDegrees = degrees;
 	this->edges = new vector<Edge>();
-	int j = 0;
-	for (int i = 0; i < edgeCount; i++) {
+	for (int i = 0; i < edgeCount * 2; i++) {
 		Edge e = Edge(edges[i], edges[i + 1]);
-		(*(this->edges))[j] = e;
-		j++;
+		this->edges->insert(this->edges->end(), e);
 		i++;
 	}
 }
