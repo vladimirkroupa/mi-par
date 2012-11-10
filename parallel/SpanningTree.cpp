@@ -19,8 +19,10 @@ SpanningTree::SpanningTree(int vertexCount, int edgeCount, int * degrees, int * 
 	this->edges = new vector<Edge>();
 	int j = 0;
 	for (int i = 0; i < edgeCount; i++) {
-		Edge e = Edge(edges[i], edges[++i]);
-		(*(this->edges))[j++] = e;
+		Edge e = Edge(edges[i], edges[i + 1]);
+		(*(this->edges))[j] = e;
+		j++;
+		i++;
 	}
 }
 
@@ -90,7 +92,7 @@ vector<Edge> * SpanningTree::getEdges() const {
 }
 
 std::ostream & operator <<(std::ostream & os, const SpanningTree & tree) {
-	for (int i = 0; i < tree.edges->size(); i++) {
+	for (unsigned i = 0; i < tree.edges->size(); i++) {
 		if (i != 0) {
 			os << ", ";
 		}

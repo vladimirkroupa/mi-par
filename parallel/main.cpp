@@ -20,12 +20,12 @@ UndirectedGraph * readGraphFromFile(char * filename) {
     
     FILE *file = fopen(filename, (const char *)"r");
     if (file == NULL) {
-        std::cout << "Neexistujici soubor:" << filename << endl;
+        cout << "Neexistujici soubor:" << filename << endl;
         exit(EXIT_FAILURE);
     }
 
     if (fscanf(file, "%d", &nodes_count) != 1) {
-        std:cout << "Nelze nacist prvni radek vstupniho souboru" <<endl;
+        cout << "Nelze nacist prvni radek vstupniho souboru" << endl;
         exit(EXIT_FAILURE);
     }
     
@@ -57,8 +57,6 @@ UndirectedGraph * readGraphFromFile(char * filename) {
  * 
  */
 int main(int argc, char** argv) {
-    int i;
-
     if (argc != 2) {
         cout << "Spatny pocet parametru" << endl;
         cout << "binarka nazev-souboru" << endl;
@@ -75,7 +73,7 @@ int main(int argc, char** argv) {
 	int solutionPrice = result->second;
     if (solution != NULL) {
         cout << "Best solution:" << endl;
-        for (i = 0; i < solution->size(); i++) {
+        for (unsigned i = 0; i < solution->size(); i++) {
             cout << (*solution)[i] << endl;
         }
 		cout << "Spanning tree degree: " << solutionPrice << endl;

@@ -120,8 +120,10 @@ pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	vector<Edge> * stackEdgeVec = new vector<Edge>();
 	int j = 0;
 	for (int i = 0; i < elemCnt; i++) {
-		Edge e = Edge(stackEdges[i], stackEdges[++i]);
-		(*stackEdgeVec)[j++] = e;
+		Edge e = Edge(stackEdges[i], stackEdges[i + 1]);
+		(*stackEdgeVec)[j] = e;
+		i++;
+		j++;
 	}
 	delete[] stackEdges;
 	

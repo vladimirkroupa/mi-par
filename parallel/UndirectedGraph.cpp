@@ -52,7 +52,7 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 	int * vertexDegrees = tree->getVertexDegrees();
 	SquareMatrix * adjacencyCopy = new SquareMatrix(*adjacencyMatrix);
 	// remove edges already present in tree from adjacency matrix
-	for (int i = 0; i < edges->size(); i++) {
+	for (unsigned i = 0; i < edges->size(); i++) {
 		Edge edge = (*edges)[i];
 		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
 	}

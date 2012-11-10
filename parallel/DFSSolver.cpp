@@ -37,7 +37,7 @@ DFSSolver::~DFSSolver() {
 pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	// initial state - push all edges adjacent to vertex 0 to stack
 	vector<Edge> * initial = firstEdgeCandidates();
-	for (int i = 0; i < initial->size(); i++) {
+	for (unsigned i = 0; i < initial->size(); i++) {
 		edgeStack->push_back((*initial)[i]);
 	}
 	delete initial;
@@ -76,7 +76,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 				// find new edges to add to spanning tree
 				vector<Edge> * candidates = graph->edgeCandidates(spanningTree);
 				if (DEBUG) printCandidates(candidates);
-				for (int i = 0; i < candidates->size(); i++) {
+				for (unsigned i = 0; i < candidates->size(); i++) {
 					Edge & edge = (*candidates)[i];
 					if (possibleWinner(edge)) {
 						// if the current candidate edge can lead to better solution than the best solution so far,
@@ -149,7 +149,7 @@ void DFSSolver::printStack(vector<Edge> * stack) {
 
 void DFSSolver::printCandidates(vector<Edge> * candidates) {
 	cout << candidates->size() << " possibilities: ";
-	for (int i = 0; i < candidates->size(); i++) {
+	for (unsigned i = 0; i < candidates->size(); i++) {
 		Edge & edge = (*candidates)[i];
 		if (i != 0) {
 			cout << ", ";
@@ -172,7 +172,7 @@ pair<vector<Edge> *, int> * DFSSolver::prepareSolution(SpanningTree* solution, i
 pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
 	// find edge to move to new stack
 	int elemToMove = -1;
-	for(int i = 0; i < edgeStack->size(); i++) {
+	for(unsigned i = 0; i < edgeStack->size(); i++) {
 		Edge edge = (*edgeStack)[i];
 		if (! edge.isBacktrackMarker()) {
 			elemToMove = i;
@@ -185,7 +185,7 @@ pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
 
 	// count backtracks to do
 	int backtracks = 0;
-	for(int i = elemToMove + 1; i < edgeStack->size(); i++) {
+	for(unsigned i = elemToMove + 1; i < edgeStack->size(); i++) {
 		Edge edge = (*edgeStack)[i];
 		if (edge.isBacktrackMarker()) {
 			backtracks++;
@@ -268,7 +268,7 @@ bool DFSSolver::shouldTerminate() {
 
 bool DFSSolver::hasWorkToShare() {
 	int edgeCount = 0;
-	for (int i = 0; i < edgeStack->size(); i++) {
+	for (unsigned i = 0; i < edgeStack->size(); i++) {
 		Edge edge = (*edgeStack)[i];
 		if (! edge.isBacktrackMarker()) {
 			edgeCount++;
@@ -435,7 +435,6 @@ void DFSSolver::handleTokens() {
 	int hasToken = 0;
 	int source = prevNode();
 	MPI_Iprobe(source, TOKEN, comm, &hasToken, MPI_STATUS_IGNORE);
-	Token token;
 	if (hasToken) {
 		receiveToken();
 	} else {

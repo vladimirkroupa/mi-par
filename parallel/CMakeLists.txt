@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(kgm)
 
+set(CMAKE_CXX_FLAGS "-Wall")
+
 find_package(MPI REQUIRED)
 
 include_directories(${MPI_INCLUDE_PATH})
