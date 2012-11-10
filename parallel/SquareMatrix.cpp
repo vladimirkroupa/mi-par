@@ -14,6 +14,19 @@ SquareMatrix::SquareMatrix(int size) {
 	}
 }
 
+SquareMatrix::SquareMatrix(int size, bool * array) {
+	this->matrixSize = size;
+	this->matrix = new bool* [matrixSize];
+	int elem = 0;
+	for (int i = 0; i < size; i++) {
+		matrix[i] = new bool[matrixSize];
+		for (int j = 0; j < size; j++) {
+			matrix[i][j] = array[elem];
+			elem++;
+		}
+	}
+}
+
 SquareMatrix::SquareMatrix(const SquareMatrix& orig) {
 	this->matrixSize = orig.matrixSize;
 	this->matrix = new bool* [matrixSize];
@@ -40,4 +53,10 @@ bool& SquareMatrix::operator ()(unsigned row, unsigned col) {
 
 int SquareMatrix::size() {
 	return matrixSize;
+}
+
+bool SquareMatrix::getMatrixElem(int i) {
+	int row = i / matrixSize;
+	int col = i % matrixSize;
+	return matrix[row][col];
 }

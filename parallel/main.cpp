@@ -53,9 +53,6 @@ UndirectedGraph * readGraphFromFile(char * filename) {
     return graph;
 }
 
-/*
- * 
- */
 int main(int argc, char** argv) {
     if (argc != 2) {
         cout << "Spatny pocet parametru" << endl;
@@ -64,26 +61,76 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    UndirectedGraph *graph = readGraphFromFile(argv[1]);
-    cout << "vertex count=" << graph->vertexCount() << endl;
+    MPI_Init(&argc, &argv);
+    int myRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
-    DFSSolver *solver = new DFSSolver(graph);
-    pair<vector<Edge> *, int>  *result = solver->findBestSolution();
-	vector<Edge> *solution = result->first;
-	int solutionPrice = result->second;
-    if (solution != NULL) {
-        cout << "Best solution:" << endl;
-        for (unsigned i = 0; i < solution->size(); i++) {
-            cout << (*solution)[i] << endl;
-        }
-		cout << "Spanning tree degree: " << solutionPrice << endl;
+    int commSize;
+    MPI_Comm_size(MPI_COMM_WORLD, &commSize);
+    cout << commSize << " nodes" << endl;
+
+    UndirectedGraph * graph;
+    int vertexCount;
+    if (myRank == 0) {
+        graph = readGraphFromFile(argv[1]);
+        cout << "vertex count=" << graph->vertexCount() << endl;
+        vertexCount = graph->vertexCount();
     }
+    MPI_Bcast(&vertexCount, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    int elemCnt = vertexCount * vertexCount;
+    bool * matrixElems = new bool[elemCnt];
+    if (myRank == 0) {
+    	for (int i = 0; i < elemCnt; i++) {
+    		matrixElems[i] = graph->getMatrixElem(i);
+    	}
+    }
+    MPI_Bcast(matrixElems, elemCnt, MPI_INT, 0, MPI_COMM_WORLD);
+    if (myRank != 0) {
+    	SquareMatrix * matrix = new SquareMatrix(elemCnt, matrixElems);
+    	graph = new UndirectedGraph(matrix);
+    }
+    delete[] matrixElems;
+
+    DFSSolver * solver = new DFSSolver(graph);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    pair<vector<Edge> *, int>  * result = solver->findBestSolution();
+	vector<Edge> * solution = result->first;
+	int solutionPrice = result->second;
+
+	MPI_Barrier(MPI_COMM_WORLD);
+
+    int localMin[2];
+    int globalMin[2];
+	MPI_Allreduce(&localMin, &globalMin, 1, MPI_2INT, MPI_MINLOC, MPI_COMM_WORLD);
+
+	int winner = globalMin[1];
+	int minPrice = globalMin[0];
+
+	cout << myRank << " humr" << endl;
+	if (myRank == winner) {
+		if (solution != NULL) {
+			cout << "Best solution:" << endl;
+			for (unsigned i = 0; i < solution->size(); i++) {
+				cout << (*solution)[i] << endl;
+			}
+			cout << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
+		} else {
+			cout << "No solution found." << endl;
+		}
+	}
+
+	MPI_Finalize();
 
 	delete graph;
     delete solution;
 	delete result;
-	delete solver; // tady to umre
+	delete solver;
 
     return 0;
 }
+
+
 

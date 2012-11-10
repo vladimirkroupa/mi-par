@@ -4,6 +4,7 @@
 
 #include "DFSSolver.h"
 #include "Packer.h"
+#include <limits>
 
 #define WORK_STEPS 100
 
@@ -11,12 +12,10 @@ using namespace std;
 
 DFSSolver::DFSSolver(UndirectedGraph * graph) {
 	this->graph = graph;
-	
-	edgeStack = new vector<Edge>();
-	bestPrice = 0;
-	best = NULL;
-	
 	spanningTree = new SpanningTree(graph->vertexCount());
+	edgeStack = new vector<Edge>();
+	bestPrice = numeric_limits<int>::max();
+	best = NULL;
 
 	color = BLACK;
 	whiteTokenSent = false;
@@ -36,18 +35,24 @@ DFSSolver::~DFSSolver() {
 
 pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	// initial state - push all edges adjacent to vertex 0 to stack
-	vector<Edge> * initial = firstEdgeCandidates();
-	for (unsigned i = 0; i < initial->size(); i++) {
-		edgeStack->push_back((*initial)[i]);
+	if (rank == 0) {
+		vector<Edge> * initial = firstEdgeCandidates();
+		for (unsigned i = 0; i < initial->size(); i++) {
+			edgeStack->push_back((*initial)[i]);
+		}
+		delete initial;
 	}
-	delete initial;
 	
-	while (! edgeStack->empty()) {
+	while (! shouldTerminate()) {
+
+		if (edgeStack->size() == 0) {
+            continue;
+		}
+
 		if (DEBUG) printStack(edgeStack);
 		// remove top edge from stack
 		Edge current = edgeStack->back();
 		edgeStack->pop_back();
-
 		if (current.isBacktrackMarker()) {
 			if (DEBUG) cout << "backtracking" << endl;
 			// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
@@ -56,17 +61,19 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			// add current edge to spanning tree, increment vertex degrees
 			spanningTree->addEdge(current);
 			if (DEBUG) printVertexDegrees();
-			int price = spanningTree->evaluate();
 			if (DEBUG) printSpanningTree(spanningTree);
 			if (isSolution()) {
-				if (! DEBUG) printSpanningTree(spanningTree);
+				int price = spanningTree->evaluate();
 				if (isBestPossible(price)) {
 					// if the current solution is the best possible, return
 					updateBest(price);
-					return prepareSolution(best, bestPrice);
+					if (MPI_DEBUG) cout << rank << " found the best possible solution." << endl;
+					askToTerminate();
 				} else if (isBestSoFar(price)) {
 					// if not best possible, but better that any solution so far, update best
 					updateBest(price);
+					if (MPI_DEBUG) cout << rank << " found new best solution with price " << price << endl;
+					printSpanningTree(spanningTree);
 				}
 				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
 				spanningTree->removeLastEdge();
@@ -144,7 +151,20 @@ void DFSSolver::printSpanningTree(SpanningTree * tree) {
 }
 
 void DFSSolver::printStack(vector<Edge> * stack) {
-	//cout << "TODO: print stack" << endl;
+	cout << endl << "|--------|" << endl;
+	for(unsigned i = 0; i < edgeStack->size(); i++) {
+		Edge & edge = (*edgeStack)[i];
+		if (edge.isBacktrackMarker()) {
+			cout << "|   **   |" << endl;
+		} else {
+			cout << "|";
+			cout.width(2);
+			cout << edge;
+			cout.width(2);
+			cout << "|" << endl;
+		}
+	}
+	cout << "^        ^" << endl;
 }
 
 void DFSSolver::printCandidates(vector<Edge> * candidates) {
@@ -246,14 +266,14 @@ bool DFSSolver::shouldTerminate() {
 
 			handleTokens();
 			if (this->finished) {
-				break;
+				return true;
 			}
 
 			if (!workRequestSent) {
 				sendWorkRequest();
 				workRequestSent = true;
 			} else {
-				int workFrom = 0;
+				int workFrom;
 				bool workAvailable = checkWorkResponse(&workRequestSent, &workFrom);
 				if (workAvailable) {
 					receiveWork(workFrom);
@@ -261,7 +281,6 @@ bool DFSSolver::shouldTerminate() {
 				}
 			}
 		}
-		return false;
 	}
 
 }
@@ -282,15 +301,14 @@ void DFSSolver::handleWorkRequests() {
 	// check for work request from anyone
 	int received = 0;
 	MPI_Iprobe(MPI_ANY_SOURCE, WORK_REQ, comm, &received, &status);
-	if (! received) {
-		cout << rank << " has no work requests." << endl;
-		return;
-	} else {
+	if (received) {
 		int source = status.MPI_SOURCE;
 		cout << rank << " has WORK_REQ from " << source << endl;
 		int message = 0;
 		MPI_Recv(&message, 0, MPI_CHAR, source, WORK_REQ, comm, MPI_STATUS_IGNORE);
 		sendWork(source);
+	} else {
+		// cout << rank << " has no work requests." << endl;
 	}
 }
 
@@ -302,7 +320,12 @@ void DFSSolver::sendWork(int to) {
 	char * message = Packer::packWorkShare(work);
 	int position = 0;
 	MPI_Send(&message, position, MPI_PACKED, to, WORK_SHARE, comm);
+    cout << rank << " sent work request to " << to << endl;
 	checkColorChange(to);
+
+	delete work->first;
+	delete work->second;
+	delete work;
 }
 
 void DFSSolver::rejectAll() {
@@ -438,7 +461,7 @@ void DFSSolver::handleTokens() {
 	if (hasToken) {
 		receiveToken();
 	} else {
-		cout << "* No token for " << rank << endl;
+		// cout << "* No token for " << rank << endl;
 		if (! whiteTokenSent && rank == 0) {
 			initialTokenSend();
 		}

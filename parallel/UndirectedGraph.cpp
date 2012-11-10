@@ -11,6 +11,10 @@ UndirectedGraph::UndirectedGraph(int size) {
 	this->adjacencyMatrix = new SquareMatrix(size);
 }
 
+UndirectedGraph::UndirectedGraph(SquareMatrix * matrix) {
+	this->adjacencyMatrix = matrix;
+}
+
 UndirectedGraph::~UndirectedGraph() {
 	delete adjacencyMatrix;
 }
@@ -77,6 +81,10 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 	delete adjacencyCopy;
 	
 	return newEdges;
+}
+
+bool UndirectedGraph::getMatrixElem(int i) {
+	return adjacencyMatrix->getMatrixElem(i);
 }
 
 std::ostream & operator <<(std::ostream & os, const UndirectedGraph & graph) {

@@ -24,10 +24,11 @@ class DFSSolver:
         self.color = Token.BLACK
         self.initial_token_sent = False
         self.counter = 0
+        self.finished = False
+
         self.rank = comm.Get_rank()
         self.comm_size = comm.Get_size()
         self.comm = comm
-        self.finished = False
 
         self.debug = False # = debug
         self.mpi_debug = debug

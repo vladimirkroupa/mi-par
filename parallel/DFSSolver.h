@@ -28,6 +28,7 @@ public:
 private:
 	static const int MIN_PRICE_POSSIBLE = 2;
 	static const bool DEBUG = false;
+	static const bool MPI_DEBUG = true;
 	
 	std::vector<Edge> * edgeStack;
 	UndirectedGraph * graph;
