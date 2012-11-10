@@ -1,0 +1,133 @@
+\documentclass[12pt]{article}
+\usepackage{epsf,epic,eepic,eepicemu}
+%\documentstyle[epsf,epic,eepic,eepicemu]{article}
+\usepackage[cp1250]{inputenc}
+
+\begin{document}
+%\oddsidemargin=-5mm \evensidemargin=-5mm \marginparwidth=.08in
+%\marginparsep=.01in \marginparpush=5pt \topmargin=-15mm
+%\headheight=12pt \headsep=25pt \footheight=12pt \footskip=30pt
+%\textheight=25cm \textwidth=17cm \columnsep=2mm \columnseprule=1pt
+%\parindent=15pt\parskip=2pt
+
+\begin{center}
+\bf Semestralní projekt MI-PAR 2010/2011:\\[5mm]
+    Paralelní algoritmus pro øešení problému\\[5mm]
+       Jméno1 Pøíjmení1\\
+       Jméno2 Pøíjmení2\\[2mm]
+magisterské studijum, FIT ÈVUT, Kolejní 550/2, 160 00 Praha 6\\[2mm]
+\today
+\end{center}
+
+\section{Definice problému a popis sekvenèního algoritmu}
+
+Popište problém, který váš program øeší. Jako výchozí použijte text
+zadání, který rozšiøte o pøesné vymezení všech odchylek, které jste
+vùèi zadání bìhem implementace provedli (napø.  úpravy heuristické
+funkce, organizace zásobníku, apod.). Zmiòte i pøípadnì i takové
+prvky algoritmu, které v zadání nebyly specifikovány, ale které se
+ukázaly jako dùležité.  Dále popište vstupy a výstupy algoritmu
+(formát vstupních a výstupních dat). Uveïte tabulku nameøených èasù
+sekvenèního algoritmu pro rùznì velká data.
+
+\section{Popis paralelního algoritmu a jeho implementace v MPI}
+
+Popište paralelní algoritmus, opìt vyjdìte ze zadání a pøesnì
+vymezte odchylky, zvláštì u algoritmu pro vyvažování zátìže, hledání
+dárce, ci ukonèení výpoètu.  Popište a vysvìtlete strukturu
+celkového paralelního algoritmu na úrovni procesù v MPI a strukturu
+kódu jednotlivých procesù. Napø. jak je naimplementována smyèka pro
+èinnost procesù v aktivním stavu i v stavu neèinnosti. Jaké jste
+zvolili konstanty a parametry pro škálování algoritmu. Struktura a
+sémantika pøíkazové øádky pro spouštìní programu.
+
+\section{Namìøené výsledky a vyhodnocení}
+
+\begin{enumerate}
+\item Zvolte tøi instance problému s takovou velikostí vstupních dat, pro které má
+sekvenèní algoritmus èasovou složitost kolem 5, 10 a 15 minut. Pro
+meøení èas potøebný na ètení dat z disku a uložení na disk
+neuvažujte a zakomentujte ladící tisky, logy, zprávy a výstupy.
+\item Mìøte paralelní èas pøi použití $i=2,\cdot,32$ procesorù na sítích Ethernet a InfiniBand.
+%\item Pri mereni kazde instance problemu na dany pocet procesoru spoctete pro vas algoritmus dynamicke delby prace celkovy pocet odeslanych zadosti o praci, prumer na 1 procesor a jejich uspesnost.
+%\item Mereni pro dany pocet procesoru a instanci problemu provedte 3x a pouzijte prumerne hodnoty.
+\item Z namìøených dat sestavte grafy zrychlení $S(n,p)$. Zjistìte, zda a za jakych podmínek
+došlo k superlineárnímu zrychlení a pokuste se je zdùvodnit.
+\item Vyhodnoïte komunikaèní složitost dynamického vyvažování zátìže a posuïte
+vhodnost vámi implementovaného algoritmu pro hledání dárce a dìlení
+zásobníku pri øešení vašeho problému. Posuïte efektivnost a
+škálovatelnost algoritmu. Popište nedostatky vaší implementace a
+navrhnìte zlepšení.
+\item Empiricky stanovte
+granularitu vaší implementace, tj., stupeò paralelismu pro danou
+velikost øešeného problému. Stanovte kritéria pro stanovení mezí, za
+kterými již není uèinné rozkládat výpoèet na menší procesy, protože
+by komunikaèní náklady prevážily urychlení paralelním výpoètem.
+
+\end{enumerate}
+
+\section{Závìr}
+
+Celkové zhodnocení semestrální práce a zkušenosti získaných bìhem
+semestru.
+
+\section{Literatura}
+
+\appendix
+
+\section{Návod pro vkládání grafù a obrázkù do Latexu}
+
+Nejjednodušší zpùsob vytvoøení obrázku je použít vektorový grafický
+editor (napø. xfig nebo jfig), ze kterého lze exportovat buï
+\begin{itemize}
+\item postscript formáty (ps nebo eps formát) nebo
+\item latex formáty (v poøadí prostý latex, latex s macry epic, eepic, eepicemu). Uvedené poøadí odpovídá rùstu
+komplikovanosti obrázkù který formát podporuje (prostá latex macra
+umožnují pouze jednoduché, epic makra nìco mezi, je tøeba
+vyzkoušet).
+
+\end{itemize}
+Následující pøíklady platí pro všechny pøípady.
+
+Obrázek v postscriptu, vycentrovaný a na celou šíøku stránky, s
+popisem a èíslem. Všimnete si, jak øídit velikost obrazku.
+\begin{figure}[ht]
+\epsfysize=3cm \centerline{\epsfbox{VasObrazek.ps}} \caption{Popis
+vašeho obrazku} \label{labelvasehoobrazku}
+\end{figure}
+
+Obrázek pouze vložený mezi øádky textu, bez popisu a èíslování.\\
+\epsfxsize=1cm
+\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.ps}\hfill\rule{0pt}{0pt}
+
+Latexovské obrázky maji pøípony *.latex, *.epic, *.eepic, a
+*.eepicemu, respective.
+\begin{figure}[ht]
+\begin{center}
+\input VasObrazek.latex
+\end{center}
+\caption{Popis vašeho obrázku} \label{l1}
+\end{figure}
+Vypuštením závorek {\tt figure} dostanete opìt pouze rámeèek v textu
+bez èísla a popisu.
+
+Takhle jednoduše mùžete poskládat obrázky vedle sebe.
+\begin{center}
+\setlength{\unitlength}{0.1mm}\input VasObrazek.epic
+\hglue 5mm
+\setlength{\unitlength}{0.15mm}\input VasObrazek.eepic
+\hglue 5mm
+\setlength{\unitlength}{0.2mm}\input VasObrazek.eepicemu
+\end{center}
+Øídit velikost latexovskych obrázkù lze pøíkazem
+\begin{verbatim}
+\setlength{\unitlength}{0.1mm}
+\end{verbatim}
+které mìní mìøítko rastru obrázku, Tyto pøíkazy je ale souèasnì
+nutné vyhodit ze souboru, který xfig vygeneroval.
+
+Pro vytváøení grafu lze použít program gnuplot, který umí generovat
+postscriptovy soubor, ktery vložíte do Latexu výše uvedeným
+zpùsobem.
+
+\end{document}
