@@ -4,7 +4,9 @@
 
 #include "DFSSolver.h"
 #include "Packer.h"
+#include "Logger.h"
 #include <limits>
+#include <sstream>
 
 #define WORK_STEPS 100
 
@@ -54,7 +56,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 		Edge current = edgeStack->back();
 		edgeStack->pop_back();
 		if (current.isBacktrackMarker()) {
-			if (DEBUG) cout << "backtracking" << endl;
+			if (DEBUG) Logger::logLn("backtracking");
 			// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
 			spanningTree->removeLastEdge();
 		} else {
@@ -67,12 +69,12 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 				if (isBestPossible(price)) {
 					// if the current solution is the best possible, return
 					updateBest(price);
-					if (MPI_DEBUG) cout << rank << " found the best possible solution." << endl;
+					if (MPI_DEBUG) { stringstream str; str << rank << " found the best possible solution." << endl; Logger::log(&str); }
 					askToTerminate();
 				} else if (isBestSoFar(price)) {
 					// if not best possible, but better that any solution so far, update best
 					updateBest(price);
-					if (MPI_DEBUG) cout << rank << " found new best solution with price " << price << endl;
+					if (MPI_DEBUG) { stringstream str; str << rank << " found new best solution with price " << price << endl; Logger::log(&str); }
 					printSpanningTree(spanningTree);
 				}
 				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
@@ -90,13 +92,13 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 						// add it to the stack
 						edgeStack->push_back(edge);
 					} else {
-						if (DEBUG) cout <<  "leaving out edge " << edge << endl;
+						if (DEBUG) { stringstream str; str << "leaving out edge " << edge << endl; Logger::log(&str); }
 					}
 				}
 				delete candidates;
 			}
 		}
-		if (DEBUG) cout <<  "---------------------------" << endl;
+		if (DEBUG) { stringstream str; str <<  "---------------------------" << endl; Logger::log(&str); }
 	}
 	if (solutionExists()) {
 		// at this point, we've completed the DFS tree traversal
@@ -147,36 +149,40 @@ bool DFSSolver::solutionExists() {
 }
 
 void DFSSolver::printSpanningTree(SpanningTree * tree) {
-	cout << *tree << endl;
+	stringstream str; str << *tree << endl; Logger::log(&str);
 }
 
 void DFSSolver::printStack(vector<Edge> * stack) {
-	cout << endl << "|--------|" << endl;
+	stringstream str;
+	str << endl << "|--------|" << endl;
 	for(unsigned i = 0; i < stack->size(); i++) {
 		Edge & edge = (*stack)[i];
 		if (edge.isBacktrackMarker()) {
-			cout << "|   **   |" << endl;
+			str << "|   **   |" << endl;
 		} else {
-			cout << "|";
-			cout.width(2);
-			cout << edge;
-			cout.width(2);
-			cout << "|" << endl;
+			str << "|";
+			str.width(2);
+			str << edge;
+			str.width(2);
+			str << "|" << endl;
 		}
 	}
-	cout << "^        ^" << endl;
+	str << "^        ^" << endl;
+	Logger::log(&str);
 }
 
 void DFSSolver::printCandidates(vector<Edge> * candidates) {
-	cout << candidates->size() << " possibilities: ";
+	stringstream str;
+	str << candidates->size() << " possibilities: ";
 	for (unsigned i = 0; i < candidates->size(); i++) {
 		Edge & edge = (*candidates)[i];
 		if (i != 0) {
-			cout << ", ";
+			str << ", ";
 		}
-		cout << edge;
+		str << edge;
 	}
-	cout << endl;
+	str << endl;
+	Logger::log(&str);
 }
 
 void DFSSolver::printVertexDegrees() {
@@ -212,10 +218,10 @@ pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
 		}
 	}
 
-	cout << "existing stack:" << endl;
+	Logger::logLn("existing stack:");
 	printStack(edgeStack);
 	
-	cout << "elemToMove = " << elemToMove << endl;
+	{ stringstream str; str << "elemToMove = " << elemToMove << endl; Logger::log(&str); }
 
 	// copy elems from 0 to elemToMove included
 	vector<Edge> * newStack = new vector<Edge>();
@@ -224,22 +230,22 @@ pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
 		newStack->insert(newStack->end(), e);
 		edgeStack->erase(edgeStack->begin() + i);
 	}
-	cout << "stack to send:" << endl;
+	Logger::logLn("stack to send:");
 	printStack(newStack);
 
-	cout << "splitted stack:" << endl;
+	Logger::logLn("splitted stack:");
 	printStack(edgeStack);
 
-	cout << "existing spanning tree:" << endl;
+	Logger::logLn("existing spanning tree:");
 	printSpanningTree(spanningTree);
 
 	SpanningTree * newTree = new SpanningTree(*spanningTree);
-	cout << "backtracks to do: " << backtracks << endl;
+	{ stringstream str; str << "backtracks to do: " << backtracks << endl; Logger::log(&str); }
 	for(int i = 0; i < backtracks; i++) {
 		newTree->removeLastEdge();
 	}
 	
-	cout << "splitted spanning tree:" << endl;
+	Logger::logLn("splitted spanning tree:");
 	printSpanningTree(newTree);
 
 	return new pair<vector<Edge> *, SpanningTree *>(newStack, newTree);
@@ -255,7 +261,7 @@ bool DFSSolver::shouldTerminate() {
 
 	checkTerminationMsg();
 	if (this->finished) {
-		cout << "* " << rank << " exiting..." << endl;
+		{ stringstream str; str << "* " << rank << " exiting..." << endl; Logger::log(&str); }
 		return true;
 	}
 
@@ -264,7 +270,7 @@ bool DFSSolver::shouldTerminate() {
 		return false;
 	} else {
 		// not enough work to share
-		cout << rank << " has no work to share." << endl;
+		{ stringstream str; str << rank << " has no work to share." << endl; Logger::log(&str); }
 		rejectAll();
 	}
 	if (edgeStack->size() > 0) {
@@ -321,12 +327,12 @@ void DFSSolver::handleWorkRequests() {
 	MPI_Iprobe(MPI_ANY_SOURCE, WORK_REQ, comm, &received, &status);
 	if (received) {
 		int source = status.MPI_SOURCE;
-		cout << rank << " has WORK_REQ from " << source << endl;
+		{ stringstream str; str << rank << " has WORK_REQ from " << source << endl; Logger::log(&str); }
 		int message = 0;
 		MPI_Recv(&message, 0, MPI_CHAR, source, WORK_REQ, comm, MPI_STATUS_IGNORE);
 		sendWork(source);
 	} else {
-		// cout << rank << " has no work requests." << endl;
+		// stringstream str; str << rank << " has no work requests." << endl; Logger::log(&str);
 	}
 }
 
@@ -335,10 +341,10 @@ void DFSSolver::sendWork(int to) {
 	if (work == NULL) {
 		return;
 	}
-	char * message = Packer::packWorkShare(work);
-	int position = 0 // TADY SE MUSI DAT VELIKOST ZAPACKOVANE ZPRAVY
+	int position = 0;
+	char * message = Packer::packWorkShare(work, &position);
 	MPI_Send(message, position, MPI_PACKED, to, WORK_SHARE, comm);
-    cout << rank << " sent work request to " << to << endl;
+	{ stringstream str; str << rank << " sent work request to " << to << endl; Logger::log(&str); }
 	checkColorChange(to);
 
 	delete work->first;
@@ -358,7 +364,7 @@ void DFSSolver::rejectAll() {
 		MPI_Recv(&message, 0, MPI_INT, source, WORK_REQ, comm, MPI_STATUS_IGNORE);
 		int position = 0;
 		MPI_Send(&message, position, MPI_INT, source, WORK_REJECT, comm);
-		cout << rank << " received and REJECTED work request from " << source << endl;
+		{ stringstream str; str << rank << " received and REJECTED work request from " << source << endl; Logger::log(&str); }
 		MPI_Iprobe(MPI_ANY_SOURCE, WORK_REQ, comm, &flag, &status);
 	}
 }
@@ -368,7 +374,7 @@ void DFSSolver::sendWorkRequest() {
 	int position = 0;
 	int destination = nextNode();
 	MPI_Send(&message, position, MPI_INT, destination, WORK_REQ, comm);
-	cout << rank << " sent work request to " << destination << endl;
+	{ stringstream str; str << rank << " sent work request to " << destination << endl; Logger::log(&str); }
 }
 
 int DFSSolver::prevNode() {
@@ -392,7 +398,7 @@ bool DFSSolver::checkWorkResponse(bool * workRequestSent, int * availableFrom) {
 	if (workResp) {
 		*workRequestSent = true;
 		*availableFrom = status.MPI_SOURCE;
-		cout << "There is shared work for " << rank << " from " << *availableFrom << endl;
+		{ stringstream str; str << "There is shared work for " << rank << " from " << *availableFrom << endl; Logger::log(&str); }
 		return true;
 	} else {
 		// check for rejections
@@ -401,7 +407,7 @@ bool DFSSolver::checkWorkResponse(bool * workRequestSent, int * availableFrom) {
 		if (rejected) {
 			// got rejection for work request
 			int source = status.MPI_SOURCE;
-			cout << rank << " received work request rejection from " << source << endl;
+			{ stringstream str; str << rank << " received work request rejection from " << source << endl; Logger::log(&str); }
 			int message = 0;
 			MPI_Recv(&message, 0, MPI_INT, source, WORK_REJECT, comm, MPI_STATUS_IGNORE);
 			*workRequestSent = false;
@@ -417,19 +423,23 @@ bool DFSSolver::checkWorkResponse(bool * workRequestSent, int * availableFrom) {
 void DFSSolver::receiveWork(int source) {
 	char * workBuffer = new char[BUFFER_SIZE];
 	MPI_Recv(workBuffer, BUFFER_SIZE, MPI_PACKED, source, WORK_SHARE, comm, MPI_STATUS_IGNORE);
-	cout << rank << " RECEIVED work from " << source << endl;
+	{ stringstream str; str << rank << " RECEIVED work from " << source << endl; Logger::log(&str); }
 	pair<vector<Edge> *, SpanningTree *> * work = Packer::unpackWorkShare(workBuffer);
 	vector<Edge> * newEdgeStack = work->first;
 	SpanningTree * newTree = work->second;
 	
+	Logger::logLn("received tree: ");
 	printSpanningTree(newTree);
+	Logger::logLn("received stack: ");
 	printStack(newEdgeStack);
 	
 	delete this->spanningTree;
 	this->spanningTree = newTree;
 	
-	for (int i = newEdgeStack->size() - 1; i >= 0; i--) {
-		this->edgeStack->push_back((*newEdgeStack)[i]);
+	for (int i = newEdgeStack->size() - 1; i > 0; i--) {
+		Edge e = (*newEdgeStack)[i];
+		{ stringstream str; str << e << ", "; Logger::log(&str); }
+		this->edgeStack->push_back(e);
 	}
 }
 
@@ -450,7 +460,7 @@ void DFSSolver::checkColorChange(int sentWorkTo) {
 void DFSSolver::askToTerminate() {
 	int message = 0;
 	for (int i = 0; i < commSize; i++) {
-		cout << "* " << rank << " sent TERMINATION tag to " << i << endl;
+		{ stringstream str; str << "* " << rank << " sent TERMINATION tag to " << i << endl; Logger::log(&str); }
 		MPI_Send(&message, 0, MPI_INT, i, TERMINATE, comm);
 	}
 }
@@ -462,7 +472,7 @@ void DFSSolver::checkTerminationMsg() {
 		int message = 0;
 		int source = 0;
 		MPI_Recv(&message, 0, MPI_INT, source, TERMINATE, comm, MPI_STATUS_IGNORE);
-		cout << "* " << rank << " has received termination request." << endl;
+		{ stringstream str; str << "* " << rank << " has received termination request." << endl; Logger::log(&str); }
 		this->finished = true;
 	}
 }
@@ -480,7 +490,7 @@ void DFSSolver::handleTokens() {
 	if (hasToken) {
 		receiveToken();
 	} else {
-		// cout << "* No token for " << rank << endl;
+		// { stringstream str; str << "* No token for " << rank << endl; Logger::log(&str); }
 		if (! whiteTokenSent && rank == 0) {
 			initialTokenSend();
 		}
@@ -497,7 +507,7 @@ void DFSSolver::sendToken(Token token) {
 	int packed = Packer::packToken(token);
 	int dest = nextNode();
 	MPI_Send(&packed, 1, MPI_INT, dest, TOKEN, comm);
-	cout << "* " << rank << " sent " << tokenToStr(token) << " to " << dest << endl;
+	{ stringstream str; str << "* " << rank << " sent " << tokenToStr(token) << " to " << dest << endl; Logger::log(&str); }
 	this->color = WHITE;
 }
 
@@ -506,7 +516,7 @@ void DFSSolver::receiveToken() {
 	int packed = 0;
 	MPI_Recv(&packed, 1, MPI_INT, source, TOKEN, comm, MPI_STATUS_IGNORE);
 	Token token = Packer::unpackToken(packed);
-	cout <<  "* " << rank << " received " << tokenToStr(token) << " from " << source << endl;
+	{ stringstream str; str <<  "* " << rank << " received " << tokenToStr(token) << " from " << source << endl; Logger::log(&str); }
 	if (rank == 0) {
 		if (token == WHITE) {
 			this->askToTerminate();

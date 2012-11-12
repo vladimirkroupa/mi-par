@@ -16,7 +16,7 @@
 
 class Packer {
 public:
-	static char * packWorkShare(std::pair<std::vector<Edge> *, SpanningTree *> * workShare);
+	static char * packWorkShare(std::pair<std::vector<Edge> *, SpanningTree *> * workShare, int * size);
 	static std::pair<std::vector<Edge> *, SpanningTree *> * unpackWorkShare(char * packed);
 	static int packToken(Token token);
 	static Token unpackToken(int packed);

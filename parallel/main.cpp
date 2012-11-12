@@ -10,6 +10,7 @@
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
 #include "Packer.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -92,6 +93,8 @@ int main(int argc, char** argv) {
     int myRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
+    Logger::setRank(myRank);
+
     int commSize;
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     cout << commSize << " nodes" << endl;
@@ -136,17 +139,19 @@ int main(int argc, char** argv) {
 	int winner = globalMin[1];
 	int minPrice = globalMin[0];
 
-	cout << myRank << " humr" << endl;
+	{ stringstream str; str << myRank << " humr" << endl; Logger::log(&str); }
 	if (myRank == winner) {
+		stringstream str;
 		if (solution != NULL) {
-			cout << "Best solution:" << endl;
+			str << "Best solution:" << endl;
 			for (unsigned i = 0; i < solution->size(); i++) {
 				cout << (*solution)[i] << endl;
 			}
-			cout << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
+			str << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
 		} else {
-			cout << "No solution found." << endl;
+			str << "No solution found." << endl;
 		}
+		Logger::log(&str);
 	}
 
 	MPI_Finalize();

@@ -3,6 +3,8 @@
  */
 
 #include "SpanningTree.h"
+#include "Logger.h"
+#include <sstream>
 
 using namespace std;
 
@@ -102,9 +104,11 @@ std::ostream & operator <<(std::ostream & os, const SpanningTree & tree) {
 }
 
 void SpanningTree::printVertexDegrees() {
-	cout << "| "; 
+	stringstream str;
+	str << "| ";
 	for (int i = 0; i < vertexCnt; i++) {
-		cout << vertexDegrees[i] << " | ";
+		str << vertexDegrees[i] << " | ";
 	}
-	cout << endl;
+	str << endl;
+	Logger::log(&str);
 }

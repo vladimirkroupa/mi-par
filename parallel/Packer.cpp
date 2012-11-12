@@ -11,6 +11,7 @@
 #include <stack>
 #include "Packer.h"
 #include "SpanningTree.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -20,42 +21,44 @@ using namespace std;
 
 // stack_size | vertex_count | edge_count | vertex_degrees ... | marker | edges ... | marker | stack_edges | marker
 
-char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare) {
+char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare, int * size) {
 	char * buffer = new char[BUFFER_SIZE];
 	int position = 0;
 	
 	vector<Edge> * stack = workShare->first;
 	SpanningTree * tree = workShare->second;
 	
-	cout << "packing:" << endl;
+	Logger::logLn("packing:");
 
 	// stack_size
 	int stackSize = stack->size();
-	cout << "stack_size is: " << stackSize << endl;
+	{ stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
 	MPI_Pack(&stackSize, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 
 	// vertex_count
 	int vertices = tree->vertexCount();
-	cout << "vertex_count is: " << vertices << endl;
+	{ stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
 	MPI_Pack(&vertices, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// edge_count
 	int edgeCnt = tree->edgeCount();
-	cout << "edge_count is: " << edgeCnt << endl;
+	{ stringstream str; str << "edge_count is: " << edgeCnt << endl; Logger::log(&str); }
 	MPI_Pack(&edgeCnt, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// vertex_degrees
 	int * degrees = tree->getVertexDegrees();
-	cout << "degrees: ";
+	{ stringstream str;
+	str << "degrees: ";
 	for (int i = 0; i < vertices; i++) {
-		cout << degrees[i] << " ";
+		str << degrees[i] << " ";
 	}
-	cout << endl;
+	str << endl;
+	Logger::log(&str); }
 	MPI_Pack(degrees, vertices, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 
 	// marker
 	char marker = '*';
-	cout << "*" << endl;
+	Logger::logLn("*");
 	MPI_Pack(&marker, 1, MPI_CHAR, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// edges
@@ -83,36 +86,40 @@ char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare) {
 	// marker
 	MPI_Pack(&marker, 1, MPI_CHAR, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
+	*size = position;
+
 	return buffer;
 }
 
 pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	int position = 0;
-	cout << "unpacking:" << endl;
+	Logger::logLn("unpacking:");
 
 	// stack_size
 	int stackSize = 0;	
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &stackSize, 1, MPI_INT, MPI_COMM_WORLD);
-	cout << "stack_size is: " << stackSize << endl;
+	{ stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
 
 	// vertex_count
 	int vertices = 0;
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &vertices, 1, MPI_INT, MPI_COMM_WORLD);
-	cout << "vertex_count is: " << vertices << endl;
+	{ stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
 
 	// edge_count
 	int edgeCount;
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &edgeCount, 1, MPI_INT, MPI_COMM_WORLD);
-	cout << "edge_count is: " << edgeCount << endl;
+	{ stringstream str; str << "edge_count is: " << edgeCount << endl; Logger::log(&str); }
 
 	// vertex_degrees ...
 	int * degrees = new int[vertices];
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, degrees, vertices, MPI_INT, MPI_COMM_WORLD);
+	{ stringstream str;
 	// 	cout << "degrees: ";
 	for (int i = 0; i < vertices; i++) {
-		cout << degrees[i] << " ";
+		str << degrees[i] << " ";
 	}
-	cout << endl;
+	str << endl;
+	Logger::log(&str); }
 	
 	// marker
 	char marker = 'X';
@@ -120,7 +127,7 @@ pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	if (marker != '*') {
 		throw;
 	}
-	cout << "*" << endl;
+	Logger::logLn("*");
 	
 	// edges ... 
 	int elemCnt = edgeCount * 2;
@@ -154,7 +161,6 @@ pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	}
 	
 	SpanningTree * newTree = new SpanningTree(vertices, edgeCount, degrees, edges);
-	delete[] degrees;
 	delete[] edges;
 			
 	return new pair<vector<Edge> *, SpanningTree *>(stackEdgeVec, newTree);

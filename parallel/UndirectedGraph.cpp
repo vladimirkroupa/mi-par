@@ -59,6 +59,7 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 	for (unsigned i = 0; i < edges->size(); i++) {
 		Edge edge = (*edges)[i];
 		(*adjacencyCopy)(edge.vertex1, edge.vertex2) = false;
+		(*adjacencyCopy)(edge.vertex2, edge.vertex1) = false;
 	}
 
 	std::vector<Edge> * newEdges = new std::vector<Edge>();
