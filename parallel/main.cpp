@@ -74,6 +74,9 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     cout << commSize << " nodes" << endl;
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    double t1 = MPI_Wtime();
+
     UndirectedGraph * graph;
     int vertexCount;
     if (myRank == 0) {
@@ -137,6 +140,13 @@ int main(int argc, char** argv) {
 		}
 		Logger::log(&str);
 	}
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    double t2 = MPI_Wtime();
+    if (myRank == 0) {
+    	cout << "Time spent: " << t2 - t1 << "s" << endl;
+    }
 
 	MPI_Finalize();
 
