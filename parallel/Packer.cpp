@@ -28,7 +28,7 @@ char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare, i
 	vector<Edge> * stack = workShare->first;
 	SpanningTree * tree = workShare->second;
 	
-	Logger::logLn("packing:");
+	if (PACKER_DEBUG) Logger::logLn("packing:");
 
 	// stack_size
 	int stackSize = stack->size();
@@ -95,7 +95,7 @@ char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare, i
 
 pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	int position = 0;
-	Logger::logLn("unpacking:");
+	if (PACKER_DEBUG) Logger::logLn("unpacking:");
 
 	// stack_size
 	int stackSize = 0;	
