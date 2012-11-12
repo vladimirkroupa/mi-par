@@ -5,12 +5,14 @@
 #include "SquareMatrix.h"
 #include <algorithm>
 
+using namespace std;
+
 SquareMatrix::SquareMatrix(int size) {
 	this->matrixSize = size;
 	this->matrix = new bool* [matrixSize];
 	for (int i = 0; i < matrixSize; i++) {
 		matrix[i] = new bool[matrixSize];
-		std::fill_n(matrix[i], matrixSize, 0);
+		fill_n(matrix[i], matrixSize, 0);
 	}
 }
 
@@ -32,7 +34,7 @@ SquareMatrix::SquareMatrix(const SquareMatrix& orig) {
 	this->matrix = new bool* [matrixSize];
 	for (int i = 0; i < matrixSize; i++) {
 		matrix[i] = new bool[matrixSize];
-		std::copy(orig.matrix[i], orig.matrix[i] + matrixSize, matrix[i]);
+		copy(orig.matrix[i], orig.matrix[i] + matrixSize, matrix[i]);
 	}
 }
 

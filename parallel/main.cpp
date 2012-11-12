@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <stdio.h>
+#include <sstream>
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
 #include "Packer.h"
@@ -117,7 +118,7 @@ int main(int argc, char** argv) {
     }
     MPI_Bcast(matrixElems, elemCnt, MPI_INT, 0, MPI_COMM_WORLD);
     if (myRank != 0) {
-    	SquareMatrix * matrix = new SquareMatrix(elemCnt, matrixElems);
+    	SquareMatrix * matrix = new SquareMatrix(vertexCount, matrixElems);
     	graph = new UndirectedGraph(matrix);
     }
     delete[] matrixElems;
@@ -133,19 +134,21 @@ int main(int argc, char** argv) {
 	MPI_Barrier(MPI_COMM_WORLD);
 
     int localMin[2];
+    localMin[0] = solutionPrice;
+    localMin[1] = myRank;
     int globalMin[2];
 	MPI_Allreduce(&localMin, &globalMin, 1, MPI_2INT, MPI_MINLOC, MPI_COMM_WORLD);
 
 	int winner = globalMin[1];
 	int minPrice = globalMin[0];
 
-	{ stringstream str; str << myRank << " humr" << endl; Logger::log(&str); }
+	{ stringstream str; str << "Winner is: " << winner << endl << "Min price is: " << minPrice << endl; Logger::log(&str); }
 	if (myRank == winner) {
 		stringstream str;
 		if (solution != NULL) {
 			str << "Best solution:" << endl;
 			for (unsigned i = 0; i < solution->size(); i++) {
-				cout << (*solution)[i] << endl;
+				str << (*solution)[i] << endl;
 			}
 			str << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
 		} else {
@@ -156,10 +159,17 @@ int main(int argc, char** argv) {
 
 	MPI_Finalize();
 
+	Logger::logLn("MPI finalized");
 	delete graph;
-    delete solution;
+	Logger::logLn("graph deleted");
+    if (solution != NULL) {
+    	delete solution;
+    	Logger::logLn("solution deleted");
+    }
 	delete result;
+	Logger::logLn("result deleted");
 	delete solver;
+	Logger::logLn("solver deleted");
 
     return 0;
 }

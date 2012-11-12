@@ -27,6 +27,11 @@ DFSSolver::DFSSolver(UndirectedGraph * graph) {
 	comm = MPI_COMM_WORLD;
 	MPI_Comm_size(comm, &commSize);
 	MPI_Comm_rank(comm, &rank);
+
+	stringstream str;
+	str << "My graph is: " << endl;
+	str << *graph;
+	Logger::log(&str);
 }
 
 DFSSolver::~DFSSolver() {
