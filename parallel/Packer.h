@@ -13,6 +13,7 @@
 #include "Token.h"
 
 #define BUFFER_SIZE 1000
+#define PACKER_DEBUG false
 
 class Packer {
 public:

@@ -90,13 +90,13 @@ int main(int argc, char** argv) {
     		matrixElems[i] = graph->getMatrixElem(i);
     	}
     }
-    Logger::logLn("Broadcasting matrix elements...");
+    // Logger::logLn("Broadcasting matrix elements...");
     MPI_Bcast(matrixElems, elemCnt, MPI_INT, 0, MPI_COMM_WORLD);
-    Logger::logLn("Broadcasted.");
+    // Logger::logLn("Broadcasted.");
     if (myRank != 0) {
     	SquareMatrix * matrix = new SquareMatrix(vertexCount, matrixElems);
     	graph = new UndirectedGraph(matrix);
-    	Logger::logLn("Created graph from matrix elements.");
+    	// Logger::logLn("Created graph from matrix elements.");
     }
     delete[] matrixElems;
 
@@ -124,12 +124,16 @@ int main(int argc, char** argv) {
 		stringstream str;
 		if (solution != NULL) {
 			str << "Best solution:" << endl;
+			cout << "Best solution:" << endl;
 			for (unsigned i = 0; i < solution->size(); i++) {
 				str << (*solution)[i] << endl;
+				cout << (*solution)[i] << endl;
 			}
 			str << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
+			cout << "Spanning tree degree: " << solutionPrice << " (" << minPrice << ")" << endl;
 		} else {
 			str << "No solution found." << endl;
+			cout << "No solution found." << endl;
 		}
 		Logger::log(&str);
 	}
@@ -138,15 +142,15 @@ int main(int argc, char** argv) {
 
 	Logger::logLn("MPI finalized");
 	delete graph;
-	Logger::logLn("graph deleted");
+	// Logger::logLn("graph deleted");
     if (solution != NULL) {
     	delete solution;
-    	Logger::logLn("solution deleted");
+    	// Logger::logLn("solution deleted");
     }
 	delete result;
-	Logger::logLn("result deleted");
+	// Logger::logLn("result deleted");
 	delete solver;
-	Logger::logLn("solver deleted");
+	// Logger::logLn("solver deleted");
 
     return 0;
 }

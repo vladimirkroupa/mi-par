@@ -28,10 +28,12 @@ DFSSolver::DFSSolver(UndirectedGraph * graph) {
 	MPI_Comm_size(comm, &commSize);
 	MPI_Comm_rank(comm, &rank);
 
-	stringstream str;
-	str << "My graph is: " << endl;
-	str << *graph;
-	Logger::log(&str);
+	if (MPI_DEBUG) {
+		stringstream str;
+		str << "My graph is: " << endl;
+		str << *graph;
+		Logger::log(&str);
+	}
 }
 
 DFSSolver::~DFSSolver() {
@@ -80,7 +82,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 					// if not best possible, but better that any solution so far, update best
 					updateBest(price);
 					if (MPI_DEBUG) { stringstream str; str << rank << " found new best solution with price " << price << endl; Logger::log(&str); }
-					printSpanningTree(spanningTree);
+					if (MPI_DEBUG) printSpanningTree(spanningTree);
 				}
 				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
 				spanningTree->removeLastEdge();

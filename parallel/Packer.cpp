@@ -32,33 +32,35 @@ char * Packer::packWorkShare(pair<vector<Edge> *, SpanningTree *> * workShare, i
 
 	// stack_size
 	int stackSize = stack->size();
-	{ stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
 	MPI_Pack(&stackSize, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 
 	// vertex_count
 	int vertices = tree->vertexCount();
-	{ stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
 	MPI_Pack(&vertices, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// edge_count
 	int edgeCnt = tree->edgeCount();
-	{ stringstream str; str << "edge_count is: " << edgeCnt << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "edge_count is: " << edgeCnt << endl; Logger::log(&str); }
 	MPI_Pack(&edgeCnt, 1, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// vertex_degrees
 	int * degrees = tree->getVertexDegrees();
-	{ stringstream str;
-	str << "degrees: ";
-	for (int i = 0; i < vertices; i++) {
-		str << degrees[i] << " ";
+	if (PACKER_DEBUG) {
+		stringstream str;
+		str << "degrees: ";
+		for (int i = 0; i < vertices; i++) {
+			str << degrees[i] << " ";
+		}
+		str << endl;
+		Logger::log(&str);
 	}
-	str << endl;
-	Logger::log(&str); }
 	MPI_Pack(degrees, vertices, MPI_INT, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 
 	// marker
 	char marker = '*';
-	Logger::logLn("*");
+	if (PACKER_DEBUG) Logger::logLn("*");
 	MPI_Pack(&marker, 1, MPI_CHAR, buffer, BUFFER_SIZE, &position, MPI_COMM_WORLD);
 	
 	// edges
@@ -98,28 +100,29 @@ pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	// stack_size
 	int stackSize = 0;	
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &stackSize, 1, MPI_INT, MPI_COMM_WORLD);
-	{ stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "stack_size is: " << stackSize << endl; Logger::log(&str); }
 
 	// vertex_count
 	int vertices = 0;
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &vertices, 1, MPI_INT, MPI_COMM_WORLD);
-	{ stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "vertex_count is: " << vertices << endl; Logger::log(&str); }
 
 	// edge_count
 	int edgeCount;
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, &edgeCount, 1, MPI_INT, MPI_COMM_WORLD);
-	{ stringstream str; str << "edge_count is: " << edgeCount << endl; Logger::log(&str); }
+	if (PACKER_DEBUG) { stringstream str; str << "edge_count is: " << edgeCount << endl; Logger::log(&str); }
 
 	// vertex_degrees ...
 	int * degrees = new int[vertices];
 	MPI_Unpack(buffer, BUFFER_SIZE, &position, degrees, vertices, MPI_INT, MPI_COMM_WORLD);
-	{ stringstream str;
-	// 	cout << "degrees: ";
-	for (int i = 0; i < vertices; i++) {
-		str << degrees[i] << " ";
+	if (PACKER_DEBUG) { stringstream str;
+		// 	cout << "degrees: ";
+		for (int i = 0; i < vertices; i++) {
+			str << degrees[i] << " ";
+		}
+		str << endl;
+		Logger::log(&str);
 	}
-	str << endl;
-	Logger::log(&str); }
 	
 	// marker
 	char marker = 'X';
@@ -127,7 +130,7 @@ pair<vector<Edge> *, SpanningTree *> * Packer::unpackWorkShare(char * buffer) {
 	if (marker != '*') {
 		throw;
 	}
-	Logger::logLn("*");
+	if (PACKER_DEBUG) Logger::logLn("*");
 	
 	// edges ... 
 	int elemCnt = edgeCount * 2;
