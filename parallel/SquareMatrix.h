@@ -8,7 +8,7 @@
 class SquareMatrix {
 public:
 	SquareMatrix(int size);
-	SquareMatrix(int size, bool * array);
+	SquareMatrix(int size, int * array);
 	SquareMatrix(const SquareMatrix& orig);
 	virtual ~SquareMatrix();
 	bool& operator() (unsigned row, unsigned col);

@@ -56,32 +56,6 @@ UndirectedGraph * readGraphFromFile(char * filename) {
     return graph;
 }
 
-//int main(int argc, char** argv) {
-//	MPI_Init(&argc, &argv);
-//
-//	DFSSolver * solver = new DFSSolver(new UndirectedGraph(1));
-//
-//	vector<Edge> * stack = new vector<Edge>();
-//	stack->push_back(Edge(1, 2));
-//	stack->push_back(Edge(3, 4));
-//	solver->printStack(stack);
-//
-//	SpanningTree * tree = new SpanningTree(5);
-//	tree->addEdge(Edge(1, 2));
-//	tree->addEdge(Edge(1, 2));
-//	solver->printSpanningTree(tree);
-//
-//	pair<vector<Edge>*, SpanningTree *> * input = new pair<vector<Edge>*, SpanningTree *>(stack, tree);
-//
-//	char * humr = Packer::packWorkShare(input);
-//
-//	input = Packer::unpackWorkShare(humr);
-//	solver->printSpanningTree(input->second);
-//	solver->printStack(input->first);
-//
-//	MPI_Finalize();
-//}
-
 int main(int argc, char** argv) {
     if (argc != 2) {
         cout << "Spatny pocet parametru" << endl;
@@ -110,16 +84,19 @@ int main(int argc, char** argv) {
     MPI_Bcast(&vertexCount, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     int elemCnt = vertexCount * vertexCount;
-    bool * matrixElems = new bool[elemCnt];
+    int * matrixElems = new int[elemCnt];
     if (myRank == 0) {
     	for (int i = 0; i < elemCnt; i++) {
     		matrixElems[i] = graph->getMatrixElem(i);
     	}
     }
+    Logger::logLn("Broadcasting matrix elements...");
     MPI_Bcast(matrixElems, elemCnt, MPI_INT, 0, MPI_COMM_WORLD);
+    Logger::logLn("Broadcasted.");
     if (myRank != 0) {
     	SquareMatrix * matrix = new SquareMatrix(vertexCount, matrixElems);
     	graph = new UndirectedGraph(matrix);
+    	Logger::logLn("Created graph from matrix elements.");
     }
     delete[] matrixElems;
 

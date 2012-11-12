@@ -16,14 +16,14 @@ SquareMatrix::SquareMatrix(int size) {
 	}
 }
 
-SquareMatrix::SquareMatrix(int size, bool * array) {
+SquareMatrix::SquareMatrix(int size, int * array) {
 	this->matrixSize = size;
 	this->matrix = new bool* [matrixSize];
 	int elem = 0;
 	for (int i = 0; i < size; i++) {
 		matrix[i] = new bool[matrixSize];
 		for (int j = 0; j < size; j++) {
-			matrix[i][j] = array[elem];
+			matrix[i][j] = array[elem] > 0 ? 1 : 0;
 			elem++;
 		}
 	}
