@@ -47,8 +47,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			int price = spanningTree->evaluate();
 			if (DEBUG) printSpanningTree(price);
 			if (isSolution()) {
-				if (! DEBUG) printSpanningTree(price);
-				if (isBestPossible(price)) {
+					if (isBestPossible(price)) {
 					// if the current solution is the best possible, return
 					updateBest(price);
 					return prepareSolution(best, bestPrice);
