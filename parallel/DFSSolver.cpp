@@ -293,6 +293,8 @@ bool DFSSolver::shouldTerminate() {
 		return false;
 	} else {
 		// own stack is empty
+
+		// if alone, terminate
 		if (commSize == 1) {
 			return true;
 		}
