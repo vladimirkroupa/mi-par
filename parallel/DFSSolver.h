@@ -22,18 +22,20 @@
 
 class DFSSolver {
 public:
-	DFSSolver(UndirectedGraph * graph);
+	DFSSolver(UndirectedGraph * graph, int seqSteps);
 	virtual ~DFSSolver();
 	std::pair<std::vector<Edge> *, int> * findBestSolution();
 	void printSpanningTree(SpanningTree * tree);
 	void printStack(std::vector<Edge> * stack);
 	void printCandidates(std::vector<Edge> * candidates);
 	void printVertexDegrees();
+
+	static bool DEBUG;
+	static bool MPI_DEBUG;
+	int WORK_STEPS;
 private:
 	static const int MIN_PRICE_POSSIBLE = 2;
-	static const bool DEBUG = false;
-	static const bool MPI_DEBUG = false;
-	
+
 	std::vector<Edge> * edgeStack;
 	UndirectedGraph * graph;
 	

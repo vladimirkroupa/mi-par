@@ -17,6 +17,7 @@ public:
 	static void logLn(std::string str);
 	static void ln();
 	static void setRank(int rank);
+	static bool TO_FILE;
 private:
 	static int rank;
 };

@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <sstream>
+#include <string>
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
 #include "Packer.h"
@@ -56,13 +57,73 @@ UndirectedGraph * readGraphFromFile(char * filename) {
     return graph;
 }
 
+bool mpiDebugOn(char** argv, int i) {
+	return (! strcmp(argv[i], "mpi_debug"));
+}
+
+void setMpiDebugOn() {
+	DFSSolver::MPI_DEBUG = true;
+	cout << "mpi_debug on" << endl;
+}
+
+bool seqDebugOn(char** argv, int i) {
+	return (! strcmp(argv[i], "seq_debug"));
+}
+
+void setSeqDebugOn() {
+	DFSSolver::DEBUG = true;
+	cout << "seq_debug on" << endl;
+}
+
+bool logCoutOn(char** argv, int i) {
+	return (! strcmp(argv[i], "log_cout"));
+}
+
+void setLogCoutOn() {
+	Logger::TO_FILE = false;
+	cout << "debug on cout" << endl;
+}
+
+
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        cout << "Spatny pocet parametru" << endl;
-        cout << "binarka nazev-souboru" << endl;
-        cout << std::endl << "Arguments:" << endl;
+    if (argc < 3 || argc > 6) {
+        cout << "Usage: kgm graph_file sequential_steps [mpi_debug] [seq_debug] [log_cout]" << endl;
         exit(EXIT_FAILURE);
     }
+    int seqSteps = atoi(argv[2]);
+    if (! seqSteps) {
+    	cout << "sequential_steps must be > 0." << endl;
+    	exit(EXIT_FAILURE);
+    }
+    cout << "seq. steps: " << seqSteps << endl;
+    bool mpiDebug = false;
+    bool seqDebug = false;
+    bool debugCout = false;
+    if (argc > 3) {
+    	mpiDebug |= mpiDebugOn(argv, 3);
+    	seqDebug |= seqDebugOn(argv, 3);
+    	debugCout |= logCoutOn(argv, 3);
+    }
+    if (argc > 4) {
+    	mpiDebug |= mpiDebugOn(argv, 4);
+    	seqDebug |= seqDebugOn(argv, 4);
+    	debugCout |= logCoutOn(argv, 4);
+    }
+    if (argc > 5) {
+    	mpiDebug |= mpiDebugOn(argv, 5);
+    	seqDebug |= seqDebugOn(argv, 5);
+    	debugCout |= logCoutOn(argv, 5);
+    }
+    if (mpiDebug) {
+    	setMpiDebugOn();
+    }
+    if (seqDebug) {
+    	setSeqDebugOn();
+    }
+    if (debugCout) {
+    	setLogCoutOn();
+    }
+    cout << mpiDebug << ":" << seqDebug << ":" << debugCout << endl;
 
     MPI_Init(&argc, &argv);
     int myRank;
@@ -103,7 +164,7 @@ int main(int argc, char** argv) {
     }
     delete[] matrixElems;
 
-    DFSSolver * solver = new DFSSolver(graph);
+    DFSSolver * solver = new DFSSolver(graph, seqSteps);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
