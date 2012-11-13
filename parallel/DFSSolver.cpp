@@ -57,7 +57,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	while (! shouldTerminate()) {
 
 		if (edgeStack->size() == 0) {
-            continue;
+            		continue;
 		}
 
 		if (DEBUG) printStack(edgeStack);
