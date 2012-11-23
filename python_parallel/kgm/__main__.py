@@ -17,7 +17,7 @@ def main():
     else:
         graph = None
     received = comm.bcast(graph)
-    solver = DFSSolver(received, comm, True)
+    solver = DFSSolver(received, comm, False)
 
     comm.Barrier()
 

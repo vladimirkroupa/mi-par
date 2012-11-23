@@ -153,7 +153,8 @@ class DFSSolver:
 
     def distributeInitialWork(self):
         parts = self.initialWorkSplit(self.comm_size - 1)
-        print("0 has {0} initial work parts ***".format(len(parts)))
+        if self.mpi_debug:
+            print("0 has {0} initial work parts".format(len(parts)))
         toNode = 1
         for part in parts:
             self.comm.send(part, dest=toNode, tag=DFSSolver.WORK_SHARE)
