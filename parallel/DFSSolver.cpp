@@ -52,8 +52,16 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 			edgeStack->push_back((*initial)[i]);
 		}
 		delete initial;
+
+		distributeInitialWork();
 	}
 	
+	MPI_Barrier(comm);
+
+	if (rank != 0) {
+		acceptInitialWork();
+	}
+
 	while (! shouldTerminate()) {
 
 		if (edgeStack->size() == 0) {
@@ -495,11 +503,20 @@ void DFSSolver::distributeInitialWork {
 
     for(unsigned i = 0; i < parts->size(); i++) {
     	pair<vector<Edge> *, SpanningTree *> * part = (*parts)[i];
-        //self.comm.send(part, dest=toNode, tag=DFSSolver.WORK_SHARE)
-        //if self.mpi_debug:
-        //    print("0 has sent initial work to {0}".format(toNode))
-        //toNode += 1
+    	int position = 0;
+    	char * message = Packer::packWorkShare(work, &position);
+    	MPI_Send(message, position, MPI_PACKED, to, WORK_SHARE, comm);
+    	if (MPI_DEBUG) { stringstream str; str << "0 sent initial work to " << toNode << endl; Logger::log(&str); }
+        toNode++;
     }
+
+    for(unsigned i = 0; i < parts->size(); i++) {
+    	pair<vector<Edge> *, SpanningTree *> * part = (*parts)[i];
+    	delete part->first;
+    	delete part->second;
+    	delete part;
+    }
+    delete parts;
 }
 
 void DFSSolver::acceptInitialWork() {
