@@ -53,6 +53,8 @@ private:
 	bool whiteTokenSent;
 	int workCounter;
 
+	int totalEdges;
+
 	void expand();
 
 	void pushBacktrackMarker();

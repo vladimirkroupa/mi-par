@@ -26,6 +26,8 @@ DFSSolver::DFSSolver(UndirectedGraph * graph, int workSteps) {
 	workCounter = 0;
 	finished = false;
 
+	totalEdges = 0;
+
 	comm = MPI_COMM_WORLD;
 	MPI_Comm_size(comm, &commSize);
 	MPI_Comm_rank(comm, &rank);
@@ -74,6 +76,7 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 
 		if (DEBUG) { stringstream str; str <<  "---------------------------" << endl; Logger::log(&str); }
 	}
+	stringstream str; str << "Total edges processed: " << totalEdges << endl; Logger::log(&str);
 	if (solutionExists()) {
 		// at this point, we've completed the DFS tree traversal
 		return prepareSolution(best, bestPrice);
@@ -85,6 +88,7 @@ void DFSSolver::expand() {
 	// remove top edge from stack
 	Edge current = edgeStack->back();
 	edgeStack->pop_back();
+	totalEdges++;
 	if (current.isBacktrackMarker()) {
 		if (DEBUG)
 			Logger::logLn("backtracking");
