@@ -68,7 +68,7 @@ private:
 	std::pair<std::vector<Edge> *, int> * prepareSolution(SpanningTree * solution, int solutionPrice);
 	
 	int countEdgesOnStack();
-	std::vector<std::pair<std::vector<Edge> *, SpanningTree *> * > initialWorkSplit(int partsReq);
+	std::vector<std::pair<std::vector<Edge> *, SpanningTree *> * > * initialWorkSplit(int partsReq);
 	std::pair<std::vector<Edge> *, SpanningTree *> * splitWork();
 	bool shouldTerminate();
 	bool hasWorkToShare();

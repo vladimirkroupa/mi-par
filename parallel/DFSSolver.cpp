@@ -243,7 +243,7 @@ int DFSSolver::countEdgesOnStack() {
 	return count;
 }
 
-vector<pair<vector<Edge> *, SpanningTree *> * > DFSSolver::initialWorkSplit(int partsReq) {
+vector<pair<vector<Edge> *, SpanningTree *> * > * DFSSolver::initialWorkSplit(int partsReq) {
 	vector<pair<vector<Edge> *, SpanningTree *> * > * parts = new vector<pair<vector<Edge> *, SpanningTree *> * >();
     int partCnt = 0;
     while (partCnt < partsReq) {
@@ -496,16 +496,16 @@ bool DFSSolver::checkWorkResponse(bool * workRequestSent, int * availableFrom) {
 }
 
 
-void DFSSolver::distributeInitialWork {
-	vector<pair<vector<Edge> *, SpanningTree *> * > parts = initialWorkSplit(commSize - 1);
+void DFSSolver::distributeInitialWork() {
+	vector<pair<vector<Edge> *, SpanningTree *> * > * parts = initialWorkSplit(commSize - 1);
 	if (MPI_DEBUG) { stringstream str; str << "0 has " << parts->size() << " initial work parts." << endl; Logger::log(&str); }
     int toNode = 1;
 
     for(unsigned i = 0; i < parts->size(); i++) {
     	pair<vector<Edge> *, SpanningTree *> * part = (*parts)[i];
     	int position = 0;
-    	char * message = Packer::packWorkShare(work, &position);
-    	MPI_Send(message, position, MPI_PACKED, to, WORK_SHARE, comm);
+    	char * message = Packer::packWorkShare(part, &position);
+    	MPI_Send(message, position, MPI_PACKED, toNode, WORK_SHARE, comm);
     	if (MPI_DEBUG) { stringstream str; str << "0 sent initial work to " << toNode << endl; Logger::log(&str); }
         toNode++;
     }
@@ -527,9 +527,9 @@ void DFSSolver::acceptInitialWork() {
 	if (workResp) {
 		if (MPI_DEBUG) { stringstream str; str << rank << " has initial work" << endl; Logger::log(&str); }
         receiveWork(0);
-    else {
-    	if (MPI_DEBUG) { stringstream str; str << rank << " has no initial work :(" << endl; Logger::log(&str); }
-    }
+	} else {
+		if (MPI_DEBUG) { stringstream str; str << rank << " has no initial work :(" << endl; Logger::log(&str); }
+	}
 }
 
 void DFSSolver::receiveWork(int source) {
