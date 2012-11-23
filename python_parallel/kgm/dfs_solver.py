@@ -33,6 +33,8 @@ class DFSSolver:
         self.debug = debug
         self.mpi_debug = debug
 
+        self.total_edges = 0
+
     def findBestSolution(self):
         # push all edges adjacent to vertex 0 to stack
         if self.rank == 0:
@@ -57,6 +59,8 @@ class DFSSolver:
 
             self.expand()
 
+        print("{0} processed {1} edges.".format(self.rank, self.total_edges))
+
         # DFS traversal completed
         if self.foundSolution():
             return self.best, self.best_price
@@ -67,6 +71,7 @@ class DFSSolver:
 
     def expand(self):
         current_edge = self.edge_stack.pop()
+        self.total_edges += 1
 
         if current_edge.isBacktrackMarker():
             # found backtrack marker, remove last edge from spanning tree
