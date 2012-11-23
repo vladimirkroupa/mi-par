@@ -30,7 +30,7 @@ class DFSSolver:
         self.comm_size = comm.Get_size()
         self.comm = comm
 
-        self.debug = False # = debug
+        self.debug = debug
         self.mpi_debug = debug
 
     def findBestSolution(self):
@@ -38,6 +38,12 @@ class DFSSolver:
         if self.rank == 0:
             for edge in self.firstEdgeCandidates():
                 self.edge_stack.append(edge)
+            self.distributeInitialWork()
+
+        self.comm.Barrier()
+
+        if self.rank != 0:
+            self.acceptInitialWork()
 
         # main loop
         while not self.shouldTerminate():
@@ -49,46 +55,7 @@ class DFSSolver:
             if self.debug:
                 print(self.printStack(self.edge_stack))
 
-            current_edge = self.edge_stack.pop()
-            if current_edge.isBacktrackMarker():
-                # found backtrack marker, remove last edge from spanning tree
-                self.spanning_tree.removeLastEdge()
-            else:
-                # add current edge to spanning tree
-                self.spanning_tree.addEdge(current_edge)
-
-                if self.debug:
-                    print(self.spanning_tree)
-
-                if self.isSolution():
-
-                    if self.debug:
-                        print("{0} found solution!").format(self.rank)
-
-                    price = self.spanning_tree.maxDegree()
-                    if self.isBestPossible(price):
-                        # current solution is the best possible, return
-                        self.updateBest(price)
-                        print("* {0} found the best solution possible").format(self.rank)
-                        self.askToTerminate()
-                    elif self.isBestSoFar(price):
-                        # better that any solution so far, update best
-                        self.updateBest(price)
-                        print("{0} found new solution with price {1}:").format(self.rank, price)
-                        print(self.spanning_tree)
-                    # since we've found the solution, current edge is a leaf of the DFS tree -> backtrack
-                    self.spanning_tree.removeLastEdge()
-                else:
-                    # add backtrack marker to stack so we will know when we are moving up the DFS tree
-                    self.pushBacktrackMarker()
-                    # find new edges to add to spanning tree
-                    for edge in self.graph.edgeCandidates(self.spanning_tree):
-                        if self.possibleWinner(edge):
-                            # candidate edge can lead to better solution than best solution so far
-                            self.edge_stack.append(edge)
-                        else:
-                            if self.debug:
-                                print("Leaving out edge {}".format(edge))
+            self.expand()
 
         # DFS traversal completed
         if self.foundSolution():
@@ -97,6 +64,51 @@ class DFSSolver:
             if self.debug:
                 print("{0}: no solution found.").format(self.rank)
             return None, sys.maxint
+
+    def expand(self):
+        current_edge = self.edge_stack.pop()
+
+        if current_edge.isBacktrackMarker():
+            # found backtrack marker, remove last edge from spanning tree
+            self.spanning_tree.removeLastEdge()
+        else:
+            # add current edge to spanning tree
+            self.spanning_tree.addEdge(current_edge)
+
+            if self.debug:
+                print(self.spanning_tree)
+
+            if self.isSolution():
+
+                if self.debug:
+                    print("{0} found solution!").format(self.rank)
+
+                price = self.spanning_tree.maxDegree()
+                if self.isBestPossible(price):
+                    # current solution is the best possible, return
+                    self.updateBest(price)
+                    if self.debug:
+                        print("* {0} found the best solution possible").format(self.rank)
+                    self.askToTerminate()
+                elif self.isBestSoFar(price):
+                    # better that any solution so far, update best
+                    self.updateBest(price)
+                    if self.debug:
+                        print("{0} found new solution with price {1}:").format(self.rank, price)
+                        print(self.spanning_tree)
+                    # since we've found the solution, current edge is a leaf of the DFS tree -> backtrack
+                self.spanning_tree.removeLastEdge()
+            else:
+                # add backtrack marker to stack so we will know when we are moving up the DFS tree
+                self.pushBacktrackMarker()
+                # find new edges to add to spanning tree
+                for edge in self.graph.edgeCandidates(self.spanning_tree):
+                    if self.possibleWinner(edge):
+                        # candidate edge can lead to better solution than best solution so far
+                        self.edge_stack.append(edge)
+                    else:
+                        if self.debug:
+                            print("Leaving out edge {}".format(edge))
 
     def firstEdgeCandidates(self):
         vertex = 0
@@ -139,6 +151,50 @@ class DFSSolver:
         result += "^        ^"
         return result
 
+    def distributeInitialWork(self):
+        parts = self.initialWorkSplit(self.comm_size - 1)
+        print("0 has {0} initial work parts ***".format(len(parts)))
+        toNode = 1
+        for part in parts:
+            self.comm.send(part, dest=toNode, tag=DFSSolver.WORK_SHARE)
+            if self.mpi_debug:
+                print("0 has sent initial work to {0}".format(toNode))
+            toNode += 1
+
+    def acceptInitialWork(self):
+        status = MPI.Status()
+        # check for shared work
+        work_resp = self.comm.Iprobe(source=0, tag=DFSSolver.WORK_SHARE, status=status)
+        if work_resp:
+            if self.mpi_debug:
+                print("{0} has initial work".format(self.rank))
+            self.receiveWork(0)
+        else:
+            if self.mpi_debug:
+                print("{0} has no initial work :(".format(self.rank))
+
+    def initialWorkSplit(self, partsReq):
+        parts = []
+        partCnt = 0
+        while partCnt < partsReq:
+            edgesLeft = self.countEdgesOnStack()
+            while edgesLeft < partsReq + 1 - partCnt:
+                if edgesLeft == 0:
+                    return parts
+                self.expand()
+                edgesLeft = self.countEdgesOnStack()
+            new_stack, new_tree = self.splitWork()
+            parts.append((new_stack, new_tree))
+            partCnt += 1
+        return parts
+
+    def countEdgesOnStack(self):
+        count = 0
+        for edge in self.edge_stack:
+            if not edge.isBacktrackMarker():
+                count += 1
+        return count
+
     def splitWork(self):
 
         def fromBottomElement(self):
@@ -176,7 +232,8 @@ class DFSSolver:
 
         self.checkTerminationMsg()
         if self.finished:
-            print("* {0} exiting...").format(self.rank)
+            if self.mpi_debug:
+                print("* {0} exiting...").format(self.rank)
             return True
 
         if self.hasWorkToShare():
@@ -232,7 +289,8 @@ class DFSSolver:
             return
         else:
             source = status.Get_source()
-            print("{0} has WORK_REQ from {1}").format(self.rank, source)
+            if self.mpi_debug:
+                print("{0} has WORK_REQ from {1}").format(self.rank, source)
             self.comm.recv(source=source, tag=DFSSolver.WORK_REQ, status=status)
             self.sendWork(source)
 
@@ -243,7 +301,8 @@ class DFSSolver:
 
         self.comm.send((new_stack, new_spanning_tree), dest=to, tag=DFSSolver.WORK_SHARE)
         self.checkColorChange(to)
-        print("{0} sent work offer to {1}").format(self.rank, to)
+        if self.mpi_debug:
+            print("{0} sent work offer to {1}").format(self.rank, to)
 
     def rejectAll(self):
         status = MPI.Status()
@@ -252,13 +311,15 @@ class DFSSolver:
             source = status.Get_source()
             self.comm.recv(source=source, tag=DFSSolver.WORK_REQ)
             self.comm.send(dest=source, tag=DFSSolver.WORK_REJECT)
-            print("{0} received and REJECTED work request from {1}").format(self.rank, source)
+            if self.mpi_debug:
+                print("{0} received and REJECTED work request from {1}").format(self.rank, source)
             has_work_req = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=DFSSolver.WORK_REQ, status=status)
 
     def sendWorkRequest(self):
         destination = self.nextNode()
         self.comm.send(dest=destination, tag=DFSSolver.WORK_REQ)
-        print("{0} sent work request to {1}").format(self.rank, destination)
+        if self.mpi_debug:
+            print("{0} sent work request to {1}").format(self.rank, destination)
 
     def prevNode(self):
         if self.rank == 0:
@@ -276,7 +337,8 @@ class DFSSolver:
         work_resp = self.comm.Iprobe(source=MPI.ANY_SOURCE, tag=DFSSolver.WORK_SHARE, status=status)
         if work_resp:
             source = status.Get_source()
-            print("there is shared work for {0} from {1}").format(self.rank, source)
+            if self.mpi_debug:
+                print("there is shared work for {0} from {1}").format(self.rank, source)
             return True, source, True
         else:
             # check for rejections
@@ -284,7 +346,8 @@ class DFSSolver:
             if rejection:
                 # got rejection for work request
                 source = status.Get_source()
-                print("{0} received work request rejection from {1}").format(self.rank, source)
+                if self.mpi_debug:
+                    print("{0} received work request rejection from {1}").format(self.rank, source)
                 self.comm.recv(source=source, tag=DFSSolver.WORK_REJECT)
                 return False, None, False
             else:
@@ -293,12 +356,14 @@ class DFSSolver:
 
     def receiveWork(self, source):
         work_tuple = self.comm.recv(source=source, tag=DFSSolver.WORK_SHARE)
-        print("{0} RECEIVED work from {1}").format(self.rank, source)
+        if self.mpi_debug:
+            print("{0} RECEIVED work from {1}").format(self.rank, source)
         new_stack = work_tuple[0]
         new_spanning_tree = work_tuple[1]
 
-        print("{0} received stack: {1}").format(self.rank, self.printStack(new_stack))
-        print("{0} received tree: {1}").format(self.rank, new_spanning_tree)
+        if self.mpi_debug:
+            print("{0} received stack: {1}").format(self.rank, self.printStack(new_stack))
+            print("{0} received tree: {1}").format(self.rank, new_spanning_tree)
 
         self.spanning_tree = new_spanning_tree
         for edge in new_stack:
@@ -317,7 +382,8 @@ class DFSSolver:
 
     def askToTerminate(self):
         for node in range(0, self.comm_size):
-            print("* {0} sent TERMINATION tag to {1}").format(self.rank, node)
+            if self.mpi_debug:
+                print("* {0} sent TERMINATION tag to {1}").format(self.rank, node)
             self.comm.send(dest=node, tag=DFSSolver.TERMINATE)
 
     def handleTokens(self):
@@ -330,11 +396,13 @@ class DFSSolver:
         def sendToken(self, token):
             self.comm.send(token, dest=self.nextNode(), tag=DFSSolver.TOKEN)
             self.color = Token.WHITE
-            print("* {0} sent {1} to {2}").format(self.rank, token, self.nextNode())
+            if self.mpi_debug:
+                print("* {0} sent {1} to {2}").format(self.rank, token, self.nextNode())
 
         def receiveToken(self):
             token = self.comm.recv(source=self.prevNode(), tag=DFSSolver.TOKEN)
-            print("* {0} received {1} from {2}").format(self.rank, token, self.prevNode())
+            if self.mpi_debug:
+                print("* {0} received {1} from {2}").format(self.rank, token, self.prevNode())
             if self.rank == 0:
                 if token.color == Token.WHITE:
                     self.askToTerminate()
@@ -359,7 +427,8 @@ class DFSSolver:
         should_terminate = self.comm.Iprobe(source=0, tag=DFSSolver.TERMINATE)
         if should_terminate:
             self.comm.recv(source=0, tag=DFSSolver.TERMINATE)
-            print("* {0} has received termination token.").format(self.rank)
+            if self.mpi_debug:
+                print("* {0} has received termination token.").format(self.rank)
             self.finished = True
             return
 
