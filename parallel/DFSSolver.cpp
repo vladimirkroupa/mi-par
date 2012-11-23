@@ -57,56 +57,13 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 	while (! shouldTerminate()) {
 
 		if (edgeStack->size() == 0) {
-            		continue;
+            continue;
 		}
 
 		if (DEBUG) printStack(edgeStack);
-		// remove top edge from stack
-		Edge current = edgeStack->back();
-		edgeStack->pop_back();
-		if (current.isBacktrackMarker()) {
-			if (DEBUG) Logger::logLn("backtracking");
-			// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
-			spanningTree->removeLastEdge();
-		} else {
-			// add current edge to spanning tree, increment vertex degrees
-			spanningTree->addEdge(current);
-			if (DEBUG) printVertexDegrees();
-			if (DEBUG) printSpanningTree(spanningTree);
-			if (isSolution()) {
-				int price = spanningTree->evaluate();
-				if (isBestPossible(price)) {
-					// if the current solution is the best possible, return
-					updateBest(price);
-					if (MPI_DEBUG) { stringstream str; str << rank << " found the best possible solution." << endl; Logger::log(&str); }
-					askToTerminate();
-				} else if (isBestSoFar(price)) {
-					// if not best possible, but better that any solution so far, update best
-					updateBest(price);
-					if (MPI_DEBUG) { stringstream str; str << rank << " found new best solution with price " << price << endl; Logger::log(&str); }
-					if (MPI_DEBUG) printSpanningTree(spanningTree);
-				}
-				// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
-				spanningTree->removeLastEdge();
-			} else {
-				// add backtrack marker to stack so we will know when we are moving up the DFS tree
-				pushBacktrackMarker();
-				// find new edges to add to spanning tree
-				vector<Edge> * candidates = graph->edgeCandidates(spanningTree);
-				if (DEBUG) printCandidates(candidates);
-				for (unsigned i = 0; i < candidates->size(); i++) {
-					Edge & edge = (*candidates)[i];
-					if (possibleWinner(edge)) {
-						// if the current candidate edge can lead to better solution than the best solution so far,
-						// add it to the stack
-						edgeStack->push_back(edge);
-					} else {
-						if (DEBUG) { stringstream str; str << "leaving out edge " << edge << endl; Logger::log(&str); }
-					}
-				}
-				delete candidates;
-			}
-		}
+
+		expand();
+
 		if (DEBUG) { stringstream str; str <<  "---------------------------" << endl; Logger::log(&str); }
 	}
 	if (solutionExists()) {
@@ -114,6 +71,69 @@ pair<vector<Edge> *, int> * DFSSolver::findBestSolution() {
 		return prepareSolution(best, bestPrice);
 	}
 	return NULL;
+}
+
+void DFSSolver::expand() {
+	// remove top edge from stack
+	Edge current = edgeStack->back();
+	edgeStack->pop_back();
+	if (current.isBacktrackMarker()) {
+		if (DEBUG)
+			Logger::logLn("backtracking");
+		// if current edge is backtrack marker, remove last edge from spanning tree and decrement vertex degrees
+		spanningTree->removeLastEdge();
+	} else {
+		// add current edge to spanning tree, increment vertex degrees
+		spanningTree->addEdge(current);
+		if (DEBUG) printVertexDegrees();
+		if (DEBUG) printSpanningTree(spanningTree);
+		if (isSolution()) {
+			int price = spanningTree->evaluate();
+			if (isBestPossible(price)) {
+				// if the current solution is the best possible, return
+				updateBest(price);
+				if (MPI_DEBUG) {
+					stringstream str;
+					str << rank << " found the best possible solution." << endl;
+					Logger::log(&str);
+				}
+				askToTerminate();
+			} else if (isBestSoFar(price)) {
+				// if not best possible, but better that any solution so far, update best
+				updateBest(price);
+				if (MPI_DEBUG) {
+					stringstream str;
+					str << rank << " found new best solution with price "
+							<< price << endl;
+					Logger::log(&str);
+				}
+				if (MPI_DEBUG) printSpanningTree(spanningTree);
+			}
+			// since we've found the solution, we're at the bottom of the DFS tree -> backtracking
+			spanningTree->removeLastEdge();
+		} else {
+			// add backtrack marker to stack so we will know when we are moving up the DFS tree
+			pushBacktrackMarker();
+			// find new edges to add to spanning tree
+			vector<Edge> * candidates = graph->edgeCandidates(spanningTree);
+			if (DEBUG) printCandidates(candidates);
+			for (unsigned i = 0; i < candidates->size(); i++) {
+				Edge & edge = (*candidates)[i];
+				if (possibleWinner(edge)) {
+					// if the current candidate edge can lead to better solution than the best solution so far,
+					// add it to the stack
+					edgeStack->push_back(edge);
+				} else {
+					if (DEBUG) {
+						stringstream str;
+						str << "leaving out edge " << edge << endl;
+						Logger::log(&str);
+					}
+				}
+			}
+			delete candidates;
+		}
+	}
 }
 
 void DFSSolver::pushBacktrackMarker() {
@@ -202,6 +222,36 @@ pair<vector<Edge> *, int> * DFSSolver::prepareSolution(SpanningTree* solution, i
 	vector<Edge> * copy = new vector<Edge>(*(solution->getEdges()));
 	pair<vector<Edge> *, int> * result = new pair<vector<Edge> *, int>(copy, solutionPrice);
 	return result;
+}
+
+int DFSSolver::countEdgesOnStack() {
+	int count = 0;
+	for (unsigned i = 0; i < edgeStack->size(); i++) {
+		Edge edge = (*edgeStack)[i];
+		if (!edge.isBacktrackMarker()) {
+			count++;
+		}
+	}
+	return count;
+}
+
+vector<pair<vector<Edge> *, SpanningTree *> * > DFSSolver::initialWorkSplit(int partsReq) {
+	vector<pair<vector<Edge> *, SpanningTree *> * > * parts = new vector<pair<vector<Edge> *, SpanningTree *> * >();
+    int partCnt = 0;
+    while (partCnt < partsReq) {
+        int edgesLeft = countEdgesOnStack();
+        while (edgesLeft < partsReq + 1 - partCnt) {
+            if (edgesLeft == 0) {
+                return parts;
+            }
+            expand();
+            edgesLeft = countEdgesOnStack();
+        }
+        pair<vector<Edge> *, SpanningTree *> * work = splitWork();
+        parts->insert(parts->end(), work);
+        partCnt++;
+    }
+    return parts;
 }
 
 pair<vector<Edge> *, SpanningTree *> * DFSSolver::splitWork() {
@@ -435,6 +485,34 @@ bool DFSSolver::checkWorkResponse(bool * workRequestSent, int * availableFrom) {
 			return false;
 		}
 	}
+}
+
+
+void DFSSolver::distributeInitialWork {
+	vector<pair<vector<Edge> *, SpanningTree *> * > parts = initialWorkSplit(commSize - 1);
+	if (MPI_DEBUG) { stringstream str; str << "0 has " << parts->size() << " initial work parts." << endl; Logger::log(&str); }
+    int toNode = 1;
+
+    for(unsigned i = 0; i < parts->size(); i++) {
+    	pair<vector<Edge> *, SpanningTree *> * part = (*parts)[i];
+        //self.comm.send(part, dest=toNode, tag=DFSSolver.WORK_SHARE)
+        //if self.mpi_debug:
+        //    print("0 has sent initial work to {0}".format(toNode))
+        //toNode += 1
+    }
+}
+
+void DFSSolver::acceptInitialWork() {
+	int workResp = 0;
+	MPI_Status status;
+	// check for shared work
+	MPI_Iprobe(0, WORK_SHARE, comm, &workResp, &status);
+	if (workResp) {
+		if (MPI_DEBUG) { stringstream str; str << rank << " has initial work" << endl; Logger::log(&str); }
+        receiveWork(0);
+    else {
+    	if (MPI_DEBUG) { stringstream str; str << rank << " has no initial work :(" << endl; Logger::log(&str); }
+    }
 }
 
 void DFSSolver::receiveWork(int source) {
