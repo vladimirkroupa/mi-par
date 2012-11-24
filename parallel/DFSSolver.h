@@ -53,6 +53,8 @@ private:
 	bool whiteTokenSent;
 	int workCounter;
 
+	void expand();
+
 	void pushBacktrackMarker();
 	std::vector<Edge> * firstEdgeCandidates();
 
@@ -65,6 +67,8 @@ private:
 	
 	std::pair<std::vector<Edge> *, int> * prepareSolution(SpanningTree * solution, int solutionPrice);
 	
+	int countEdgesOnStack();
+	std::vector<std::pair<std::vector<Edge> *, SpanningTree *> * > * initialWorkSplit(int partsReq);
 	std::pair<std::vector<Edge> *, SpanningTree *> * splitWork();
 	bool shouldTerminate();
 	bool hasWorkToShare();
@@ -73,6 +77,8 @@ private:
 	void rejectAll();
 	void sendWorkRequest();
 	bool checkWorkResponse(bool * workRequestSent, int * availableFrom);
+	void distributeInitialWork();
+	void acceptInitialWork();
 	void receiveWork(int source);
 	void checkColorChange(int sentWorkTo);
 	void askToTerminate();
