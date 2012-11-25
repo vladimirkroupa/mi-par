@@ -130,9 +130,9 @@ void DFSSolver::expand() {
 			if (DEBUG) printCandidates(candidates);
 			for (unsigned i = 0; i < candidates->size(); i++) {
 				Edge & edge = (*candidates)[i];
-				if (! isCandidate(edge)) {
-					continue;
-				}
+//				if (! isCandidate(edge)) {
+//					continue;
+//				}
 				if (possibleWinner(edge)) {
 					// if the current candidate edge can lead to better solution than the best solution so far,
 					// add it to the stack
