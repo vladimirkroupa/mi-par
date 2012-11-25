@@ -60,7 +60,8 @@ private:
 	void pushBacktrackMarker();
 	std::vector<Edge> * firstEdgeCandidates();
 
-	bool possibleWinner(Edge current);
+	bool isCandidate(Edge & edge);
+	bool possibleWinner(Edge & current);
 	bool isSolution();
 	bool isBestPossible(int price);
 	bool isBestSoFar(int price);

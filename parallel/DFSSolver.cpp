@@ -115,8 +115,7 @@ void DFSSolver::expand() {
 				updateBest(price);
 				if (MPI_DEBUG) {
 					stringstream str;
-					str << rank << " found new best solution with price "
-							<< price << endl;
+					str << rank << " found new best solution with price " << price << endl;
 					Logger::log(&str);
 				}
 				if (MPI_DEBUG) printSpanningTree(spanningTree);
@@ -131,6 +130,9 @@ void DFSSolver::expand() {
 			if (DEBUG) printCandidates(candidates);
 			for (unsigned i = 0; i < candidates->size(); i++) {
 				Edge & edge = (*candidates)[i];
+				if (! isCandidate(edge)) {
+					continue;
+				}
 				if (possibleWinner(edge)) {
 					// if the current candidate edge can lead to better solution than the best solution so far,
 					// add it to the stack
@@ -157,7 +159,19 @@ vector<Edge> * DFSSolver::firstEdgeCandidates() {
 	return graph->edgesAdjacentTo(vertex);
 }
 
-bool DFSSolver::possibleWinner(Edge current) {
+bool DFSSolver::isCandidate(Edge & edge) {
+	vector<Edge> * treeEdges = spanningTree->getEdges();
+	for (unsigned int i = 0; i < treeEdges->size(); i++) {
+		Edge & e = (*treeEdges)[i];
+		if (edge.precedes(e)) {
+			if (DEBUG) { stringstream str; str << "Not considering edge " << edge << endl; Logger::log(&str); }
+			return false;
+		}
+	}
+	return true;
+}
+
+bool DFSSolver::possibleWinner(Edge & current) {
 	int price = spanningTree->evaluate(current);
 	return isBestSoFar(price);
 }
