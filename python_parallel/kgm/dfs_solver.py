@@ -115,11 +115,20 @@ class DFSSolver:
                 self.pushBacktrackMarker()
                 # find new edges to add to spanning tree
                 for edge in self.graph.edgeCandidates(self.spanning_tree):
+                    if not self.isCandidate(edge):
+                        continue
                     if self.possibleWinner(edge):
                         # candidate edge can lead to better solution than best solution so far
                         self.edge_stack.append(edge)
                     else:
                         self.logger.debug("Leaving out edge %s", edge)
+
+    def isCandidate(self, edge):
+        for tree_edge in self.spanning_tree.edgeList():
+            if edge < tree_edge:
+                self.logger.debug("Not considering edge %s", edge)
+                return False
+        return True
 
     def firstEdgeCandidates(self):
         vertex = 0
