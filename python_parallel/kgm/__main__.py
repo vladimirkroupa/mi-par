@@ -13,11 +13,14 @@ def main():
         parser.add_argument("-d", "--debug", help="print additional messages", action="store_true")
         args = parser.parse_args()
         file = args.file
+        debug = args.debug
         graph = readGraph(file)
     else:
         graph = None
+        debug = None
+    debug = comm.bcast(debug)
     received = comm.bcast(graph)
-    solver = DFSSolver(received, comm, False)
+    solver = DFSSolver(received, comm, debug)
 
     comm.Barrier()
 
