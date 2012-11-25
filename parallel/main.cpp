@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <string>
+#include <limits>
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
 #include "Packer.h"
@@ -154,9 +155,7 @@ int main(int argc, char** argv) {
     		matrixElems[i] = graph->getMatrixElem(i);
     	}
     }
-    // Logger::logLn("Broadcasting matrix elements...");
     MPI_Bcast(matrixElems, elemCnt, MPI_INT, 0, MPI_COMM_WORLD);
-    // Logger::logLn("Broadcasted.");
     if (myRank != 0) {
     	SquareMatrix * matrix = new SquareMatrix(vertexCount, matrixElems);
     	graph = new UndirectedGraph(matrix);
@@ -169,8 +168,13 @@ int main(int argc, char** argv) {
     MPI_Barrier(MPI_COMM_WORLD);
 
     pair<vector<Edge> *, int>  * result = solver->findBestSolution();
-	vector<Edge> * solution = result->first;
-	int solutionPrice = result->second;
+
+    vector<Edge> * solution = NULL;
+    int solutionPrice = numeric_limits<int>::max();
+    if (result != NULL) {
+    	solution = result->first;
+    	solutionPrice = result->second;
+    }
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
