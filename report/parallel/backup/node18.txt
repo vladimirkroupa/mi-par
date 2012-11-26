@@ -1,0 +1,3 @@
+Winner is: 1
+Min price is: 3
+MPI finalized

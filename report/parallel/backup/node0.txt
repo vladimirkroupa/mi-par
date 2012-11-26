@@ -1,0 +1,27 @@
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 2
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 2
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
+Winner is: 1
+Min price is: 3
+MPI finalized
