@@ -6,9 +6,7 @@ class SpanningTree:
     def __init__(self, graphSize):
 
         self.edges = []
-        self.vertex_degrees = []
-        for i in range(graphSize):
-            self.vertex_degrees.append(0)
+        self.vertex_degrees = [0] * graphSize
 
     def edgeList(self):
         return self.edges

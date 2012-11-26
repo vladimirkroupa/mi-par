@@ -18,7 +18,7 @@ class UndirectedGraph:
 
     def adjacentEdges(self, vertex):
         adj_edges = []
-        for vertex2 in reversed(range(0, self.adj_matrix.size())):
+        for vertex2 in range(0, self.adj_matrix.size()):
             if self.areConnected(vertex, vertex2):
                 adj_edges.append(Edge(vertex, vertex2))
         return adj_edges
@@ -33,11 +33,11 @@ class UndirectedGraph:
             matrix_copy.set(edge.vertex1, edge.vertex2, False)
             matrix_copy.set(edge.vertex2, edge.vertex1, False)
 
-        for vertex_1 in reversed(range(self.adj_matrix.size())):
+        for vertex_1 in range(self.adj_matrix.size()):
             # skip edges where the first vertex would have degree 0 in the tree
             if tree.vertexDegrees()[vertex_1] == 0:
                 continue
-            for vertex_2 in reversed(range(0, self.adj_matrix.size())):
+            for vertex_2 in range(0, self.adj_matrix.size()):
                 # skip edges that would create cycle in the tree
                 if tree.vertexDegrees()[vertex_2] != 0:
                     continue

@@ -35,6 +35,7 @@ class DFSSolver:
 
         self.total_edges = 0
         self.total_solutions = 0
+        self.all_trees = set([])
 
     def setupLogging(self, debug):
         logger = logging.getLogger(str(self.rank))
@@ -72,6 +73,11 @@ class DFSSolver:
         self.logger.info("%s processed %s edges.", self.rank, self.total_edges)
         self.logger.info("%s found %s solutions.", self.rank, self.total_solutions)
 
+        self.logger.info("%s created %s unique of %s partial solutions.", self.rank, len(self.all_trees), self.total_edges)
+
+        for partial in self.all_trees:
+                self.logger.info(partial)
+
         # DFS traversal completed
         if self.foundSolution():
             return self.best, self.best_price
@@ -89,6 +95,9 @@ class DFSSolver:
         else:
             # add current edge to spanning tree
             self.spanning_tree.addEdge(current_edge)
+            edge_set = frozenset(self.spanning_tree.edgeList())
+            self.all_trees.add(edge_set)
+            del edge_set
 
             self.logger.debug(self.spanning_tree)
 
@@ -108,15 +117,15 @@ class DFSSolver:
                     self.updateBest(price)
                     self.logger.debug("%s found new solution with price %s:",self.rank, price)
                     self.logger.debug(self.spanning_tree)
-                    # since we've found the solution, current edge is a leaf of the DFS tree -> backtrack
+                # since we've found the solution, current edge is a leaf of the DFS tree -> backtrack
                 self.spanning_tree.removeLastEdge()
             else:
                 # add backtrack marker to stack so we will know when we are moving up the DFS tree
                 self.pushBacktrackMarker()
                 # find new edges to add to spanning tree
                 for edge in self.graph.edgeCandidates(self.spanning_tree):
-                    if not self.isCandidate(edge):
-                        continue
+#                    if not self.isCandidate(edge):
+#                        continue
                     if self.possibleWinner(edge):
                         # candidate edge can lead to better solution than best solution so far
                         self.edge_stack.append(edge)
