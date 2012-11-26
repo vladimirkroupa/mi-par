@@ -378,7 +378,14 @@ bool DFSSolver::shouldTerminate() {
 		handleTokens();
 
 		bool workRequestSent = false;
-		while(true) {
+		while (true) {
+			if (workCounter > WORK_STEPS) {
+				workCounter %= WORK_STEPS;
+				continue;				
+			} else {
+				workCounter++;
+			}
+
 			rejectAll();
 
 			handleTokens();
