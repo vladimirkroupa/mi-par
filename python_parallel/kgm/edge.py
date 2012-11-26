@@ -1,6 +1,8 @@
 class Edge:
 
     def __init__(self, vertex1, vertex2):
+        if vertex1 > vertex2:
+            vertex1, vertex2 = vertex2, vertex1
         self.vertex1 = vertex1
         self.vertex2 = vertex2
 
@@ -17,6 +19,9 @@ class Edge:
         sameOrder = self.vertex1 == other.vertex1 and self.vertex2 == other.vertex2
         crossedOrder = self.vertex1 == other.vertex2 and self.vertex2 == other.vertex1
         return sameOrder or crossedOrder
+
+    def __lt__(self, other):
+        return (10 * self.vertex1 + self.vertex2) < (10 * other.vertex1 + other.vertex2)
 
     def __ne__(self, other):
         return not self.__eq__(other)

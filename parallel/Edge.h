@@ -15,6 +15,7 @@ public:
 	Edge(int vertex1, int vertex2);
 	virtual ~Edge();
 	bool isBacktrackMarker();
+	bool precedes(Edge & e);
 	friend std::ostream & operator <<(std::ostream & os, const Edge & e);
 private:
 

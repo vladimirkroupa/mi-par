@@ -33,7 +33,7 @@ class UndirectedGraph:
             matrix_copy.set(edge.vertex1, edge.vertex2, False)
             matrix_copy.set(edge.vertex2, edge.vertex1, False)
 
-        for vertex_1 in range(0, self.adj_matrix.size()):
+        for vertex_1 in range(self.adj_matrix.size()):
             # skip edges where the first vertex would have degree 0 in the tree
             if tree.vertexDegrees()[vertex_1] == 0:
                 continue

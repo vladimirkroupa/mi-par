@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{epsf,epic,eepic,eepicemu}
 %\documentstyle[epsf,epic,eepic,eepicemu]{article}
-\usepackage[cp1250]{inputenc}
+\usepackage[utf8]{inputenc}
 
 \begin{document}
 %\oddsidemargin=-5mm \evensidemargin=-5mm \marginparwidth=.08in
@@ -11,123 +11,140 @@
 %\parindent=15pt\parskip=2pt
 
 \begin{center}
-\bf Semestralní projekt MI-PAR 2010/2011:\\[5mm]
-    Paralelní algoritmus pro øešení problému\\[5mm]
-       Jméno1 Pøíjmení1\\
-       Jméno2 Pøíjmení2\\[2mm]
-magisterské studijum, FIT ÈVUT, Kolejní 550/2, 160 00 Praha 6\\[2mm]
-\today
+\bf SemestrÃ¡lnÃ­ projekt MI-PAR 2012/2013:\\[5mm]
+    ParalelnÃ­ algoritmus pro hledÃ¡nÃ­ kostry grafu s minimÃ¡lnÃ­m stupnÄ›m\\[5mm]
+       VladimÃ­r Kroupa\\
+       Jan Stadler\\[2mm]
 \end{center}
 
-\section{Definice problému a popis sekvenèního algoritmu}
+\section{Definice problÃ©mu a popis sekvenÄnÃ­ho algoritmu}
 
-Popište problém, kterı váš program øeší. Jako vıchozí pouijte text
-zadání, kterı rozšiøte o pøesné vymezení všech odchylek, které jste
-vùèi zadání bìhem implementace provedli (napø.  úpravy heuristické
-funkce, organizace zásobníku, apod.). Zmiòte i pøípadnì i takové
-prvky algoritmu, které v zadání nebyly specifikovány, ale které se
-ukázaly jako dùleité.  Dále popište vstupy a vıstupy algoritmu
-(formát vstupních a vıstupních dat). Uveïte tabulku nameøenıch èasù
-sekvenèního algoritmu pro rùznì velká data.
+NaleznÄ›te kostru grafu G (strom) s minimÃ¡lnÃ­m stupnÄ›m. StupeÅˆ stromu je definovÃ¡n jako maximÃ¡lnÃ­ stupeÅˆ ze vÅ¡ech uzlÅ¯ stromu. VÃ½stupem algoritmu je vÃ½pis kostry grafu G a hodnota stupnÄ› tÃ©to kostry. Vstupem je  jednoduchÃ½ souvislÃ½ neorientovanÃ½ neohodnocenÃ½ graf o $n$ uzlech a $m$ hranÃ¡ch, $n \in N, n \ge 5$, $k \in N, n \ge k \ge 3 $.
 
-\section{Popis paralelního algoritmu a jeho implementace v MPI}
+Å˜eÅ¡enÃ­ existuje vÅ¾dy, vÅ¾dy lze sestrojit kostru grafu. SekvenÄnÃ­ algoritmus je typu BB-DFS s hloubkou prohledÃ¡vanÃ©ho prostoru omezenou na $\vert$V$\vert$. PÅ™Ã­pustnÃ½ mezistav je definovanÃ½ ÄÃ¡steÄnou kostrou. PÅ™Ã­pustnÃ½ koncovÃ½ stav je vytvoÅ™enÃ¡ kostra. Algoritmus konÄÃ­ po prohledÃ¡nÃ­ celÃ©ho prostoru Äi pÅ™i dosaÅ¾enÃ­ dolnÃ­ meze. Cena, kterou minimalizujeme, je stupeÅˆ kostry.
 
-Popište paralelní algoritmus, opìt vyjdìte ze zadání a pøesnì
-vymezte odchylky, zvláštì u algoritmu pro vyvaování zátìe, hledání
-dárce, ci ukonèení vıpoètu.  Popište a vysvìtlete strukturu
-celkového paralelního algoritmu na úrovni procesù v MPI a strukturu
-kódu jednotlivıch procesù. Napø. jak je naimplementována smyèka pro
-èinnost procesù v aktivním stavu i v stavu neèinnosti. Jaké jste
-zvolili konstanty a parametry pro škálování algoritmu. Struktura a
-sémantika pøíkazové øádky pro spouštìní programu.
+TÄ›snÃ¡ dolnÃ­ mez je rovna 2. HornÃ­ mez je rovna nejvyÅ¡Å¡Ã­mu stupni v grafu G.
 
-\section{Namìøené vısledky a vyhodnocení}
+Pro usnadnÄ›nÃ­ paralelizace Å™eÅ¡enÃ­ je pouÅ¾it explicitnÃ­ zÃ¡sobnÃ­k, na kterÃ½ jsou uklÃ¡dÃ¡ny jednotlivÃ© stavy. PartikulÃ¡rnÃ­ Å™eÅ¡enÃ­ se sklÃ¡dÃ¡ z ÄÃ¡steÄnÃ© kostry, reprezentovanÃ© seznamem hran tvoÅ™Ã­cÃ­ch kostru a polem stupÅˆÅ¯ jednotlivÃ½ch vrcholÅ¯, kterÃ© ÄÃ¡steÄnÃ¡ kostra obsahuje. Pole stupÅˆÅ¯ slouÅ¾Ã­ k snadnÃ©mu vÃ½poÄtu maximÃ¡lnÃ­ho stupnÄ› kostry (staÄÃ­ pouze najÃ­t maximÃ¡lnÃ­ prvek pole). ZÃ¡roveÅˆ je pouÅ¾ito pÅ™i hledÃ¡nÃ­ hran, kterÃ© lze do ÄÃ¡steÄnÃ© kostry pÅ™idat. 
+
+Na zÃ¡sobnÃ­k se vklÃ¡dajÃ­ uzly grafu, kterÃ© je moÅ¾nÃ© pÅ™idat do existujÃ­cÃ­ ÄÃ¡steÄnÃ© kostry. Mimo to se na zÃ¡sobnÃ­k vklÃ¡dÃ¡ symbol pro backtrack. Pokud je sejmut z vrcholu zÃ¡sobnÃ­ku tento symbol, je jasnÃ©, Å¾e jsme vyÄerpali sourozeneckÃ© uzly stromu stavovÃ©ho prostoru a dalÅ¡Ã­ prvek zÃ¡sobnÃ­ku bude rodiÄovskÃ½ stav tÄ›chto sourozeneckÃ½ch uzlÅ¯. MusÃ­me tedy opravit partikulÃ¡rnÃ­ Å™eÅ¡enÃ­ odstranÄ›nÃ­m poslednÃ­ pÅ™idanÃ© hrany ÄÃ¡steÄnÃ© kostry (coÅ¾ zahrnuje i aktualizaci pole stupÅˆÅ¯ vrcholÅ¯ kostry).
+
+HlavnÃ­ smyÄka algoritmu probÃ­hÃ¡ nÃ¡sledovnÄ›. Na poÄÃ¡tku vloÅ¾Ã­me na zÃ¡sobnÃ­k hrany incidentnÃ­ s vrcholem 0. Dokud nenÃ­ zÃ¡sobnÃ­k prÃ¡zdnÃ½, snÃ­mÃ¡me z nÄ›j hrany. Po sejmutÃ­ prvku zkontrolujeme, zda se nejednÃ¡ o backtrack symbol. Pokud ano, opravÃ­me partikulÃ¡rnÃ­ Å™eÅ¡enÃ­. V opaÄnÃ©m pÅ™Ã­padÄ› hranu pÅ™idÃ¡me do partikulÃ¡rnÃ­ho Å™esenÃ­ --- na konec seznamu hran ÄÃ¡steÄnÃ© kostry. Otestujeme, zda ÄÃ¡steÄnÃ¡ kostra jiÅ¾ nenÃ­ kostrou grafu. To zjistÃ­me snadno, poÄet hran kostry je roven poÄtu vrcholÅ¯ grafu $-1$.
+
+Pokud jiÅ¾ mÃ¡me Å™eÅ¡enÃ­ (kostru grafu), zjistÃ­me jejÃ­ cenu (maximÃ¡lnÃ­ vrchol kostry). Pokud je cena Å™eÅ¡enÃ­ rovnÃ¡ dolnÃ­ mezi (2), ukonÄÃ­me vÃ½poÄet a vrÃ¡tÃ­me kostru. Pokud je cena vyÅ¡Å¡Ã­ neÅ¾ dolnÃ­ mez, ale niÅ¾Å¡Ã­, neÅ¾ cena nejlepÅ¡Ã­ho doposud nalezenÃ©ho Å™eÅ¡enÃ­, aktualizujeme nejlepÅ¡Ã­ Å™eÅ¡enÃ­. ProtoÅ¾e nynÃ­ se nachÃ¡zÃ­me v listu stromu stavovÃ©ho prostoru, opravÃ­me partikulÃ¡rnÃ­ Å™eÅ¡enÃ­ odstranÄ›nÃ­m poslednÃ­ hrany.
+
+Pokud Å™eÅ¡enÃ­ nemÃ¡me, expandujeme souÄasnÃ½ stav. VloÅ¾Ã­me na zÃ¡sobnÃ­k symbol pro backtrack a dÃ¡le vloÅ¾Ã­me vÅ¡echny kandidÃ¡tskÃ© hrany. KandidÃ¡tskÃ© hrany zÃ­skÃ¡me tak, Å¾e nalezneme vÅ¡echny hrany grafu, kterÃ© majÃ­ jeden z vrcholÅ¯ obsaÅ¾en v aktuÃ¡lnÃ­ ÄÃ¡steÄnÃ© kostÅ™e a druhÃ½ vrchol v kostÅ™e doposud obsaÅ¾en nenÃ­. KaÅ¾dou z takto zÃ­skanÃ½ch hran zkusÃ­me pÅ™idat do ÄÃ¡steÄnÃ© kostry a vypoÄteme, jakÃ½ maximÃ¡lnÃ­ stupeÅˆ by kostra mÄ›la po pÅ™idÃ¡nÃ­ tÃ©to hrany. Ze seznamu tÄ›chto hran nÃ¡slednÄ› odstranÃ­me ty, kterÃ© by vedly na vyÅ¡Å¡Ã­ stupeÅˆ kostry, neÅ¾ je stupeÅˆ nejlepÅ¡Ã­ho doposud nalezenÃ©ho Å™eÅ¡enÃ­.
+
+Algoritmus terminuje buÄ nalezenÃ­m Å™eÅ¡enÃ­ s cenou rovnou dolnÃ­ mezi, nebo vyÄerpÃ¡nÃ­m zÃ¡sobnÃ­ku stavÅ¯. Po vyÄerpÃ¡nÃ­ zÃ¡sobnÃ­ku musÃ­ nutnÄ› existovat alespoÅˆ jedno Å™eÅ¡enÃ­.
+
+
+PopiÅ¡te problÃ©m, kterÃ½ vÃ¡Å¡ program Ã¸eÅ¡Ã­. Jako vÃ½chozÃ­ pouÅ¾ijte text
+zadÃ¡nÃ­, kterÃ½ rozÅ¡iÃ¸te o pÃ¸esnÃ© vymezenÃ­ vÅ¡ech odchylek, kterÃ© jste
+vÃ¹Ã¨i zadÃ¡nÃ­ bÃ¬hem implementace provedli (napÃ¸.  Ãºpravy heuristickÃ©
+funkce, organizace zÃ¡sobnÃ­ku, apod.). ZmiÃ²te i pÃ¸Ã­padnÃ¬ i takovÃ©
+prvky algoritmu, kterÃ© v zadÃ¡nÃ­ nebyly specifikovÃ¡ny, ale kterÃ© se
+ukÃ¡zaly jako dÃ¹leÅ¾itÃ©.  DÃ¡le popiÅ¡te vstupy a vÃ½stupy algoritmu
+(formÃ¡t vstupnÃ­ch a vÃ½stupnÃ­ch dat). UveÃ¯te tabulku nameÃ¸enÃ½ch Ã¨asÃ¹
+sekvenÃ¨nÃ­ho algoritmu pro rÃ¹znÃ¬ velkÃ¡ data.
+
+\section{Popis paralelnÃ­ho algoritmu a jeho implementace v MPI}
+
+PopiÅ¡te paralelnÃ­ algoritmus, opÃ¬t vyjdÃ¬te ze zadÃ¡nÃ­ a pÃ¸esnÃ¬
+vymezte odchylky, zvlÃ¡Å¡tÃ¬ u algoritmu pro vyvaÅ¾ovÃ¡nÃ­ zÃ¡tÃ¬Å¾e, hledÃ¡nÃ­
+dÃ¡rce, ci ukonÃ¨enÃ­ vÃ½poÃ¨tu.  PopiÅ¡te a vysvÃ¬tlete strukturu
+celkovÃ©ho paralelnÃ­ho algoritmu na Ãºrovni procesÃ¹ v MPI a strukturu
+kÃ³du jednotlivÃ½ch procesÃ¹. NapÃ¸. jak je naimplementovÃ¡na smyÃ¨ka pro
+Ã¨innost procesÃ¹ v aktivnÃ­m stavu i v stavu neÃ¨innosti. JakÃ© jste
+zvolili konstanty a parametry pro Å¡kÃ¡lovÃ¡nÃ­ algoritmu. Struktura a
+sÃ©mantika pÃ¸Ã­kazovÃ© Ã¸Ã¡dky pro spouÅ¡tÃ¬nÃ­ programu.
+
+\section{NamÃ¬Ã¸enÃ© vÃ½sledky a vyhodnocenÃ­}
 
 \begin{enumerate}
-\item Zvolte tøi instance problému s takovou velikostí vstupních dat, pro které má
-sekvenèní algoritmus èasovou sloitost kolem 5, 10 a 15 minut. Pro
-meøení èas potøebnı na ètení dat z disku a uloení na disk
-neuvaujte a zakomentujte ladící tisky, logy, zprávy a vıstupy.
-\item Mìøte paralelní èas pøi pouití $i=2,\cdot,32$ procesorù na sítích Ethernet a InfiniBand.
+\item Zvolte tÃ¸i instance problÃ©mu s takovou velikostÃ­ vstupnÃ­ch dat, pro kterÃ© mÃ¡
+sekvenÃ¨nÃ­ algoritmus Ã¨asovou sloÅ¾itost kolem 5, 10 a 15 minut. Pro
+meÃ¸enÃ­ Ã¨as potÃ¸ebnÃ½ na Ã¨tenÃ­ dat z disku a uloÅ¾enÃ­ na disk
+neuvaÅ¾ujte a zakomentujte ladÃ­cÃ­ tisky, logy, zprÃ¡vy a vÃ½stupy.
+\item MÃ¬Ã¸te paralelnÃ­ Ã¨as pÃ¸i pouÅ¾itÃ­ $i=2,\cdot,32$ procesorÃ¹ na sÃ­tÃ­ch Ethernet a InfiniBand.
 %\item Pri mereni kazde instance problemu na dany pocet procesoru spoctete pro vas algoritmus dynamicke delby prace celkovy pocet odeslanych zadosti o praci, prumer na 1 procesor a jejich uspesnost.
 %\item Mereni pro dany pocet procesoru a instanci problemu provedte 3x a pouzijte prumerne hodnoty.
-\item Z namìøenıch dat sestavte grafy zrychlení $S(n,p)$. Zjistìte, zda a za jakych podmínek
-došlo k superlineárnímu zrychlení a pokuste se je zdùvodnit.
-\item Vyhodnoïte komunikaèní sloitost dynamického vyvaování zátìe a posuïte
-vhodnost vámi implementovaného algoritmu pro hledání dárce a dìlení
-zásobníku pri øešení vašeho problému. Posuïte efektivnost a
-škálovatelnost algoritmu. Popište nedostatky vaší implementace a
-navrhnìte zlepšení.
+\item Z namÃ¬Ã¸enÃ½ch dat sestavte grafy zrychlenÃ­ $S(n,p)$. ZjistÃ¬te, zda a za jakych podmÃ­nek
+doÅ¡lo k superlineÃ¡rnÃ­mu zrychlenÃ­ a pokuste se je zdÃ¹vodnit.
+\item VyhodnoÃ¯te komunikaÃ¨nÃ­ sloÅ¾itost dynamickÃ©ho vyvaÅ¾ovÃ¡nÃ­ zÃ¡tÃ¬Å¾e a posuÃ¯te
+vhodnost vÃ¡mi implementovanÃ©ho algoritmu pro hledÃ¡nÃ­ dÃ¡rce a dÃ¬lenÃ­
+zÃ¡sobnÃ­ku pri Ã¸eÅ¡enÃ­ vaÅ¡eho problÃ©mu. PosuÃ¯te efektivnost a
+Å¡kÃ¡lovatelnost algoritmu. PopiÅ¡te nedostatky vaÅ¡Ã­ implementace a
+navrhnÃ¬te zlepÅ¡enÃ­.
 \item Empiricky stanovte
-granularitu vaší implementace, tj., stupeò paralelismu pro danou
-velikost øešeného problému. Stanovte kritéria pro stanovení mezí, za
-kterımi ji není uèinné rozkládat vıpoèet na menší procesy, protoe
-by komunikaèní náklady preváily urychlení paralelním vıpoètem.
+granularitu vaÅ¡Ã­ implementace, tj., stupeÃ² paralelismu pro danou
+velikost Ã¸eÅ¡enÃ©ho problÃ©mu. Stanovte kritÃ©ria pro stanovenÃ­ mezÃ­, za
+kterÃ½mi jiÅ¾ nenÃ­ uÃ¨innÃ© rozklÃ¡dat vÃ½poÃ¨et na menÅ¡Ã­ procesy, protoÅ¾e
+by komunikaÃ¨nÃ­ nÃ¡klady prevÃ¡Å¾ily urychlenÃ­ paralelnÃ­m vÃ½poÃ¨tem.
 
 \end{enumerate}
 
-\section{Závìr}
+\section{ZÃ¡vÃ¬r}
 
-Celkové zhodnocení semestrální práce a zkušenosti získanıch bìhem
+CelkovÃ© zhodnocenÃ­ semestrÃ¡lnÃ­ prÃ¡ce a zkuÅ¡enosti zÃ­skanÃ½ch bÃ¬hem
 semestru.
 
 \section{Literatura}
 
 \appendix
 
-\section{Návod pro vkládání grafù a obrázkù do Latexu}
+\section{NÃ¡vod pro vklÃ¡dÃ¡nÃ­ grafÃ¹ a obrÃ¡zkÃ¹ do Latexu}
 
-Nejjednodušší zpùsob vytvoøení obrázku je pouít vektorovı grafickı
-editor (napø. xfig nebo jfig), ze kterého lze exportovat buï
+NejjednoduÅ¡Å¡Ã­ zpÃ¹sob vytvoÃ¸enÃ­ obrÃ¡zku je pouÅ¾Ã­t vektorovÃ½ grafickÃ½
+editor (napÃ¸. xfig nebo jfig), ze kterÃ©ho lze exportovat buÃ¯
 \begin{itemize}
-\item postscript formáty (ps nebo eps formát) nebo
-\item latex formáty (v poøadí prostı latex, latex s macry epic, eepic, eepicemu). Uvedené poøadí odpovídá rùstu
-komplikovanosti obrázkù kterı formát podporuje (prostá latex macra
-umonují pouze jednoduché, epic makra nìco mezi, je tøeba
-vyzkoušet).
+\item postscript formÃ¡ty (ps nebo eps formÃ¡t) nebo
+\item latex formÃ¡ty (v poÃ¸adÃ­ prostÃ½ latex, latex s macry epic, eepic, eepicemu). UvedenÃ© poÃ¸adÃ­ odpovÃ­dÃ¡ rÃ¹stu
+komplikovanosti obrÃ¡zkÃ¹ kterÃ½ formÃ¡t podporuje (prostÃ¡ latex macra
+umoÅ¾nujÃ­ pouze jednoduchÃ©, epic makra nÃ¬co mezi, je tÃ¸eba
+vyzkouÅ¡et).
 
 \end{itemize}
-Následující pøíklady platí pro všechny pøípady.
+NÃ¡sledujÃ­cÃ­ pÃ¸Ã­klady platÃ­ pro vÅ¡echny pÃ¸Ã­pady.
 
-Obrázek v postscriptu, vycentrovanı a na celou šíøku stránky, s
-popisem a èíslem. Všimnete si, jak øídit velikost obrazku.
+ObrÃ¡zek v postscriptu, vycentrovanÃ½ a na celou Å¡Ã­Ã¸ku strÃ¡nky, s
+popisem a Ã¨Ã­slem. VÅ¡imnete si, jak Ã¸Ã­dit velikost obrazku.
 \begin{figure}[ht]
-\epsfysize=3cm \centerline{\epsfbox{VasObrazek.ps}} \caption{Popis
-vašeho obrazku} \label{labelvasehoobrazku}
+\epsfysize=3cm \centerline{\epsfbox{VasObrazek.eps}} \caption{Popis
+vaÅ¡eho obrazku} \label{labelvasehoobrazku}
 \end{figure}
 
-Obrázek pouze vloenı mezi øádky textu, bez popisu a èíslování.\\
+ObrÃ¡zek pouze vloÅ¾enÃ½ mezi Ã¸Ã¡dky textu, bez popisu a Ã¨Ã­slovÃ¡nÃ­.\\
 \epsfxsize=1cm
-\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.ps}\hfill\rule{0pt}{0pt}
+\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.eps}\hfill\rule{0pt}{0pt}
 
-Latexovské obrázky maji pøípony *.latex, *.epic, *.eepic, a
+LatexovskÃ© obrÃ¡zky maji pÃ¸Ã­pony *.latex, *.epic, *.eepic, a
 *.eepicemu, respective.
-\begin{figure}[ht]
-\begin{center}
-\input VasObrazek.latex
-\end{center}
-\caption{Popis vašeho obrázku} \label{l1}
-\end{figure}
-Vypuštením závorek {\tt figure} dostanete opìt pouze rámeèek v textu
-bez èísla a popisu.
+%\begin{figure}[ht]
+%\begin{center}
+%\input VasObrazek.latex
+%\end{center}
+%\caption{Popis vaÅ¡eho obrÃ¡zku} \label{l1}
+%\end{figure}
+VypuÅ¡tenÃ­m zÃ¡vorek {\tt figure} dostanete opÃ¬t pouze rÃ¡meÃ¨ek v textu
+bez Ã¨Ã­sla a popisu.
 
-Takhle jednoduše mùete poskládat obrázky vedle sebe.
-\begin{center}
-\setlength{\unitlength}{0.1mm}\input VasObrazek.epic
-\hglue 5mm
-\setlength{\unitlength}{0.15mm}\input VasObrazek.eepic
-\hglue 5mm
-\setlength{\unitlength}{0.2mm}\input VasObrazek.eepicemu
-\end{center}
-Øídit velikost latexovskych obrázkù lze pøíkazem
+Takhle jednoduÅ¡e mÃ¹Å¾ete posklÃ¡dat obrÃ¡zky vedle sebe.
+%\begin{center}
+%\setlength{\unitlength}{0.1mm}\input VasObrazek.epic
+%\hglue 5mm
+%\setlength{\unitlength}{0.15mm}\input VasObrazek.eepic
+%\hglue 5mm
+%\setlength{\unitlength}{0.2mm}\input VasObrazek.eepicemu
+%\end{center}
+Ã˜Ã­dit velikost latexovskych obrÃ¡zkÃ¹ lze pÃ¸Ã­kazem
 \begin{verbatim}
 \setlength{\unitlength}{0.1mm}
 \end{verbatim}
-které mìní mìøítko rastru obrázku, Tyto pøíkazy je ale souèasnì
-nutné vyhodit ze souboru, kterı xfig vygeneroval.
+kterÃ© mÃ¬nÃ­ mÃ¬Ã¸Ã­tko rastru obrÃ¡zku, Tyto pÃ¸Ã­kazy je ale souÃ¨asnÃ¬
+nutnÃ© vyhodit ze souboru, kterÃ½ xfig vygeneroval.
 
-Pro vytváøení grafu lze pouít program gnuplot, kterı umí generovat
-postscriptovy soubor, ktery vloíte do Latexu vıše uvedenım
-zpùsobem.
+Pro vytvÃ¡Ã¸enÃ­ grafu lze pouÅ¾Ã­t program gnuplot, kterÃ½ umÃ­ generovat
+postscriptovy soubor, ktery vloÅ¾Ã­te do Latexu vÃ½Å¡e uvedenÃ½m
+zpÃ¹sobem.
 
 \end{document}

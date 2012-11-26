@@ -35,7 +35,7 @@ bool UndirectedGraph::areConnected(int vertex1, int vertex2) {
 
 std::vector<Edge> * UndirectedGraph::edgesAdjacentTo(int vertex) {
 	std::vector<Edge> * edges = new std::vector<Edge>();
-	for (int vertex2 = 0; vertex2 < vertexCount(); vertex2++) {
+	for (int vertex2 = vertexCount() - 1; vertex2 >= 0; vertex2--) {
 		if (areConnected(vertex, vertex2)) {
 			edges->push_back(Edge(vertex, vertex2));
 		}
@@ -63,12 +63,12 @@ std::vector<Edge> * UndirectedGraph::edgeCandidates(SpanningTree * tree) {
 	}
 
 	std::vector<Edge> * newEdges = new std::vector<Edge>();
-	for (int vertexFrom = 0; vertexFrom < vertexCount(); vertexFrom++) {
+	for (int vertexFrom = vertexCount() - 1; vertexFrom >= 0; vertexFrom--) {
 		// skip edges where the first vertex would have degree 0 in the tree
 		if (vertexDegrees[vertexFrom] == 0) {
 			continue;
 		}
-		for (int vertexTo = 0; vertexTo < vertexCount(); vertexTo++) {
+		for (int vertexTo = vertexCount() - 1; vertexTo >= 0; vertexTo--) {
 			// skip edges that would create cycle in the tree
 			if (vertexDegrees[vertexTo] != 0) {
 				continue;
