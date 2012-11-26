@@ -12,7 +12,7 @@
 
 \begin{center}
 \bf Semestrální projekt MI-PAR 2012/2013:\\[5mm]
-    Paralelní algoritmus pro hledání kostry grafu s minimálním stupněm\\[5mm]
+    Paralelní algoritmus pro hledání minimální kostry grafu\\[5mm]
        Vladimír Kroupa\\
        Jan Stadler\\[2mm]
 \end{center}
@@ -27,6 +27,8 @@ Těsná dolní mez je rovna 2. Horní mez je rovna nejvyššímu stupni v grafu 
 
 Pro usnadnění paralelizace řešení je použit explicitní zásobník, na který jsou ukládány jednotlivé stavy. Partikulární řešení se skládá z částečné kostry, reprezentované seznamem hran tvořících kostru a polem stupňů jednotlivých vrcholů, které částečná kostra obsahuje. Pole stupňů slouží k snadnému výpočtu maximálního stupně kostry (stačí pouze najít maximální prvek pole). Zároveň je použito při hledání hran, které lze do částečné kostry přidat. 
 
+Použitý algoritmus je naivní, postupným přidáváním hran kostry prochází možné permutace hran, které vedou na kostru grafu. Použitím branch-and-bound strategie je ale významně zredukován počet procházených stavů.
+
 Na zásobník se vkládají uzly grafu, které je možné přidat do existující částečné kostry. Mimo to se na zásobník vkládá symbol pro backtrack. Pokud je sejmut z vrcholu zásobníku tento symbol, je jasné, že jsme vyčerpali sourozenecké uzly stromu stavového prostoru a další prvek zásobníku bude rodičovský stav těchto sourozeneckých uzlů. Musíme tedy opravit partikulární řešení odstraněním poslední přidané hrany částečné kostry (což zahrnuje i aktualizaci pole stupňů vrcholů kostry).
 
 Hlavní smyčka algoritmu probíhá následovně. Na počátku vložíme na zásobník hrany incidentní s vrcholem 0. Dokud není zásobník prázdný, snímáme z něj hrany. Po sejmutí prvku zkontrolujeme, zda se nejedná o backtrack symbol. Pokud ano, opravíme partikulární řešení. V opačném případě hranu přidáme do partikulárního řesení --- na konec seznamu hran částečné kostry. Otestujeme, zda částečná kostra již není kostrou grafu. To zjistíme snadno, počet hran kostry je roven počtu vrcholů grafu $-1$.
@@ -37,17 +39,25 @@ Pokud řešení nemáme, expandujeme současný stav. Vložíme na zásobník sy
 
 Algoritmus terminuje buď nalezením řešení s cenou rovnou dolní mezi, nebo vyčerpáním zásobníku stavů. Po vyčerpání zásobníku musí nutně existovat alespoň jedno řešení.
 
+Vstupem pro program je matice sousednosti, kde prvky jsou oddělené mezerami. Na prvním řádku před samotnou maticí je počet vrchovů grafu. Výstupem je kostra grafu a její vrchol.
 
-Popište problém, který váš program øeší. Jako výchozí použijte text
-zadání, který rozšiøte o pøesné vymezení všech odchylek, které jste
-vùèi zadání bìhem implementace provedli (napø.  úpravy heuristické
-funkce, organizace zásobníku, apod.). Zmiòte i pøípadnì i takové
-prvky algoritmu, které v zadání nebyly specifikovány, ale které se
-ukázaly jako dùležité.  Dále popište vstupy a výstupy algoritmu
-(formát vstupních a výstupních dat). Uveïte tabulku nameøených èasù
-sekvenèního algoritmu pro rùznì velká data.
+!! Uveïte tabulku nameøených èasù sekvenèního algoritmu pro rùznì velká data. !!!
 
 \section{Popis paralelního algoritmu a jeho implementace v MPI}
+
+Paralelní algoritmus je typu L-PBB-DFS-D. Každý procesor si udržuje informaci o lokálně nejlepším řešení a pokud řešení s cenou rovnou dolní mezi neexistuje, bude prohledávat celý stavový prostor a po distribuovaném ukončení výpočtu pomocí algoritmu ADUV bude globálně nejlepší řešení získáno paralelní redukcí lokálních řešení. Existuje-li řešení s cenou rovnou dolní mezi, procesor, který jej nalezne, ukončí výpočet vysláním zprávy typu jeden-všem.
+
+Modifikace algoritmu pro paralelní zpracování je následující. Proces 0 načte matici sousednosti ze vstupního souboru. Poté rozešle ostatním procesům počet vrcholů grafu pomocí \texttt{MPI\_Bcast}. Nakonec rozešle pomocí \texttt{MPI\_Bcast} prvky matice. Proces 0 také na počátku výpočtu provede úvodní rozdělení práce ostatním procesům. Úvodní rozdělení funguje tak, že proces 0 expanduje stavy na zásobníku, dokud na zásobníku není tolik hran, kolik je procesů. ?? porovnání rychlosti běhu s dist a bez? ??
+
+Hlavní změna oproti sekvenčnímu algoritmu je, že hlavní smyčka nemá jako podmínku ukončení neprázdný zásobník stavů, ale výsledek volání metody \texttt{shouldTerminate()}. Tato metoda se volá pouze jednou za \texttt{WORK\_STEPS} kroků, v ostatních případech algoritmus pokračuje v hledání. Tím je omezena režie na komunikaci mezi procesy. Parametr \texttt{WORK\_STEPS} je zadán jako argument při spuštění.
+
+\subsection{Metoda \texttt{shouldTerminate()}}
+
+Metoda \texttt{shouldTerminate()} nejdříve zkontroluje (\texttt{MPI\_Iprobe()}), zda proces nemá zprávu, požadující ukončení. Tuto zprávu vysílá proces 0 na konci distribuovaného ukončování výpočtu. Také ji vyslat jakýkoliv proces, pokud narazí na řešení s cenou rovnou dolní mezi (nejlepší možné řešení). 
+
+Pokud povel k ukončení není přítomen, proces zjistí, zda má práci, o kterou se může podělit (nejméně 2 hrany na zásobníku stavů). Pokud nemá dostatek práce, zkontroluje a přijme (\texttt{MPI\_Iprobe(), MPI\_Recv()}) požadavky na práci jemu adresované. Všem procesům od kterých přišly tyto požadavky zašle odmítnutí.
+
+!!! Hledání dárce. !!!
 
 Popište paralelní algoritmus, opìt vyjdìte ze zadání a pøesnì
 vymezte odchylky, zvláštì u algoritmu pro vyvažování zátìže, hledání
@@ -66,8 +76,6 @@ sekvenèní algoritmus èasovou složitost kolem 5, 10 a 15 minut. Pro
 meøení èas potøebný na ètení dat z disku a uložení na disk
 neuvažujte a zakomentujte ladící tisky, logy, zprávy a výstupy.
 \item Mìøte paralelní èas pøi použití $i=2,\cdot,32$ procesorù na sítích Ethernet a InfiniBand.
-%\item Pri mereni kazde instance problemu na dany pocet procesoru spoctete pro vas algoritmus dynamicke delby prace celkovy pocet odeslanych zadosti o praci, prumer na 1 procesor a jejich uspesnost.
-%\item Mereni pro dany pocet procesoru a instanci problemu provedte 3x a pouzijte prumerne hodnoty.
 \item Z namìøených dat sestavte grafy zrychlení $S(n,p)$. Zjistìte, zda a za jakych podmínek
 došlo k superlineárnímu zrychlení a pokuste se je zdùvodnit.
 \item Vyhodnoïte komunikaèní složitost dynamického vyvažování zátìže a posuïte
