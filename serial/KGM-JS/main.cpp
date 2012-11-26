@@ -7,8 +7,10 @@
 
 #include <cstdlib>
 #include <stdio.h>
+#include <time.h>
 #include "UndirectedGraph.h"
 #include "DFSSolver.h"
+#include "TimeTool.h"
 
 using namespace std;
 
@@ -70,9 +72,19 @@ int main(int argc, char** argv) {
     cout << "vertex count=" << graph->vertexCount() << endl;
 
     DFSSolver *solver = new DFSSolver(graph);
+
+    //time start
+    //time_t start = time(NULL);
+    //TimeTool(time(NULL)) start;
+    TimeTool start(time(NULL));
+    //hledani reseni
     pair<vector<Edge> *, int>  *result = solver->findBestSolution();
-	vector<Edge> *solution = result->first;
-	int solutionPrice = result->second;
+    //time end
+    //time_t end = time(NULL);
+    TimeTool end(time(NULL));
+
+    vector<Edge> *solution = result->first;
+    int solutionPrice = result->second;
     if (solution != NULL) {
         cout << "Best solution:" << endl;
         for (i = 0; i < solution->size(); i++) {
@@ -81,10 +93,23 @@ int main(int argc, char** argv) {
 		cout << "Spanning tree degree: " << solutionPrice << endl;
     }
 
-	delete graph;
+    //Celkovy cas vypoctu
+    //double dif = difftime(end, start);
+    //int h = dif/3600;
+    //int m = dif /60;
+    //int s = dif - (h * 3600) - (m * 60);
+
+    //cout << "DIFF:" << dif << "s" << endl;
+    //cout << "TIME:" << h << ":" << m << ":" << s << " input file " << argv[1] << endl;
+
+    TimeTool dif (difftime(end.time, start.time));
+    //cout << "TIME: " << dif << " input file " << argv[1] << " START:" << start <<" END:" << end << endl;
+    cout << "TIME: " << dif << " input file " << argv[1] << endl;
+
+    delete graph;
     delete solution;
-	delete result;
-	delete solver; // tady to umre
+    delete result;
+    delete solver; // tady to umre
 
     return 0;
 }
