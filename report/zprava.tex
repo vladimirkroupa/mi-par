@@ -42,7 +42,7 @@ Algoritmus terminuje buď nalezením řešení s cenou rovnou dolní mezi, nebo 
 Vstupem pro program je matice sousednosti, kde prvky jsou oddělené mezerami. Na prvním řádku před samotnou maticí je počet vrchovů grafu. Výstupem je kostra grafu a její vrchol.
 
 \begin{figure}[ht]
-\epsfysize=9cm \centerline{\epsfbox{fig/sequential.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 50$} \label{seq}
+\epsfysize=10cm \centerline{\epsfbox{fig/sequential.eps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 50$} \label{seq}
 \end{figure}
 
 \section{Popis paralelního algoritmu a jeho implementace v MPI}
@@ -84,100 +84,30 @@ Hledání dárce je realizováno algoritmem náhodné výzvy. Proces $P_{i}$ hle
 \section{Naměřené výsledky a vyhodnocení}
 
 \begin{figure}[ht]
-\epsfysize=9cm \centerline{\epsfbox{fig/parallel-35.ps}} \caption{Doba běhu paralelního algoritmu pro graf $\vert V \vert = 70, \rho = 35$} \label{seq}
+\epsfysize=10cm \centerline{\epsfbox{fig/speedup-all.eps}} \caption{Zrychlení paralelního algoritmu pro graf $\vert V \vert = 70, \rho_{1} = 35, \rho_{2} = 50, \rho_{3} = 60$} \label{seq}
 \end{figure}
 
 \begin{figure}[ht]
-\epsfysize=9cm \centerline{\epsfbox{fig/parallel-50.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 50$} \label{seq}
+\epsfysize=10cm \centerline{\epsfbox{fig/running-time.eps}} \caption{Doba běhu paralelního algoritmu pro graf $\vert V \vert = 70, \rho_{1} = 35, \rho_{2} = 50, \rho_{3} = 60$} \label{seq}
 \end{figure}
 
-\begin{figure}[ht]
-\epsfysize=9cm \centerline{\epsfbox{fig/parallel-60.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 60$} \label{seq}
-\end{figure}
+\section{Zrychlení}
+Z naměřených výsledků vidíme, že paralelní řešení vede konzistentně ke zpomalení namísto očekávaného zrychlení. Tento závěr je poměrně překvapivý. 
+\subsection{Analýza důvodů absence zrychlení}
+Vzhledem k faktu, že použitý paralelní algoritmus je lokální (nedochází k průběžné výměně ceny nejlepšího řešení mezi procesy) a zjištění, že redukce velikosti prohledávaného stavového prostoru u algoritmu spoléhá na strategii branch-and-bound, zásadní zrychlení ani nebylo možné očekávat. Stavové prostory jednolivých procesů se nepřekrývají, pokud o stavu uvažujeme jako o permutaci hran. Pokud bychom ale uvažovali stav jako kombinaci hran, zjistíme, že stavové prostory jednotlivých procesů se výrazně překrývají, dupliciy jsou zároveň ve stavovém prostory každého procesu. Nejjednodušším řešením by bylo převést algoritmus na globální, tedy sdílet aktuálně nejnižší ceny řešení mezi procesy.
 
-\begin{enumerate}
-\item Zvolte tøi instance problému s takovou velikostí vstupních dat, pro které má
-sekvenèní algoritmus èasovou složitost kolem 5, 10 a 15 minut. Pro
-meøení èas potøebný na ètení dat z disku a uložení na disk
-neuvažujte a zakomentujte ladící tisky, logy, zprávy a výstupy.
-\item Mìøte paralelní èas pøi použití $i=2,\cdot,32$ procesorù na sítích Ethernet a InfiniBand.
-\item Z namìøených dat sestavte grafy zrychlení $S(n,p)$. Zjistìte, zda a za jakych podmínek
-došlo k superlineárnímu zrychlení a pokuste se je zdùvodnit.
-\item Vyhodnoïte komunikaèní složitost dynamického vyvažování zátìže a posuïte
-vhodnost vámi implementovaného algoritmu pro hledání dárce a dìlení
-zásobníku pri øešení vašeho problému. Posuïte efektivnost a
-škálovatelnost algoritmu. Popište nedostatky vaší implementace a
-navrhnìte zlepšení.
-\item Empiricky stanovte
-granularitu vaší implementace, tj., stupeò paralelismu pro danou
-velikost øešeného problému. Stanovte kritéria pro stanovení mezí, za
-kterými již není uèinné rozkládat výpoèet na menší procesy, protože
-by komunikaèní náklady prevážily urychlení paralelním výpoètem.
+\subsection{Analýza důvodů zpomalení}
+Překvapivé je, že použité paralelní řešení je násobně pomalejší než sekvenční, přičemž s rostoucí velikostí vstupních dat a s roustoucím počtem použitých procesorů se toto zpomalení lehce amortizuje. Měření bylo prováděno s nastavením konstanty \texttt{WORK\_STEPS} na hodnotu 500. Předpokládáme, že dynamické vyvažování zátěže obsahuje chybu, která způsobuje příliš vysokou komunikační složitost. Chybu v algoritmu distribuovaného ukončení výpočtu jsme neobjevili. Jednou z poslední hypotéz byla nevhodně nastavená velikost přijímacího bufferu nastavená na konstantní vysokou hodnotu, měření opravené verze ale domněnku nepotvrdilo.
 
-\end{enumerate}
+\subsection{Granuralita}
+Je zjevné, že paralelní algoritmus v tomto stavu není vhodný k použití, jelikož nebylo naměřeno ani v jednom případě zrychlení.
 
-\section{Závìr}
+\section{Závěr}
 
-Celkové zhodnocení semestrální práce a zkušenosti získaných bìhem
-semestru.
+Implementovaný algoritmus bohužel nevede k očekávánému zrychlení. Pozitivně lze hodnotit fakt, že algoritmus je stabilní (ve všech testovaných případech vedl k řešení) a komunikační operace fungují. Získali jsme praktické zkušenosti s knihovnou MPI a poznatek, že paralelizovat algoritmus tak, aby došlo ke zrychlení, není triviální.
 
 \section{Literatura}
 
 \appendix
-
-\section{Návod pro vkládání grafù a obrázkù do Latexu}
-
-Nejjednodušší zpùsob vytvoøení obrázku je použít vektorový grafický
-editor (napø. xfig nebo jfig), ze kterého lze exportovat buï
-\begin{itemize}
-\item postscript formáty (ps nebo eps formát) nebo
-\item latex formáty (v poøadí prostý latex, latex s macry epic, eepic, eepicemu). Uvedené poøadí odpovídá rùstu
-komplikovanosti obrázkù který formát podporuje (prostá latex macra
-umožnují pouze jednoduché, epic makra nìco mezi, je tøeba
-vyzkoušet).
-
-\end{itemize}
-Následující pøíklady platí pro všechny pøípady.
-
-Obrázek v postscriptu, vycentrovaný a na celou šíøku stránky, s
-popisem a èíslem. Všimnete si, jak øídit velikost obrazku.
-%\begin{figure}[ht]
-%\epsfysize=3cm \centerline{\epsfbox{VasObrazek.eps}} \caption{Popis
-%vašeho obrazku} \label{labelvasehoobrazku}
-%\end{figure}
-
-%Obrázek pouze vložený mezi øádky textu, bez popisu a èíslování.\\
-%\epsfxsize=1cm
-%\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.eps}\hfill\rule{0pt}{0pt}
-
-Latexovské obrázky maji pøípony *.latex, *.epic, *.eepic, a
-*.eepicemu, respective.
-%\begin{figure}[ht]
-%\begin{center}
-%\input VasObrazek.latex
-%\end{center}
-%\caption{Popis vašeho obrázku} \label{l1}
-%\end{figure}
-Vypuštením závorek {\tt figure} dostanete opìt pouze rámeèek v textu
-bez èísla a popisu.
-
-Takhle jednoduše mùžete poskládat obrázky vedle sebe.
-%\begin{center}
-%\setlength{\unitlength}{0.1mm}\input VasObrazek.epic
-%\hglue 5mm
-%\setlength{\unitlength}{0.15mm}\input VasObrazek.eepic
-%\hglue 5mm
-%\setlength{\unitlength}{0.2mm}\input VasObrazek.eepicemu
-%\end{center}
-Øídit velikost latexovskych obrázkù lze pøíkazem
-\begin{verbatim}
-\setlength{\unitlength}{0.1mm}
-\end{verbatim}
-které mìní mìøítko rastru obrázku, Tyto pøíkazy je ale souèasnì
-nutné vyhodit ze souboru, který xfig vygeneroval.
-
-Pro vytváøení grafu lze použít program gnuplot, který umí generovat
-postscriptovy soubor, ktery vložíte do Latexu výše uvedeným
-zpùsobem.
 
 \end{document}
