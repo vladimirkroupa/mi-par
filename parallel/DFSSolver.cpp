@@ -34,7 +34,7 @@ DFSSolver::DFSSolver(UndirectedGraph * graph, int workSteps) {
 	MPI_Comm_size(comm, &commSize);
 	MPI_Comm_rank(comm, &rank);
 
-	srand(time(NULL) * rank);
+	srand(time(NULL) * (rank + 1));
 
 	if (MPI_DEBUG) {
 		stringstream str;
