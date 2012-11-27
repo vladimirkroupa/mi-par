@@ -41,13 +41,15 @@ Algoritmus terminuje buď nalezením řešení s cenou rovnou dolní mezi, nebo 
 
 Vstupem pro program je matice sousednosti, kde prvky jsou oddělené mezerami. Na prvním řádku před samotnou maticí je počet vrchovů grafu. Výstupem je kostra grafu a její vrchol.
 
-!! Uveïte tabulku nameøených èasù sekvenèního algoritmu pro rùznì velká data. !!!
+\begin{figure}[ht]
+\epsfysize=9cm \centerline{\epsfbox{fig/sequential.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 50$} \label{seq}
+\end{figure}
 
 \section{Popis paralelního algoritmu a jeho implementace v MPI}
 
 Paralelní algoritmus je typu L-PBB-DFS-D. Každý procesor si udržuje informaci o lokálně nejlepším řešení a pokud řešení s cenou rovnou dolní mezi neexistuje, bude prohledávat celý stavový prostor a po distribuovaném ukončení výpočtu pomocí algoritmu ADUV bude globálně nejlepší řešení získáno paralelní redukcí lokálních řešení. Existuje-li řešení s cenou rovnou dolní mezi, procesor, který jej nalezne, ukončí výpočet vysláním zprávy typu jeden-všem.
 
-Modifikace algoritmu pro paralelní zpracování je následující: Proces 0 načte matici sousednosti ze vstupního souboru. Poté rozešle ostatním procesům počet vrcholů grafu pomocí \texttt{MPI\_Bcast}. Nakonec rozešle pomocí \texttt{MPI\_Bcast} prvky matice. Proces 0 také na počátku výpočtu provede úvodní rozdělení práce ostatním procesům. Úvodní rozdělení funguje tak, že proces 0 expanduje stavy na zásobníku, dokud na zásobníku není tolik hran, kolik je procesů. ?? porovnání rychlosti běhu s dist a bez? ??
+Modifikace algoritmu pro paralelní zpracování je následující: Proces 0 načte matici sousednosti ze vstupního souboru. Poté rozešle ostatním procesům počet vrcholů grafu pomocí \texttt{MPI\_Bcast}. Nakonec rozešle pomocí \texttt{MPI\_Bcast} prvky matice. Proces 0 také na počátku výpočtu provede úvodní rozdělení práce ostatním procesům. Úvodní rozdělení funguje tak, že proces 0 expanduje stavy na zásobníku, dokud na zásobníku není tolik hran, kolik je procesů.
 
 Hlavní změna oproti sekvenčnímu algoritmu je, že hlavní smyčka nemá jako podmínku ukončení neprázdný zásobník stavů, ale výsledek volání metody \texttt{shouldTerminate()}. Tato metoda se volá pouze jednou za \texttt{WORK\_STEPS} kroků, v ostatních případech algoritmus pokračuje v hledání. Tím je omezena režie na komunikaci mezi procesy. Parametr \texttt{WORK\_STEPS} je zadán jako argument při spuštění.
 
@@ -75,20 +77,23 @@ Proces nejprve zkontroluje, da už požadavek vyslal. Pokud ne, vyšle jej a pok
 Zpráva s rozdělenou prací má následující strukturu: Nejprve je hlavička, která obsahuje velikost zasílaného zásobníku a počet hran částečné kostry (partikulární řešení). Poté následují stupně jednotlivých vrcholů kostry (ty by bylo možné místo posílání také vypočítat lokálně), hrany kostry a nakonec stavy (hrany) rozděleného zásobníku.
 
 \subsection{Dělení zásobníku, hledání dárce}
-Dělení zásobníku 
+Dělení zásobníku probíhá ode dna. Proces prochází svůj zásobník ode dna, dokud nenarazí na hranu. Když narazí na hranu, projde zásobník od vrcholu k této hraně a počítá symboly pro backtrack, na které narazil. Toto číslo je potřeba k opravě partikulárního řešení, aby odpovídalo stavu, který bude ze zásobníku poslán (tolik hran je potřeba odstranit z konce částečné kostry).
 
 Hledání dárce je realizováno algoritmem náhodné výzvy. Proces $P_{i}$ hledající práci si náhodně generuje číslo potenciálního dárce z množiny $\{1, .. ,p\}-\{i\}$. Generátor náhodných čísel je v každém procesu nainicializován aktuálním časem vynásobeným číslem procesu.
 
-Popište paralelní algoritmus, opìt vyjdìte ze zadání a pøesnì
-vymezte odchylky, zvláštì u algoritmu pro vyvažování zátìže, hledání
-dárce, ci ukonèení výpoètu.  Popište a vysvìtlete strukturu
-celkového paralelního algoritmu na úrovni procesù v MPI a strukturu
-kódu jednotlivých procesù. Napø. jak je naimplementována smyèka pro
-èinnost procesù v aktivním stavu i v stavu neèinnosti. Jaké jste
-zvolili konstanty a parametry pro škálování algoritmu. Struktura a
-sémantika pøíkazové øádky pro spouštìní programu.
+\section{Naměřené výsledky a vyhodnocení}
 
-\section{Namìøené výsledky a vyhodnocení}
+\begin{figure}[ht]
+\epsfysize=9cm \centerline{\epsfbox{fig/parallel-35.ps}} \caption{Doba běhu paralelního algoritmu pro graf $\vert V \vert = 70, \rho = 35$} \label{seq}
+\end{figure}
+
+\begin{figure}[ht]
+\epsfysize=9cm \centerline{\epsfbox{fig/parallel-50.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 50$} \label{seq}
+\end{figure}
+
+\begin{figure}[ht]
+\epsfysize=9cm \centerline{\epsfbox{fig/parallel-60.ps}} \caption{Doba běhu sekvenčního algoritmu pro graf $\vert V \vert = 70, \rho = 60$} \label{seq}
+\end{figure}
 
 \begin{enumerate}
 \item Zvolte tøi instance problému s takovou velikostí vstupních dat, pro které má
@@ -136,14 +141,14 @@ Následující pøíklady platí pro všechny pøípady.
 
 Obrázek v postscriptu, vycentrovaný a na celou šíøku stránky, s
 popisem a èíslem. Všimnete si, jak øídit velikost obrazku.
-\begin{figure}[ht]
-\epsfysize=3cm \centerline{\epsfbox{VasObrazek.eps}} \caption{Popis
-vašeho obrazku} \label{labelvasehoobrazku}
-\end{figure}
+%\begin{figure}[ht]
+%\epsfysize=3cm \centerline{\epsfbox{VasObrazek.eps}} \caption{Popis
+%vašeho obrazku} \label{labelvasehoobrazku}
+%\end{figure}
 
-Obrázek pouze vložený mezi øádky textu, bez popisu a èíslování.\\
-\epsfxsize=1cm
-\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.eps}\hfill\rule{0pt}{0pt}
+%Obrázek pouze vložený mezi øádky textu, bez popisu a èíslování.\\
+%\epsfxsize=1cm
+%\rule{0pt}{0pt}\hfill\epsfbox{VasObrazek.eps}\hfill\rule{0pt}{0pt}
 
 Latexovské obrázky maji pøípony *.latex, *.epic, *.eepic, a
 *.eepicemu, respective.
