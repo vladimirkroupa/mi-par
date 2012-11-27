@@ -90,7 +90,8 @@ private:
 
 	void initialTokenSend();
 	void sendToken(Token token);
-    void receiveToken();
+  void receiveToken();
+	int randomNode();
 	int prevNode();
 	int nextNode();
 };

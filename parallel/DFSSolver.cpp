@@ -7,6 +7,8 @@
 #include "Logger.h"
 #include <limits>
 #include <sstream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -31,6 +33,8 @@ DFSSolver::DFSSolver(UndirectedGraph * graph, int workSteps) {
 	comm = MPI_COMM_WORLD;
 	MPI_Comm_size(comm, &commSize);
 	MPI_Comm_rank(comm, &rank);
+
+	srand(time(NULL) * rank);
 
 	if (MPI_DEBUG) {
 		stringstream str;
@@ -472,9 +476,17 @@ void DFSSolver::rejectAll() {
 void DFSSolver::sendWorkRequest() {
 	int message = 0;
 	int position = 0;
-	int destination = nextNode();
+	int destination = randomNode();
 	MPI_Send(&message, position, MPI_INT, destination, WORK_REQ, comm);
 	if (MPI_DEBUG) { stringstream str; str << rank << " sent work request to " << destination << endl; Logger::log(&str); }
+}
+
+int DFSSolver::randomNode() {
+	int	dest = rank;
+	while (dest == rank) {
+		dest = rand() % commSize;
+	}
+	return dest;
 }
 
 int DFSSolver::prevNode() {
