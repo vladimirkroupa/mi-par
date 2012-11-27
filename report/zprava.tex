@@ -47,7 +47,7 @@ Vstupem pro program je matice sousednosti, kde prvky jsou oddělené mezerami. N
 
 Paralelní algoritmus je typu L-PBB-DFS-D. Každý procesor si udržuje informaci o lokálně nejlepším řešení a pokud řešení s cenou rovnou dolní mezi neexistuje, bude prohledávat celý stavový prostor a po distribuovaném ukončení výpočtu pomocí algoritmu ADUV bude globálně nejlepší řešení získáno paralelní redukcí lokálních řešení. Existuje-li řešení s cenou rovnou dolní mezi, procesor, který jej nalezne, ukončí výpočet vysláním zprávy typu jeden-všem.
 
-Modifikace algoritmu pro paralelní zpracování je následující. Proces 0 načte matici sousednosti ze vstupního souboru. Poté rozešle ostatním procesům počet vrcholů grafu pomocí \texttt{MPI\_Bcast}. Nakonec rozešle pomocí \texttt{MPI\_Bcast} prvky matice. Proces 0 také na počátku výpočtu provede úvodní rozdělení práce ostatním procesům. Úvodní rozdělení funguje tak, že proces 0 expanduje stavy na zásobníku, dokud na zásobníku není tolik hran, kolik je procesů. ?? porovnání rychlosti běhu s dist a bez? ??
+Modifikace algoritmu pro paralelní zpracování je následující: Proces 0 načte matici sousednosti ze vstupního souboru. Poté rozešle ostatním procesům počet vrcholů grafu pomocí \texttt{MPI\_Bcast}. Nakonec rozešle pomocí \texttt{MPI\_Bcast} prvky matice. Proces 0 také na počátku výpočtu provede úvodní rozdělení práce ostatním procesům. Úvodní rozdělení funguje tak, že proces 0 expanduje stavy na zásobníku, dokud na zásobníku není tolik hran, kolik je procesů. ?? porovnání rychlosti běhu s dist a bez? ??
 
 Hlavní změna oproti sekvenčnímu algoritmu je, že hlavní smyčka nemá jako podmínku ukončení neprázdný zásobník stavů, ale výsledek volání metody \texttt{shouldTerminate()}. Tato metoda se volá pouze jednou za \texttt{WORK\_STEPS} kroků, v ostatních případech algoritmus pokračuje v hledání. Tím je omezena režie na komunikaci mezi procesy. Parametr \texttt{WORK\_STEPS} je zadán jako argument při spuštění.
 
@@ -55,9 +55,29 @@ Hlavní změna oproti sekvenčnímu algoritmu je, že hlavní smyčka nemá jako
 
 Metoda \texttt{shouldTerminate()} nejdříve zkontroluje (\texttt{MPI\_Iprobe()}), zda proces nemá zprávu, požadující ukončení. Tuto zprávu vysílá proces 0 na konci distribuovaného ukončování výpočtu. Také ji vyslat jakýkoliv proces, pokud narazí na řešení s cenou rovnou dolní mezi (nejlepší možné řešení). 
 
-Pokud povel k ukončení není přítomen, proces zjistí, zda má práci, o kterou se může podělit (nejméně 2 hrany na zásobníku stavů). Pokud nemá dostatek práce, zkontroluje a přijme (\texttt{MPI\_Iprobe(), MPI\_Recv()}) požadavky na práci jemu adresované. Všem procesům od kterých přišly tyto požadavky zašle odmítnutí.
+Pokud povel k ukončení není přítomen, proces zjistí, zda má práci, o kterou se může podělit (nejméně 2 hrany na zásobníku stavů). Pokud nemá dostatek práce, zkontroluje a přijme (\texttt{MPI\_Iprobe(), MPI\_Recv()}) všechny požadavky na práci jemu adresované. Všem procesům od kterých přišly tyto požadavky zašle odmítnutí. Následně proces zkontroluje, zda má práci alespoň pro svůj vlastní běh (neprázdný zásobník). Pokud ano, metoda \texttt{shouldTerminate()} předá řízení zpět s návratovou hodnotou \texttt{false} a proces pokračuje v práci. V opačném případě (pokud proces má prázdný zásobník) proces vstoupí do režimu žádání o práci.
+ 
+Pokud má proces práci, o kterou se může podělit, zkontroluje přítomnost požadavku na práci. Pokud mu je adresován požadavek, proces rozdělí svůj zásobník a zajistí přípravu rozdělené práce pro poslání delegováním na pomocnou třídu \texttt{Packer}. Proces posléze zkontroluje, zda nemá změnit svoji barvu (ta slouží pro distribuované ukončení). Zabalenou zprávu pošle žádajícímu procesu. Nakonec dojde návratu z metody \texttt{shouldTerminate()} s hodnotou \texttt{false} a proces pokračuje v práci.
 
-!!! Hledání dárce. !!!
+Režim žádání o práci začíná tím, že proces zkontroluje, zda není jediným procesem ve skupině. Pokud ano, ukončí výpočet, žádná další práce už není. V opačném případě nejprve zkontroluje, zda mu nebyla adresován pokyn k ukončení výpočtu. Pokud ne, provede před samotnou žádostí o práci nejprve obsluhu distribuovaného ukončování.
+
+Obsluha distribuovaného ukončování probíhá následovně: Proces nejprve zkontroluje, zda mu není adresován pešek. Pokud proces peška nedostal, je zároveň procesem s číslem 0 a zatím nezahájil proces distribuovaného ukončení vysláním bílého peška, vyšle bílého peška nyní. Pokud proces peška dostal, postup se opět liší podle toho, zda je o proces 0.
+
+Proces s číslem 0 při získání peška zkontroluje, jestli je pešek bílý. Pokud ano, celé kolo distribuovaného ukončování proběhlo zdárně a proces 0 může vyslat všem procesům požadavek na ukončení. Pokud je pešek černý, jeden z procesů byl během posledního okruhu peška aktivní a ukončení nelze provést. V tomto případě se proces 0 pokusí o nové kolo ukončení vysláním bílého peška.
+
+Ostatní procesy při získání peška přebarví peška na svoji barvu a pošlou peška dále. Veškeré posílání peška probíhá v kruhu. Jakékoliv posílání peška je tedy adresováno procesu s číslem o 1 vyšším, než je číslo odesílajícího procesu, modulo počet procesů.
+
+Tím je obsluha pešků dokončena a proces vstupuje do stavu žádání o práci. Proces ve smyčce provádí následující: Protože smyčka obsahuje samé komunikační operace, je zde realizováno busy waiting, kdy se kontroluje stav inkrementujícího se čítače. Kontrolovaná hodnota odpovídá opět \texttt{WORK\_STEPS}. Proces nejprve rozešle všem procesům žádajícím o práci odmítnutí (sám žádnou práci v této fázi mít nemůže). Zkontroluje, zda mu nebyl adresován požadavek na ukončení. Pokud ano, ukončí se. Jinak obslouží pešky jako v minulém případě. Poté dojde k části řešící samotný požadavku na práci.
+
+Proces nejprve zkontroluje, da už požadavek vyslal. Pokud ne, vyšle jej a pokračuje se dalším průchodem smyčkou. Pokud ano, proces ověří, zda neobdržel zprávu se sdílenou prací. Pokud ano, nastaví velikost bufferu na \texttt{BUFFER\_SIZE} a přijme zprávu. Pomocí třídy \texttt{Packer} zprávu rozbalí. Svoje partikulární řešení nahradí obdrženým partikulárním řešením a na svůj zásobník umístí přijaté hrany.
+
+\subsection{Zpráva s rozdělenou prací}
+Zpráva s rozdělenou prací má následující strukturu: Nejprve je hlavička, která obsahuje velikost zasílaného zásobníku a počet hran částečné kostry (partikulární řešení). Poté následují stupně jednotlivých vrcholů kostry (ty by bylo možné místo posílání také vypočítat lokálně), hrany kostry a nakonec stavy (hrany) rozděleného zásobníku.
+
+\subsection{Dělení zásobníku, hledání dárce}
+Dělení zásobníku 
+
+Hledání dárce je realizováno algoritmem náhodné výzvy. Proces $P_{i}$ hledající práci si náhodně generuje číslo potenciálního dárce z množiny $\{1, .. ,p\}-\{i\}$. Generátor náhodných čísel je v každém procesu nainicializován aktuálním časem vynásobeným číslem procesu.
 
 Popište paralelní algoritmus, opìt vyjdìte ze zadání a pøesnì
 vymezte odchylky, zvláštì u algoritmu pro vyvažování zátìže, hledání
