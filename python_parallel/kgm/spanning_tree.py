@@ -1,10 +1,6 @@
-from operator import xor
-from edge import Edge
-
 class SpanningTree:
 
     def __init__(self, graphSize):
-
         self.edges = []
         self.vertex_degrees = [0] * graphSize
 

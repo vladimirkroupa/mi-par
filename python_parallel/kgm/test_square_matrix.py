@@ -17,7 +17,6 @@ class TestSquareMatrix(unittest.TestCase):
         elem = self.matrix.get(3, 3)
         self.assertTrue(elem == 1)
 
-
     def test_sizes(self):
         size = self.matrix.size()
         self.assertTrue(size == 5)
