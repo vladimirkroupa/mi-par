@@ -47,5 +47,11 @@ class TestSpanningTree(unittest.TestCase):
         actual = self.spanning_tree.__str__()
         self.assertEqual(expected, actual)
 
+    def test_duplicate_edges(self):
+        self.spanning_tree.addEdge(Edge(1, 2))
+        self.assertEqual(1, self.spanning_tree.edgeCount())
+        self.spanning_tree.addEdge(Edge(1, 2))
+        self.assertEqual(1, self.spanning_tree.edgeCount())
+
 if __name__ == '__main__':
         unittest.main()

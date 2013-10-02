@@ -1,12 +1,21 @@
 class Edge:
+    """A single edge in an undirected graph.
+    """
 
     def __init__(self, vertex1, vertex2):
+        """Creates a new edge. Order of the vertices doesn't matter.
+        :param vertex1: number of the first vertex (0 - (length of graph - 1))
+        :param vertex2: number of the second vertex1 (0 - (length of graph - 1))
+        """
         if vertex1 > vertex2:
             vertex1, vertex2 = vertex2, vertex1
         self.vertex1 = vertex1
         self.vertex2 = vertex2
 
-    def isBacktrackMarker(self,):
+    def isBacktrackMarker(self):
+        """Minimum spanning tree algorithm specific method.
+        :return: True if the edge is an instance of the backtrack market.
+        """
         return self.vertex1 == -1 and self.vertex2 == -1
 
     def __repr__(self):

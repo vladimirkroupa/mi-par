@@ -7,8 +7,7 @@ class UndirectedGraph:
     """
 
     def __init__(self, size):
-        """
-        Creates a new graph with specified number of vertices. The number of vertices is immutable..
+        """Creates a new graph with specified number of vertices. The number of vertices is immutable..
         :param size: number of vertices in the graph.
         """
         self.adj_matrix = SquareMatrix(size)
@@ -49,15 +48,16 @@ class UndirectedGraph:
         return adj_edges
 
     def edgeCandidates(self, tree):
-        """Returns a set of possible edges of this graph where each edge has one of its vertices
-        contained in the given tree and the other vertex not.
+        """Given a spanning tree, returns a set of new edge candidates for the spanning tree.
+         In other words, returns a subset of the edges of this graph where each edge has exactly one
+         of its vertices contained in the spanning tree.
 
-        :param tree: Tree UndirectedGraph instance.
-        :return:
+        :param tree: Existing spanning tree for this graph. An instance of SpanningTree.
+        :return: set of new spanning tree edge candidates.
         """
         matrix_copy = self.adj_matrix.clone()
 
-        # remove edges already in tree from adjacency matrix
+        # remove edges already present in tree from the adjacency matrix
         for edge in tree.edges:
             matrix_copy.set(edge.vertex1, edge.vertex2, False)
             matrix_copy.set(edge.vertex2, edge.vertex1, False)
