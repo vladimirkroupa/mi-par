@@ -12,7 +12,7 @@ class TestEdge(unittest.TestCase):
         self.assertEqual("(1, 2)", edge_str)
 
         edge_str_2 = self.edge2.__str__()
-        self.assertEqual("(2, 1)", edge_str_2)
+        self.assertEqual("(1, 2)", edge_str_2)
 
     def test_eq_ne(self):
         self.assertTrue(self.edge == self.edge2)
